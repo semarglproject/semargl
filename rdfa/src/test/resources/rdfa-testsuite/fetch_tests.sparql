@@ -1,0 +1,14 @@
+prefix test: <http://www.w3.org/2006/03/test-description#>
+prefix rdfatest: <http://rdfa.info/vocabs/rdfa-test#>
+
+select ?test_case ?exp_result ?descr ?input ?result {
+	?test_case a test:TestCase;
+		rdfatest:rdfaVersion !rdfa_version;
+		rdfatest:hostLanguage !host_lang;
+		test:purpose ?descr;
+		test:informationResourceInput ?input;
+		test:informationResourceResults ?result.
+	optional {
+	?test_case test:expectedResults ?exp_result;
+	}
+} order by ?input

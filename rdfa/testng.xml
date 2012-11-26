@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="RDFa parser" verbose="1">
+    <test name="RDFa Test">
+        <classes>
+            <class name="org.semarglproject.rdf.rdfa.RdfaParserTest" />
+        </classes>
+    </test>
+</suite>

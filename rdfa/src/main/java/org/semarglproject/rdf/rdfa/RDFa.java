@@ -1,0 +1,45 @@
+/*
+ * Copyright 2012 Lev Khomich
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.semarglproject.rdf.rdfa;
+
+final class RDFa {
+
+    private RDFa() {
+    }
+
+    public static final String NS = "http://www.w3.org/ns/rdfa#";
+
+    public static final String ABOUT_ATTR = "about";
+    public static final String CONTENT_ATTR = "content";
+    public static final String DATATYPE_ATTR = "datatype";
+    public static final String HREF_ATTR = "href";
+    public static final String INLIST_ATTR = "inlist";
+    public static final String PREFIX_ATTR = "prefix";
+    public static final String PROFILE_ATTR = "profile";
+    public static final String PROPERTY_ATTR = "property";
+    public static final String REL_ATTR = "rel";
+    public static final String RESOURCE_ATTR = "resource";
+    public static final String REV_ATTR = "rev";
+    public static final String SRC_ATTR = "src";
+    public static final String TYPEOF_ATTR = "typeof";
+    public static final String VOCAB_ATTR = "vocab";
+
+    public static final String WARNING = NS + "Warning";
+    public static final String ERROR = NS + "Error";
+    public static final String USES_VOCABULARY = NS + "usesVocabulary";
+
+}

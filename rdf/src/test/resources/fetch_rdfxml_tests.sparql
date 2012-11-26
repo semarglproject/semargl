@@ -1,0 +1,26 @@
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix test: <http://www.w3.org/2000/10/rdf-tests/rdfcore/testSchema#>
+		
+select * {
+{
+	?test_case a test:PositiveParserTest;
+		test:outputDocument ?result;
+		test:inputDocument ?input;
+		test:status ?status;
+		a ?type.
+	optional {?test_case test:description ?descr}
+	filter (?status != "OBSOLETE" && ?status != "NOT_APPROVED")
+	?input a test:RDF-XML-Document.
+}
+union
+{
+	?test_case a test:NegativeParserTest;
+		test:inputDocument ?input;
+		test:status ?status;
+		a ?type.
+	optional {?test_case test:description ?descr}
+	filter (?status != "OBSOLETE" && ?status != "NOT_APPROVED")
+	?input a test:RDF-XML-Document.
+}
+}order by ?input

@@ -1,0 +1,256 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.semarglproject</groupId>
+	<artifactId>semargl-parent</artifactId>
+	<version>0.2</version>
+
+	<name>Semargl: Parent Aggregator</name>
+	<packaging>pom</packaging>
+
+	<licenses>
+		<license>
+			<name>Apache Public License 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Compiler -->
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
+
+		<!-- Plugins -->
+		<version.license.plugin>1.9.0</version.license.plugin>
+		<version.checkstyle.plugin>2.9.1</version.checkstyle.plugin>
+
+		<!-- External dependencies -->
+		<version.org.testng>6.0</version.org.testng>
+		<version.org.apache.clerezza.rdf.core>0.12-incubating</version.org.apache.clerezza.rdf.core>
+		<version.org.apache.clerezza.rdf.simple.storage>0.7-incubating</version.org.apache.clerezza.rdf.simple.storage>
+		<version.org.apache.clerezza.rdf.jena.serializer>0.9-incubating</version.org.apache.clerezza.rdf.jena.serializer>
+		<version.org.apache.clerezza.rdf.jena.parser>0.10-incubating</version.org.apache.clerezza.rdf.jena.parser>
+		<version.org.apache.clerezza.rdf.jena.sparql>0.5-incubating</version.org.apache.clerezza.rdf.jena.sparql>
+		<version.com.hp.hpl.jena>2.6.4</version.com.hp.hpl.jena>
+		<version.com.hp.hpl.jena.arq>2.8.8</version.com.hp.hpl.jena.arq>
+		
+        <!-- Checkstyle configuration -->
+        <linkXRef>false</linkXRef>
+	</properties>
+
+	<modules>
+		<module>core</module>
+        <module>rdf</module>
+		<module>rdfa</module>
+		<module>integration</module>
+        <module>testutils</module>
+	</modules>
+
+	<build>
+		<plugins>
+            <!-- License Headers -->
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+            </plugin>
+
+            <!-- Checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+		</plugins>
+		
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.mycila.maven-license-plugin</groupId>
+					<artifactId>maven-license-plugin</artifactId>
+					<version>${version.license.plugin}</version>
+                    <inherited>false</inherited>
+                    <configuration>
+						<basedir>${basedir}</basedir>
+						<header>${basedir}/checkstyle/LICENSE_HEADER</header>
+                        <properties>
+                            <owner>Lev Khomich</owner>
+                            <year>2012</year>
+                        </properties>
+                        <quiet>false</quiet>
+						<failIfMissing>true</failIfMissing>
+						<aggregate>true</aggregate>
+						<strictCheck>false</strictCheck>
+						<excludes>
+                            <exclude>**/.*/**</exclude>
+                            <exclude>**/LICENSE</exclude>
+                            <exclude>**/NOTICE</exclude>
+                            <exclude>**/RELEASE_NOTES.md</exclude>
+							<exclude>**/README.md</exclude>
+                            <exclude>**/TODO**</exclude>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/checkstyle.xml</exclude>
+                            <exclude>**/pom.xml</exclude>
+                            <exclude>**/testng.xml</exclude>
+							<exclude>**/src/*/resources/**</exclude>
+						</excludes>
+						<useDefaultExcludes>true</useDefaultExcludes>
+						<useDefaultMapping>true</useDefaultMapping>
+						<encoding>UTF-8</encoding>
+					</configuration>
+					<executions>
+						<execution>
+							<id>check-headers</id>
+							<phase>package</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>${version.checkstyle.plugin}</version>
+					<configuration>
+						<configLocation>checkstyle/checkstyle.xml</configLocation>
+						<logViolationsToConsole>true</logViolationsToConsole>
+						<consoleOutput>true</consoleOutput>
+						<failsOnError>true</failsOnError>
+						<useFile/>
+					</configuration>
+					<executions>
+						<execution>
+							<id>check-style</id>
+							<phase>package</phase>
+							<goals>
+								<goal>checkstyle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				
+                <!-- This plugin's configuration is used in m2e only. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-checkstyle-plugin
+										</artifactId>
+										<versionRange>[2.5,)</versionRange>
+										<goals>
+											<goal>checkstyle</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore/>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<!-- Modules in this project -->
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-integration</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-clerezza</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-jena</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-rdf</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-rdfa</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.semarglproject</groupId>
+				<artifactId>semargl-testutils</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<!-- TestNG -->
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>${version.org.testng}</version>
+			</dependency>
+
+			<!-- Apache Clerezza -->
+			<dependency>
+				<groupId>org.apache.clerezza</groupId>
+				<artifactId>rdf.core</artifactId>
+				<version>${version.org.apache.clerezza.rdf.core}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.clerezza</groupId>
+				<artifactId>rdf.simple.storage</artifactId>
+				<version>${version.org.apache.clerezza.rdf.simple.storage}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.clerezza</groupId>
+				<artifactId>rdf.jena.serializer</artifactId>
+				<version>${version.org.apache.clerezza.rdf.jena.serializer}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.clerezza</groupId>
+				<artifactId>rdf.jena.parser</artifactId>
+				<version>${version.org.apache.clerezza.rdf.jena.parser}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.clerezza</groupId>
+				<artifactId>rdf.jena.sparql</artifactId>
+				<version>${version.org.apache.clerezza.rdf.jena.sparql}</version>
+			</dependency>
+
+			<!-- Apache Jena -->
+			<dependency>
+				<groupId>com.hp.hpl.jena</groupId>
+				<artifactId>jena</artifactId>
+				<version>${version.com.hp.hpl.jena}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.hp.hpl.jena</groupId>
+				<artifactId>arq</artifactId>
+				<version>${version.com.hp.hpl.jena.arq}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
