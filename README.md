@@ -4,7 +4,7 @@ Welcome to the home of Semargl!
 Semargl is a modular framework for crawling linked data from structured documents.
 The main goal of project is to provide lightweight and performant tool without excess dependencies.
 
-At this moment it provides streaming parsers for:
+At this moment it offers streaming parsers for:
 * RDFa 1.0 and 1.1
 * RDF/XML
 * NTriples
@@ -15,7 +15,8 @@ Why use Semargl?
 Lightweight
 -----------
 
-Semargl’s code is small (each parser is under 1k LOC) and simple to understand.
+Semargl’s code is small and simple to understand. Internally it operates with raw strings and creates
+as few objects as possible, so your Android projects will be happy.
 Hope it will never [read a mail](http://en.wikipedia.org/wiki/Zawinski's_law_of_software_envelopment).
 
 Standard-conformant
@@ -29,15 +30,15 @@ Dead Simple
 
 No jokes!
 
-// just init triple sink you want
-Model model = ModelFactory.createDefaultModel();
-TripleSink sink = new JenaTripleSink(model);
-// create processing pipe
-DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
-        .streamingTo(new RdfXmlParser()
-                .streamingTo(sink).build();
-// and run it!
-dp.process(new FileReader(file), docUri);
+    // just init triple sink you want
+    Model model = ModelFactory.createDefaultModel();
+    TripleSink sink = new JenaTripleSink(model);
+    // create processing pipe
+    DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
+            .streamingTo(new RdfXmlParser()
+                    .streamingTo(sink).build();
+    // and run it!
+    dp.process(new FileReader(file), docUri);
 
 Semargl works out of the box with Android applications and frameworks such as Apache Jena and Apache Clerezza.
 See examples dir for more info (JavaDocs coming soon).
@@ -46,8 +47,10 @@ What Semargl is not
 ===================
 
 It's not a validator of any kind.
+
 It's not a triple store (but it provides bridges to other ones).
-It's not a framework with stable API (and will be until 1.0 release).
+
+It's not a framework with stable API (and won't be until major release).
 
 Supported data formats
 ======================
@@ -69,3 +72,8 @@ NTriples
 --------
 
 Implementation covered by tests from Jena ARQ project.
+
+Build
+=====
+
+To build framework run mvn install. At some stage RDFa tests will download large dataset from rdfa.info, be patient.
