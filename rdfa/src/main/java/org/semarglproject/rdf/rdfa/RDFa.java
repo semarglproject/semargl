@@ -18,6 +18,7 @@ package org.semarglproject.rdf.rdfa;
 
 final class RDFa {
 
+
     private RDFa() {
     }
 
@@ -40,6 +41,7 @@ final class RDFa {
 
     public static final String WARNING = NS + "Warning";
     public static final String ERROR = NS + "Error";
+    public static final String PREFIX_REDEFINITION = NS + "PrefixRedefinition";
     public static final String USES_VOCABULARY = NS + "usesVocabulary";
 
 }

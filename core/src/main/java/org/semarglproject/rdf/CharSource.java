@@ -30,7 +30,9 @@ public class CharSource implements MainSource<Reader, CharSink> {
         return new DataProcessor<Reader>() {
             @Override
             void process(Reader source) throws ParseException {
+                sink.startStream();
                 sink.read(source);
+                sink.endStream();
             }
 
             @Override

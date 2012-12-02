@@ -42,6 +42,9 @@ import java.util.Stack;
 
 public final class RdfaParser implements SaxSink, TripleSource {
 
+    public static final short RDFA_10 = 0;
+    public static final short RDFA_11 = 1;
+
     private static final String BASE_IF_HEAD_OR_BODY = "bihob";
     private static final String BASE_IF_ROOT_NODE = "birn";
     private static final String PARENT_OBJECT = "poie";
@@ -74,6 +77,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
     private static final String VALUE_ATTR = "value";
     private static final String DATA_ATTR = "data";
     public static final String XML_BASE = "xml:base";
+    public static final String RDFA_1_0 = "rdfa 1.0";
 
     private TripleSink sink;
     private Stack<EvalContext> contextStack = null;
@@ -83,7 +87,10 @@ public final class RdfaParser implements SaxSink, TripleSource {
     private String xmlStringPred = null;
     private String xmlStringSubj = null;
 
-    private boolean rdfa11Mode;
+    private short defaultRdfaVersion = RDFA_11;
+    private short rdfaVersion;
+    private boolean sinkOutputGraph;
+    private boolean sinkProcessorGraph;
     private short documentFormat;
     private int nextBnodeId;
 
@@ -94,23 +101,44 @@ public final class RdfaParser implements SaxSink, TripleSource {
     private final Map<String, String> bnodeMapping = new HashMap<String, String>();
     private final Map<String, String> overwriteMappings = new HashMap<String, String>();
 
+    public RdfaParser(boolean sinkOutputGraph, boolean sinkProcessorGraph) {
+        setOutput(sinkOutputGraph, sinkProcessorGraph);
+    }
+
+    public RdfaParser() {
+        this(true, true);
+    }
+
+    public void setOutput(boolean sinkOutputGraph, boolean sinkProcessorGraph) {
+        this.sinkOutputGraph = sinkOutputGraph;
+        this.sinkProcessorGraph = sinkProcessorGraph;
+        if (sinkProcessorGraph) {
+            defaultRdfaVersion = RDFA_11;
+        }
+    }
+
+    public void setRdfaVersion(short rdfaVersion) {
+        if (rdfaVersion < RDFA_10 || rdfaVersion > RDFA_11) {
+            throw new IllegalArgumentException("Unsupported RDFa version");
+        }
+        defaultRdfaVersion = rdfaVersion;
+    }
 
     @Override
     public void startDocument() {
         contextStack = new Stack<EvalContext>();
         contextStack.push(new EvalContext(base, null, null, null));
+        rdfaVersion = defaultRdfaVersion;
         contextStack.peek().iriMappings.put("", XHTML_VOCAB);
-        rdfa11Mode = false;
         xmlString = null;
         xmlStringPred = null;
         xmlStringSubj = null;
         documentFormat = FORMAT_UNKNOWN;
-        sink.startStream();
     }
 
     private String resolvePredOrDatatype(String value, EvalContext context) throws SAXException {
         try {
-            if (rdfa11Mode) {
+            if (rdfaVersion > RDFA_10) {
                 return resolveTermOrSafeCURIEOrAbsIri(value, context);
             } else {
                 return resolveTermOrSafeCURIE(value, context);
@@ -137,12 +165,14 @@ public final class RdfaParser implements SaxSink, TripleSource {
             return null;
         }
         if (context.vocab != null && value.matches("[a-zA-Z0-9]+")) {
-            sink.addIriRef(base, RDFa.USES_VOCABULARY, context.vocab);
+            if (sinkOutputGraph) {
+                sink.addIriRef(base, RDFa.USES_VOCABULARY, context.vocab);
+            }
             return IRI.resolve(base, context.vocab + value);
         }
         if (value.indexOf(':') == -1) {
             String result = CURIE.resolveXhtmlVocabLink(value);
-            if (!rdfa11Mode) {
+            if (rdfaVersion == RDFA_10) {
                 return result;
             }
             if (result == null) {
@@ -154,7 +184,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
             return result;
         }
         try {
-            String iri = CURIE.resolve(value, context.iriMappings, rdfa11Mode);
+            String iri = CURIE.resolve(value, context.iriMappings, rdfaVersion > RDFA_10);
             if (iri == null) {
                 return null;
             }
@@ -170,7 +200,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
             String result = resolveBNode(value);
             if (result == null) {
                 try {
-                    String iri = CURIE.resolve(value, context.iriMappings, rdfa11Mode);
+                    String iri = CURIE.resolve(value, context.iriMappings, rdfaVersion > RDFA_10);
                     result = IRI.resolve(base, iri);
                 } catch (MalformedCURIEException e) {
                     warning();
@@ -237,7 +267,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
     }
 
     private void warning() {
-        if (rdfa11Mode) {
+        if (rdfaVersion > RDFA_10 && sinkProcessorGraph) {
             sink.addIriRef(createBnode(), RDF.TYPE, RDFa.WARNING);
         }
     }
@@ -261,18 +291,11 @@ public final class RdfaParser implements SaxSink, TripleSource {
         if (contextStack.size() == 1 && documentFormat == FORMAT_UNKNOWN) {
             if (localName.equals("svg")) {
                 documentFormat = FORMAT_SVG;
-                rdfa11Mode = true;
             } else if (localName.equalsIgnoreCase(HTML)) {
                 documentFormat = FORMAT_HTML4;
             } else {
                 documentFormat = FORMAT_XML;
-                rdfa11Mode = true;
             }
-        }
-
-        EvalContext parent = contextStack.peek();
-        if (parent.parsingLiteral) {
-            xmlString += XmlUtils.serializeOpenTag(nsUri, qName, parent.iriMappings, attrs, false);
         }
 
         if (contextStack.size() < 4) {
@@ -287,12 +310,17 @@ public final class RdfaParser implements SaxSink, TripleSource {
                 }
             }
             if (qName.equalsIgnoreCase(HTML) && attrs.getValue(VERSION) != null
-                    && attrs.getValue(VERSION).contains("RDFa 1.1")) {
-                rdfa11Mode = true;
+                    && attrs.getValue(VERSION).toLowerCase().contains(RDFA_1_0)) {
+                rdfaVersion = RDFA_10;
             }
         }
 
-        if (rdfa11Mode && attrs.getValue(RDFa.PREFIX_ATTR) != null) {
+        EvalContext parent = contextStack.peek();
+        if (parent.parsingLiteral) {
+            xmlString += XmlUtils.serializeOpenTag(nsUri, qName, parent.iriMappings, attrs, false);
+        }
+
+        if (rdfaVersion > RDFA_10 && attrs.getValue(RDFa.PREFIX_ATTR) != null) {
             String[] pxs = attrs.getValue(RDFa.PREFIX_ATTR).trim().split(SEPARATOR);
             for (int i = 0; i < pxs.length - 1; i += 2) {
                 if (!pxs[i].endsWith(":") || pxs[i].length() == 1) {
@@ -306,7 +334,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
         EvalContext current = parent.initChildContext(overwriteMappings);
         overwriteMappings.clear();
 
-        if (rdfa11Mode) {
+        if (rdfaVersion > RDFA_10) {
             if (attrs.getValue(RDFa.PROFILE_ATTR) != null) {
                 String newProfile = attrs.getValue(RDFa.PROFILE_ATTR) + "#";
                 if (current.profile == null) {
@@ -339,12 +367,12 @@ public final class RdfaParser implements SaxSink, TripleSource {
         boolean skipElement = false;
         String typedRes = null;
 
-        boolean skipTerms = rdfa11Mode && (documentFormat == FORMAT_HTML4 || documentFormat == FORMAT_HTML5)
+        boolean skipTerms = rdfaVersion > RDFA_10 && (documentFormat == FORMAT_HTML4 || documentFormat == FORMAT_HTML5)
                 && attrs.getValue(RDFa.PROPERTY_ATTR) != null;
         List<String> rels = convertRelRevToList(attrs.getValue(RDFa.REL_ATTR), skipTerms);
         List<String> revs = convertRelRevToList(attrs.getValue(RDFa.REV_ATTR), skipTerms);
         try {
-            if (rdfa11Mode) {
+            if (rdfaVersion > RDFA_10) {
                 if (rels == null && revs == null) {
                     if (attrs.getValue(RDFa.PROPERTY_ATTR) != null
                             && attrs.getValue(RDFa.CONTENT_ATTR) == null
@@ -420,19 +448,21 @@ public final class RdfaParser implements SaxSink, TripleSource {
                 if (iri == null) {
                     continue;
                 }
-                sink.addIriRef(typedRes, RDF.TYPE, iri);
+                if (sinkOutputGraph) {
+                    sink.addIriRef(typedRes, RDF.TYPE, iri);
+                }
             }
         }
 
         // don't fill parent list if subject was changed at this
         // or previous step by current.parentObject
-        if (rdfa11Mode && current.subject != null
+        if (rdfaVersion > RDFA_10 && current.subject != null
                 && (current.subject != parent.object || parent.object != parent.subject)) {
             current.listMapping = new HashMap<String, List<Object>>();
         }
 
         if (rels != null) {
-            if (rdfa11Mode && attrs.getValue(RDFa.INLIST_ATTR) != null) {
+            if (rdfaVersion > RDFA_10 && attrs.getValue(RDFa.INLIST_ATTR) != null) {
                 for (String predicate : rels) {
                     if (skipTerms && predicate.indexOf(':') == -1) {
                         continue;
@@ -461,7 +491,9 @@ public final class RdfaParser implements SaxSink, TripleSource {
                         continue;
                     }
                     if (current.object != null) {
-                        sink.addNonLiteral(current.subject, iri, current.object);
+                        if (sinkOutputGraph) {
+                            sink.addNonLiteral(current.subject, iri, current.object);
+                        }
                     } else {
                         current.incomplTriples.add(FORWARD + iri);
                     }
@@ -475,7 +507,9 @@ public final class RdfaParser implements SaxSink, TripleSource {
                     continue;
                 }
                 if (current.object != null) {
-                    sink.addNonLiteral(current.object, iri, current.subject);
+                    if (sinkOutputGraph) {
+                        sink.addNonLiteral(current.object, iri, current.subject);
+                    }
                 } else {
                     current.incomplTriples.add(REVERSE + iri);
                 }
@@ -519,7 +553,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                 } else {
                     current.objectLitDt = dt;
                 }
-            } else if (rdfa11Mode) {
+            } else if (rdfaVersion > RDFA_10) {
                 if (datatype != null) {
                     if (datatype.length() == 0) {
                         if (content != null) {
@@ -579,7 +613,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                     continue;
                 }
                 if (propValueLit != null || propValueNonLit != null) {
-                    if (rdfa11Mode && attrs.getValue(RDFa.INLIST_ATTR) != null) {
+                    if (rdfaVersion > RDFA_10 && attrs.getValue(RDFa.INLIST_ATTR) != null) {
                         if (!current.listMapping.containsKey(iri)) {
                             current.listMapping.put(iri, new ArrayList<Object>());
                         }
@@ -592,12 +626,12 @@ public final class RdfaParser implements SaxSink, TripleSource {
                     } else {
                         if (propValueLit != null) {
                             addLiteralTriple(sink, current.subject, iri, propValueLit);
-                        } else {
+                        } else if (sinkOutputGraph) {
                             sink.addNonLiteral(current.subject, iri, propValueNonLit);
                         }
                     }
                 } else if (current.properties == null) {
-                    if (rdfa11Mode && attrs.getValue(RDFa.INLIST_ATTR) != null) {
+                    if (rdfaVersion > RDFA_10 && attrs.getValue(RDFa.INLIST_ATTR) != null) {
                         current.properties = RDFa.INLIST_ATTR + " " + iri;
                     } else {
                         current.properties = iri;
@@ -617,11 +651,13 @@ public final class RdfaParser implements SaxSink, TripleSource {
             String subj = parent.subject;
             for (Object obj : incompl) {
                 if (obj instanceof String) {
-                    String pred = (String) obj;
-                    if (pred.startsWith(FORWARD)) {
-                        sink.addNonLiteral(subj, pred.substring(PREFIX_LENGTH), current.subject);
-                    } else {
-                        sink.addNonLiteral(current.subject, pred.substring(PREFIX_LENGTH), subj);
+                    if (sinkOutputGraph) {
+                        String pred = (String) obj;
+                        if (pred.startsWith(FORWARD)) {
+                            sink.addNonLiteral(subj, pred.substring(PREFIX_LENGTH), current.subject);
+                        } else {
+                            sink.addNonLiteral(current.subject, pred.substring(PREFIX_LENGTH), subj);
+                        }
                     }
                 } else {
                     @SuppressWarnings("unchecked")
@@ -636,7 +672,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
         if (!recurse) {
             xmlString = "";
             xmlStringPred = current.properties;
-            xmlStringSubj = current.subject;
+            xmlStringSubj = current.subject == null ? parent.subject : current.subject;
         }
         if (!recurse || skipElement) {
             current.subject = parent.subject;
@@ -741,13 +777,15 @@ public final class RdfaParser implements SaxSink, TripleSource {
         EvalContext current = contextStack.pop();
 
         if (current.parsingLiteral && xmlString != null) {
-            if (!rdfa11Mode && !xmlString.contains("<")) {
-                for (String pred : xmlStringPred.split(SEPARATOR)) {
-                    sink.addPlainLiteral(xmlStringSubj, pred, xmlString, current.lang);
-                }
-            } else {
-                for (String pred : xmlStringPred.split(SEPARATOR)) {
-                    sink.addTypedLiteral(xmlStringSubj, pred, xmlString, RDF.XML_LITERAL);
+            if (sinkOutputGraph) {
+                if (rdfaVersion == RDFA_10 && !xmlString.contains("<")) {
+                    for (String pred : xmlStringPred.split(SEPARATOR)) {
+                        sink.addPlainLiteral(xmlStringSubj, pred, xmlString, current.lang);  // TODO: RDFa 1.0 case 212
+                    }
+                } else {
+                    for (String pred : xmlStringPred.split(SEPARATOR)) {
+                        sink.addTypedLiteral(xmlStringSubj, pred, xmlString, RDF.XML_LITERAL);
+                    }
                 }
             }
             xmlString = null;
@@ -787,7 +825,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                         }
                         current.listMapping.get(predIri).add(currObjectLit);
                     }
-                } else {
+                } else if (sinkOutputGraph) {
                     if (dt.isEmpty()) {// plain
                         for (String predIri : current.properties.split(SEPARATOR)) {
                             sink.addPlainLiteral(current.subject, predIri, content, current.lang);
@@ -811,35 +849,39 @@ public final class RdfaParser implements SaxSink, TripleSource {
         }
 
         Map<String, List<Object>> list = current.listMapping;
-        for (String pred : list.keySet()) {
-            String prev = null;
-            String start = null;
-            for (Object res : list.get(pred)) {
-                String child = createBnode();
-                if (res instanceof LiteralNode) {
-                    addLiteralTriple(sink, child, RDF.FIRST, (LiteralNode) res);
-                } else {
-                    sink.addNonLiteral(child, RDF.FIRST, (String) res);
+        if (sinkOutputGraph) {
+            for (String pred : list.keySet()) {
+                String prev = null;
+                String start = null;
+                for (Object res : list.get(pred)) {
+                    String child = createBnode();
+                    if (res instanceof LiteralNode) {
+                        addLiteralTriple(sink, child, RDF.FIRST, (LiteralNode) res);
+                    } else {
+                        sink.addNonLiteral(child, RDF.FIRST, (String) res);
+                    }
+                    if (prev == null) {
+                        start = child;
+                    } else {
+                        sink.addNonLiteral(prev, RDF.REST, child);
+                    }
+                    prev = child;
                 }
-                if (prev == null) {
-                    start = child;
+                if (start == null) {
+                    sink.addIriRef(current.subject, pred, RDF.NIL);
                 } else {
-                    sink.addNonLiteral(prev, RDF.REST, child);
+                    sink.addIriRef(prev, RDF.REST, RDF.NIL);
+                    sink.addNonLiteral(current.subject, pred, start);
                 }
-                prev = child;
+                list.remove(pred);
             }
-            if (start == null) {
-                sink.addIriRef(current.subject, pred, RDF.NIL);
-            } else {
-                sink.addIriRef(prev, RDF.REST, RDF.NIL);
-                sink.addNonLiteral(current.subject, pred, start);
-            }
-            list.remove(pred);
+        } else {
+            list.clear();
         }
     }
 
     private String createBnode() {
-        return RDF.BNODE_PREFIX + nextBnodeId++;
+        return RDF.BNODE_PREFIX + 'n' + nextBnodeId++;
     }
 
     @Override
@@ -867,13 +909,15 @@ public final class RdfaParser implements SaxSink, TripleSource {
         if (prefix.length() == 0 && XHTML_DEFAULT_XMLNS.equalsIgnoreCase(uri)) {
             overwriteMappings.put(prefix, XHTML_VOCAB);
         } else {
+            if (rdfaVersion > RDFA_10 && sinkProcessorGraph && CURIE.KNOWN_PREFIXES.containsKey(prefix)) {
+                sink.addIriRef("_:err" + base.hashCode(), RDF.TYPE, RDFa.PREFIX_REDEFINITION);
+            }
             overwriteMappings.put(prefix, uri);
         }
     }
 
     @Override
     public void endDocument() throws SAXException {
-        sink.endStream();
     }
 
     @Override
@@ -907,18 +951,16 @@ public final class RdfaParser implements SaxSink, TripleSource {
         if (s1 == null) {
             if (HTML.equalsIgnoreCase(s)) {
                 documentFormat = FORMAT_HTML5;
-                rdfa11Mode = true;
             }
         } else {
             s1 = s1.toLowerCase();
             if (s1.contains(HTML)) {
                 documentFormat = FORMAT_HTML4;
             }
-            if (s1.contains("rdfa 1.1")) {
-                rdfa11Mode = true;
+            if (s1.contains(RDFA_1_0)) {
+                rdfaVersion = RDFA_10;
             }
         }
-
     }
 
     @Override
@@ -946,6 +988,16 @@ public final class RdfaParser implements SaxSink, TripleSource {
     }
 
     @Override
+    public void startStream() {
+        sink.startStream();
+    }
+
+    @Override
+    public void endStream() {
+        sink.endStream();
+    }
+
+    @Override
     public void setBaseUri(String baseUri) {
         base = baseUri;
     }
@@ -958,8 +1010,8 @@ public final class RdfaParser implements SaxSink, TripleSource {
 
     @Override
     public ParseException processException(SAXException e) {
-        if (rdfa11Mode) {
-            sink.addIriRef("_:z" + base.hashCode(), RDF.TYPE, RDFa.ERROR);  // TODO: replace z
+        if (rdfaVersion > RDFA_10 && sinkProcessorGraph) {
+            sink.addIriRef("_:err" + base.hashCode(), RDF.TYPE, RDFa.ERROR);  // TODO: replace z
         }
         Throwable cause = e.getCause();
         if (cause instanceof ParseException) {
@@ -1014,11 +1066,11 @@ public final class RdfaParser implements SaxSink, TripleSource {
         }
 
         void updateBase(String oldBase, String base) {
-            if (object == null) {
-                return;
-            }
-            if (object.equals(oldBase)) {
+            if (object != null && object.equals(oldBase)) {
                 object = base;
+            }
+            if (subject != null && subject.equals(oldBase)) {
+                subject = base;
             }
         }
 

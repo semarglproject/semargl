@@ -429,12 +429,10 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         baseStack.push(baseUri);
         langStack.push(null);
         captureLiteral = false;
-        sink.startStream();
     }
 
     @Override
     public void endDocument() throws SAXException {
-        sink.endStream();
         langStack.clear();
         baseStack.clear();
         subjStack.clear();
@@ -484,6 +482,16 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         } else {
             this.baseUri = baseUri == null ? "" : baseUri;
         }
+    }
+
+    @Override
+    public void startStream() {
+        sink.startStream();
+    }
+
+    @Override
+    public void endStream() {
+        sink.endStream();
     }
 
     @Override

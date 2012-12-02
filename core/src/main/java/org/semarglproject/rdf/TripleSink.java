@@ -26,8 +26,4 @@ public interface TripleSink extends DataSink {
 
     void addTypedLiteral(String subj, String pred, String content, String type);
 
-    void startStream();
-
-    void endStream();
-
 }

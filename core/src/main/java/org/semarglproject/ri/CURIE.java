@@ -24,7 +24,7 @@ public final class CURIE {
     private static final String XHTML_VOCAB = "http://www.w3.org/1999/xhtml/vocab#";
     private static final String POWDER_VOCAB = "http://www.w3.org/2007/05/powder-s#";
 
-    private static final Map<String, String> KNOWN_PREFIXES = new HashMap<String, String>();
+    public static final Map<String, String> KNOWN_PREFIXES = new HashMap<String, String>();
 
     static {
         KNOWN_PREFIXES.put("dc", "http://purl.org/dc/terms/");

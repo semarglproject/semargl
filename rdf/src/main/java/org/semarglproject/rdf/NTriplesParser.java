@@ -251,4 +251,14 @@ public final class NTriplesParser implements CharSink, TripleSource {
         return this;
     }
 
+    @Override
+    public void startStream() {
+        sink.startStream();
+    }
+
+    @Override
+    public void endStream() {
+        sink.endStream();
+    }
+
 }

@@ -18,4 +18,8 @@ package org.semarglproject.rdf;
 
 interface DataSink {
     void setBaseUri(String baseUri);
+
+    void startStream();
+
+    void endStream();
 }

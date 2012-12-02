@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.semarglproject</groupId>
             <artifactId>semargl-jena</artifactId>
         </dependency>
         <dependency>
@@ -42,5 +46,20 @@
             <groupId>org.apache.clerezza</groupId>
             <artifactId>rdf.jena.parser</artifactId>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>7.1.4.v20100610</version>
+        </dependency>
+    </dependencies>
 </project>

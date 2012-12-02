@@ -47,6 +47,7 @@ public class SaxSource implements MainSource<Reader, SaxSink> {
                 }
                 try {
                     streamFinished = false;
+                    sink.startStream();
                     xmlReader.parse(new InputSource(source));
                     streamFinished = true;
                 } catch (SAXException e) {
@@ -56,7 +57,10 @@ public class SaxSource implements MainSource<Reader, SaxSink> {
                 } catch (IOException e) {
                     streamFinished = true;
                     throw new ParseException(e);
+                } finally {
+                    sink.endStream();
                 }
+
             }
 
             @Override

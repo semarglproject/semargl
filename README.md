@@ -15,9 +15,8 @@ Why use Semargl?
 Lightweight
 -----------
 
-Semargl’s code is small and simple to understand. Internally it operates with raw strings and creates
-as few objects as possible, so your Android projects will be happy.
-Hope it will never [read a mail](http://en.wikipedia.org/wiki/Zawinski's_law_of_software_envelopment).
+Semargl’s code is small and simple to understand. It will never [read a mail](http://en.wikipedia.org/wiki/Zawinski's_law_of_software_envelopment).
+Internally it operates with raw strings and creates as few objects as possible, so your Android projects will be happy.
 
 Standard-conformant
 -------------------
@@ -65,8 +64,8 @@ RDFa
 ----
 
 RDFa parser currently passes all RDFa 1.0 and 1.1 [conformance](http://rdfa.info/test-suite/) tests for
-all document formats. Also, you shouldn't worry about specifying document format because auto-detection works
-out-of-the-box.
+all document formats. Document format detection works out-of-the-box, so you shouldn't worry about specifying
+document format. RDFa version detection is also present with default version 1.1.
 
 NTriples
 --------
