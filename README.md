@@ -9,6 +9,8 @@ At this moment it offers streaming parsers for:
 * RDF/XML
 * NTriples
 
+For more information you can visit [project homepage](http://semarglproject.org), or try [demo](http://demo.semarglproject.org).
+
 Why use Semargl?
 ================
 
@@ -16,7 +18,7 @@ Lightweight
 -----------
 
 Semargl’s code is small and simple to understand. It will never [read a mail](http://en.wikipedia.org/wiki/Zawinski's_law_of_software_envelopment).
-Internally it operates with raw strings and creates as few objects as possible, so your Android projects will be happy.
+Internally it operates with raw strings and creates as few objects as possible, so your Android or GAE projects will be happy.
 
 Standard-conformant
 -------------------
