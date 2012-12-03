@@ -51,5 +51,10 @@
             <artifactId>jetty-server</artifactId>
             <version>7.1.4.v20100610</version>
         </dependency>
+        <dependency>
+            <groupId>org.ccil.cowan.tagsoup</groupId>
+            <artifactId>tagsoup</artifactId>
+            <version>1.2.1</version>
+        </dependency>
     </dependencies>
 </project>
