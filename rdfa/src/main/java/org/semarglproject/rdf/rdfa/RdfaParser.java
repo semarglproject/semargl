@@ -171,14 +171,14 @@ public final class RdfaParser implements SaxSink, TripleSource {
             return IRI.resolve(base, context.vocab + value);
         }
         if (value.indexOf(':') == -1) {
-            String result = CURIE.resolveXhtmlVocabLink(value);
+            String result = CURIE.resolveXhtmlTerm(value);
             if (rdfaVersion == RDFA_10) {
                 return result;
             }
             if (result == null) {
-                result = CURIE.resolvePowderVocabLink(value);
+                result = CURIE.resolvePowderTerm(value);
                 if (result == null) {
-                    warning();
+                    warning(RDFa.UNRESOLVED_TERM);
                 }
             }
             return result;
@@ -190,7 +190,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
             }
             return IRI.resolve(base, iri);
         } catch (MalformedCURIEException e) {
-            warning();
+            warning(RDFa.UNRESOLVED_CURIE);
             return null;
         }
     }
@@ -203,7 +203,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                     String iri = CURIE.resolve(value, context.iriMappings, rdfaVersion > RDFA_10);
                     result = IRI.resolve(base, iri);
                 } catch (MalformedCURIEException e) {
-                    warning();
+                    warning(RDFa.UNRESOLVED_CURIE);
                 }
             }
             if (result == null) {
@@ -266,9 +266,9 @@ public final class RdfaParser implements SaxSink, TripleSource {
         return null;
     }
 
-    private void warning() {
+    private void warning(String warningClass) {
         if (rdfaVersion > RDFA_10 && sinkProcessorGraph) {
-            sink.addIriRef(createBnode(), RDF.TYPE, RDFa.WARNING);
+            sink.addIriRef(createBnode(), RDF.TYPE, warningClass);
         }
     }
 
@@ -437,7 +437,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                 typedRes = current.subject;
             }
         } catch (ParseException e) {
-            warning();
+            warning(RDFa.WARNING);
             saveCurrentContext(current, parent);
             return;
         }
@@ -576,7 +576,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                             propValueNonLit = coalesce(qName, attrs, parent, current,
                                     RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
                         } catch (ParseException e) {
-                            warning();
+                            warning(RDFa.WARNING);
                             saveCurrentContext(current, parent);
                             return;
                         }
@@ -909,8 +909,8 @@ public final class RdfaParser implements SaxSink, TripleSource {
         if (prefix.length() == 0 && XHTML_DEFAULT_XMLNS.equalsIgnoreCase(uri)) {
             overwriteMappings.put(prefix, XHTML_VOCAB);
         } else {
-            if (rdfaVersion > RDFA_10 && sinkProcessorGraph && CURIE.KNOWN_PREFIXES.containsKey(prefix)) {
-                sink.addIriRef("_:err" + base.hashCode(), RDF.TYPE, RDFa.PREFIX_REDEFINITION);
+            if (CURIE.INITIAL_CONTEXT.containsKey(prefix) && !CURIE.INITIAL_CONTEXT.get(prefix).equals(uri)) {
+                warning(RDFa.PREFIX_REDEFINITION);
             }
             overwriteMappings.put(prefix, uri);
         }
@@ -1011,7 +1011,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
     @Override
     public ParseException processException(SAXException e) {
         if (rdfaVersion > RDFA_10 && sinkProcessorGraph) {
-            sink.addIriRef("_:err" + base.hashCode(), RDF.TYPE, RDFa.ERROR);  // TODO: replace z
+            sink.addIriRef(createBnode(), RDF.TYPE, RDFa.ERROR);
         }
         Throwable cause = e.getCause();
         if (cause instanceof ParseException) {

@@ -17,14 +17,11 @@
 package org.semarglproject.rdf;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-public final class TurtleStreamSink implements TripleSink {
+public final class TurtleSerializerSink implements TripleSink {
 
     private Writer writer;
-    private OutputStream stream;
 
     private StringBuilder startTriple(String subj, String pred) {
         StringBuilder builder = new StringBuilder();
@@ -93,10 +90,9 @@ public final class TurtleStreamSink implements TripleSink {
 
     @Override
     public void startStream() {
-        if (stream == null) {
-            throw new IllegalStateException("No stream specified");
+        if (writer == null) {
+            throw new IllegalStateException("No writer specified");
         }
-        writer = new OutputStreamWriter(stream);
     }
 
     @Override
@@ -104,8 +100,6 @@ public final class TurtleStreamSink implements TripleSink {
         try {
             writer.write("\n");
             writer.flush();
-            writer.close();
-            writer = null;
         } catch (IOException e) {
         }
     }
@@ -114,7 +108,7 @@ public final class TurtleStreamSink implements TripleSink {
     public void setBaseUri(String baseUri) {
     }
 
-    public void setStream(OutputStream stream) {
-        this.stream = stream;
+    public void setWriter(Writer writer) {
+        this.writer = writer;
     }
 }

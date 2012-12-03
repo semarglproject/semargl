@@ -40,8 +40,10 @@ final class RDFa {
     public static final String VOCAB_ATTR = "vocab";
 
     public static final String WARNING = NS + "Warning";
-    public static final String ERROR = NS + "Error";
     public static final String PREFIX_REDEFINITION = NS + "PrefixRedefinition";
+    public static final String UNRESOLVED_CURIE = NS + "UnresolvedCURIE";
+    public static final String UNRESOLVED_TERM = NS + "UnresolvedTerm";
+    public static final String ERROR = NS + "Error";
     public static final String USES_VOCABULARY = NS + "usesVocabulary";
 
 }

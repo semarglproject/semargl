@@ -22,7 +22,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
-import org.semarglproject.rdf.TurtleStreamSink;
+import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -36,10 +36,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
-public class RdfaProcessorWebService extends AbstractHandler {
+public class RdfaProcessorEndpoint extends AbstractHandler {
 
     DataProcessor<Reader> dp;
-    TurtleStreamSink ts = new TurtleStreamSink();
+    TurtleSerializerSink ts = new TurtleSerializerSink();
     RdfaParser rdfaParser = new RdfaParser().streamingTo(ts);
 
     {
@@ -53,7 +53,7 @@ public class RdfaProcessorWebService extends AbstractHandler {
 
     public static void main(String[] args) throws Exception {
         Server server = new Server(8080);
-        server.setHandler(new RdfaProcessorWebService());
+        server.setHandler(new RdfaProcessorEndpoint());
         server.start();
         server.join();
     }
@@ -68,7 +68,7 @@ public class RdfaProcessorWebService extends AbstractHandler {
             return;
         }
 
-        // parameter name specified by RDFa Core 1.1 par. 7.6.1
+        // parameter name specified by RDFa Core 1.1 section 7.6.1
         String rdfaGraph = request.getParameter("rdfagraph");
         boolean sinkOutputGraph = false;
         boolean sinkProcessorGraph = false;
@@ -98,12 +98,11 @@ public class RdfaProcessorWebService extends AbstractHandler {
         URL url = new URL(uri);
         Reader reader = new InputStreamReader(url.openStream());
 
-        ts.setStream(response.getOutputStream());
-        response.setContentType("text/turtle;charset=utf-8");
+        response.setContentType("text/turtle; charset=UTF-8");
+        ts.setWriter(response.getWriter());
         try {
             dp.process(reader, uri);
         } catch (ParseException e) {
-            e.printStackTrace(System.out);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             baseRequest.setHandled(false);
             return;

@@ -29,15 +29,17 @@ Dead Simple
 
 No jokes!
 
-    // just init triple sink you want
-    Model model = ModelFactory.createDefaultModel();
-    TripleSink sink = new JenaTripleSink(model);
-    // create processing pipe
-    DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
-            .streamingTo(new RdfXmlParser()
-                    .streamingTo(sink).build();
-    // and run it!
-    dp.process(new FileReader(file), docUri);
+```java
+// just init triple sink you want
+Model model = ModelFactory.createDefaultModel();
+TripleSink sink = new JenaTripleSink(model);
+// create processing pipe
+DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
+        .streamingTo(new RdfXmlParser()
+                .streamingTo(sink).build();
+// and run it!
+dp.process(new FileReader(file), docUri);
+```
 
 Semargl works out of the box with Android applications and frameworks such as Apache Jena and Apache Clerezza.
 See examples dir for more info (JavaDocs coming soon).
