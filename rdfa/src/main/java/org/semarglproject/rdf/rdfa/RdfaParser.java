@@ -182,9 +182,6 @@ public final class RdfaParser implements SaxSink, TripleSource {
         }
         try {
             String iri = CURIE.resolve(value, context.iriMappings, rdfaVersion > RDFA_10);
-            if (iri == null) {
-                return null;
-            }
             return IRI.resolve(base, iri);
         } catch (MalformedCURIEException e) {
             warning(RDFa.UNRESOLVED_CURIE);
@@ -285,31 +282,8 @@ public final class RdfaParser implements SaxSink, TripleSource {
             return;
         }
 
-        if (contextStack.size() == 1 && documentFormat == FORMAT_UNKNOWN) {
-            if (localName.equals("svg")) {
-                documentFormat = FORMAT_SVG;
-            } else if (localName.equalsIgnoreCase(HTML)) {
-                documentFormat = FORMAT_HTML4;
-            } else {
-                documentFormat = FORMAT_XML;
-            }
-        }
-
         if (contextStack.size() < 4) {
-            boolean xmlBaseF = (documentFormat == FORMAT_XML || documentFormat == FORMAT_SVG)
-                    && attrs.getValue(XML_BASE) != null;
-            if (xmlBaseF || qName.equalsIgnoreCase(BASE) && attrs.getValue(RDFa.HREF_ATTR) != null) {
-                String oldBase = base;
-                base = xmlBaseF ? attrs.getValue(XML_BASE) : attrs.getValue(RDFa.HREF_ATTR);
-                base = base.replaceAll("#.*", "");
-                for (EvalContext ctx : contextStack) {
-                    ctx.updateBase(oldBase, base);
-                }
-            }
-            if (qName.equalsIgnoreCase(HTML) && attrs.getValue(VERSION) != null
-                    && attrs.getValue(VERSION).toLowerCase().contains(RDFA_1_0)) {
-                rdfaVersion = RDFA_10;
-            }
+            detectBaseAndFormat(localName, qName, attrs);
         }
 
         EvalContext parent = contextStack.peek();
@@ -328,6 +302,24 @@ public final class RdfaParser implements SaxSink, TripleSource {
             }
         }
 
+        EvalContext current = initElementProfile(qName, attrs, parent);
+
+        boolean skipTerms = rdfaVersion > RDFA_10 && (documentFormat == FORMAT_HTML4 || documentFormat == FORMAT_HTML5)
+                && attrs.getValue(RDFa.PROPERTY_ATTR) != null;
+        List<String> rels = convertRelRevToList(attrs.getValue(RDFa.REL_ATTR), skipTerms);
+        List<String> revs = convertRelRevToList(attrs.getValue(RDFa.REV_ATTR), skipTerms);
+        boolean noRelsAndRevs = rels == null && revs == null;
+
+        boolean skipElement = findSubjectAndObject(qName, attrs, noRelsAndRevs, current, parent);
+
+        processRelsAndRevs(attrs, rels, revs, current, parent, skipTerms);
+
+        boolean recurse = processPropertyAttr(qName, attrs, noRelsAndRevs, current, parent);
+
+        pushContext(current, parent, skipElement, recurse);
+    }
+
+    private EvalContext initElementProfile(String qName, Attributes attrs, EvalContext parent) {
         EvalContext current = parent.initChildContext(overwriteMappings);
         overwriteMappings.clear();
 
@@ -361,98 +353,80 @@ public final class RdfaParser implements SaxSink, TripleSource {
         if (current.lang != null && current.lang.length() == 0) {
             current.lang = null;
         }
+        return current;
+    }
 
-        boolean recurse = true;
-        boolean skipElement = false;
-        String typedRes = null;
-
-        boolean skipTerms = rdfaVersion > RDFA_10 && (documentFormat == FORMAT_HTML4 || documentFormat == FORMAT_HTML5)
-                && attrs.getValue(RDFa.PROPERTY_ATTR) != null;
-        List<String> rels = convertRelRevToList(attrs.getValue(RDFa.REL_ATTR), skipTerms);
-        List<String> revs = convertRelRevToList(attrs.getValue(RDFa.REV_ATTR), skipTerms);
-        try {
-            if (rdfaVersion > RDFA_10) {
-                if (rels == null && revs == null) {
-                    if (attrs.getValue(RDFa.PROPERTY_ATTR) != null
-                            && attrs.getValue(RDFa.CONTENT_ATTR) == null
-                            && attrs.getValue(VALUE_ATTR) == null
-                            && attrs.getValue(RDFa.DATATYPE_ATTR) == null) {
-                        current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
-                                BASE_IF_ROOT_NODE, PARENT_OBJECT);
-
-                        if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-                            typedRes = coalesce(qName, attrs, parent, current,
-                                    RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
-                            if (typedRes == null) {
-                                if (current.subject != null) {
-                                    typedRes = current.subject;
-                                } else {
-                                    typedRes = createBnode();
-                                }
-                            }
-                            current.object = typedRes;
-                        }
-                    } else {
-                        current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
-                                RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR, BASE_IF_ROOT_NODE,
-                                BNODE_IF_TYPEOF, PARENT_OBJECT);
-                        if (current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null) {
-                            skipElement = true;
-                        }
-                        if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-                            typedRes = current.subject;
-                        }
-                    }
-                } else {
-                    current.object = coalesce(qName, attrs, parent, current, RDFa.RESOURCE_ATTR, DATA_ATTR,
-                            RDFa.HREF_ATTR, RDFa.SRC_ATTR);
-                    current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
-                            BASE_IF_ROOT_NODE, PARENT_OBJECT, PARENT_OBJECT);
-                    if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-                        if (attrs.getValue(RDFa.ABOUT_ATTR) != null) {
-                            typedRes = current.subject;
+    private void pushContext(EvalContext current, EvalContext parent, boolean skipElement, boolean recurse) {
+        current.parsingLiteral = !recurse;
+        if (!skipElement && current.subject != null) {
+            List<Object> incompl = parent.incomplTriples;
+            String subj = parent.subject;
+            for (Object obj : incompl) {
+                if (obj instanceof String) {
+                    if (sinkOutputGraph) {
+                        String pred = (String) obj;
+                        if (pred.startsWith(FORWARD)) {
+                            sink.addNonLiteral(subj, pred.substring(PREFIX_LENGTH), current.subject);
                         } else {
-                            if (current.object == null) {
-                                current.object = createBnode();
-                            }
-                            typedRes = current.object;
+                            sink.addNonLiteral(current.subject, pred.substring(PREFIX_LENGTH), subj);
                         }
                     }
-                }
-            } else {
-                if (rels == null && revs == null) {
-                    current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
-                            RDFa.SRC_ATTR, RDFa.RESOURCE_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR,
-                            BASE_IF_HEAD_OR_BODY, BNODE_IF_TYPEOF, PARENT_OBJECT);
-                    if (current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null) {
-                        skipElement = true;
-                    }
                 } else {
-                    current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
-                            RDFa.SRC_ATTR, BASE_IF_HEAD_OR_BODY, BNODE_IF_TYPEOF, PARENT_OBJECT);
-                    current.object = coalesce(qName, attrs, parent, current, RDFa.RESOURCE_ATTR,
-                            RDFa.HREF_ATTR);
+                    @SuppressWarnings("unchecked")
+                    List<Object> list = (List<Object>) obj;
+                    list.add(current.subject);
                 }
-                typedRes = current.subject;
             }
-        } catch (ParseException e) {
-            warning(RDFa.WARNING);
+        }
+        if (current.parsingLiteral) {
+            xmlString = "";
+            xmlStringPred = current.properties;
+            xmlStringSubj = current.subject == null ? parent.subject : current.subject;
+        }
+        if (current.parsingLiteral || skipElement) {
+            current.subject = parent.subject;
+            current.object = parent.object;
+            current.incomplTriples = parent.incomplTriples;
+            current.objectLit = null;
+            current.objectLitDt = parent.objectLitDt;
+            if (current.objectLitDt != null) {
+                current.objectLit = "";
+            }
+            current.properties = null;
+            contextStack.push(current);
+        } else {
             saveCurrentContext(current, parent);
-            return;
         }
+    }
 
-        if (typedRes != null && attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-            for (String type : attrs.getValue(RDFa.TYPEOF_ATTR).split(SEPARATOR)) {
-                String iri = resolvePredOrDatatype(type, current);
-                if (iri == null) {
-                    continue;
-                }
-                if (sinkOutputGraph) {
-                    sink.addIriRef(typedRes, RDF.TYPE, iri);
-                }
+    private void detectBaseAndFormat(String localName, String qName, Attributes attrs) {
+        if (documentFormat == FORMAT_UNKNOWN) {
+            if (localName.equals("svg")) {
+                documentFormat = FORMAT_SVG;
+            } else if (localName.equalsIgnoreCase(HTML)) {
+                documentFormat = FORMAT_HTML4;
+            } else {
+                documentFormat = FORMAT_XML;
             }
         }
 
+        boolean xmlBaseF = (documentFormat == FORMAT_XML || documentFormat == FORMAT_SVG)
+                && attrs.getValue(XML_BASE) != null;
+        if (xmlBaseF || qName.equalsIgnoreCase(BASE) && attrs.getValue(RDFa.HREF_ATTR) != null) {
+            String oldBase = base;
+            base = xmlBaseF ? attrs.getValue(XML_BASE) : attrs.getValue(RDFa.HREF_ATTR);
+            base = base.replaceAll("#.*", "");
+            for (EvalContext ctx : contextStack) {
+                ctx.updateBase(oldBase, base);
+            }
+        }
+        if (qName.equalsIgnoreCase(HTML) && attrs.getValue(VERSION) != null
+                && attrs.getValue(VERSION).toLowerCase().contains(RDFA_1_0)) {
+            rdfaVersion = RDFA_10;
+        }
+    }
+
+    private void processRelsAndRevs(Attributes attrs, List<String> rels, List<String> revs, EvalContext current, EvalContext parent, boolean skipTerms) throws SAXException {
         // don't fill parent list if subject was changed at this
         // or previous step by current.parentObject
         if (rdfaVersion > RDFA_10 && current.subject != null
@@ -518,6 +492,10 @@ public final class RdfaParser implements SaxSink, TripleSource {
             current.object = createBnode();
         }
 
+    }
+
+    private boolean processPropertyAttr(String qName, Attributes attrs, boolean noRelsAndRevs, EvalContext current, EvalContext parent) throws SAXException {
+        boolean recurse = true;
         String propValueNonLit = null;
         LiteralNode propValueLit = null;
         if (attrs.getValue(RDFa.PROPERTY_ATTR) != null) {
@@ -533,7 +511,7 @@ public final class RdfaParser implements SaxSink, TripleSource {
                         datatype = XSD.DATE_TIME;
                     }
                     content = attrs.getValue(DATETIME_ATTR);
-                } else if (localName.equals("time") && datatype == null) {
+                } else if (qName.equals("time") && datatype == null) {
                     datatype = XSD.DATE_TIME;
                 }
             }
@@ -569,21 +547,19 @@ public final class RdfaParser implements SaxSink, TripleSource {
                         propValueLit = new PlainLiteral(content, current.lang);
                     } else if (attrs.getValue(RDFa.CONTENT_ATTR) == null
                             && attrs.getValue(VALUE_ATTR) == null
-                            && rels == null
-                            && revs == null) {
+                            && noRelsAndRevs) {
                         try {
                             propValueNonLit = coalesce(qName, attrs, parent, current,
                                     RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
                         } catch (ParseException e) {
                             warning(RDFa.WARNING);
                             saveCurrentContext(current, parent);
-                            return;
                         }
                     }
                     if (propValueLit == null && propValueNonLit == null
                             && attrs.getValue(RDFa.ABOUT_ATTR) == null
                             && attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-                        propValueNonLit = typedRes;
+                        propValueNonLit = current.object;
                     }
                     if (propValueLit == null && propValueNonLit == null) {
                         current.objectLitDt = EMPTY_STRING;
@@ -644,49 +620,95 @@ public final class RdfaParser implements SaxSink, TripleSource {
                 recurse = true;
             }
         }
+        return recurse;
+    }
 
-        if (!skipElement && current.subject != null) {
-            List<Object> incompl = parent.incomplTriples;
-            String subj = parent.subject;
-            for (Object obj : incompl) {
-                if (obj instanceof String) {
-                    if (sinkOutputGraph) {
-                        String pred = (String) obj;
-                        if (pred.startsWith(FORWARD)) {
-                            sink.addNonLiteral(subj, pred.substring(PREFIX_LENGTH), current.subject);
-                        } else {
-                            sink.addNonLiteral(current.subject, pred.substring(PREFIX_LENGTH), subj);
+    private boolean findSubjectAndObject(String qName, Attributes attrs, boolean noRelsAndRevs, EvalContext current, EvalContext parent) throws SAXException {
+        boolean skipElement = false;
+        String typedRes = null;
+        try {
+            if (rdfaVersion > RDFA_10) {
+                if (noRelsAndRevs) {
+                    if (attrs.getValue(RDFa.PROPERTY_ATTR) != null
+                            && attrs.getValue(RDFa.CONTENT_ATTR) == null
+                            && attrs.getValue(VALUE_ATTR) == null
+                            && attrs.getValue(RDFa.DATATYPE_ATTR) == null) {
+                        current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
+                                BASE_IF_ROOT_NODE, PARENT_OBJECT);
+
+                        if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
+                            current.object = coalesce(qName, attrs, parent, current,
+                                    RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
+                            if (current.object == null) {
+                                if (current.subject != null) {
+                                    current.object = current.subject;
+                                } else {
+                                    current.object = createBnode();
+                                }
+                            }
+                            typedRes = current.object;
+                        }
+                    } else {
+                        current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
+                                RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR, BASE_IF_ROOT_NODE,
+                                BNODE_IF_TYPEOF, PARENT_OBJECT);
+                        if (current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null) {
+                            skipElement = true;
+                        }
+                        if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
+                            typedRes = current.subject;
                         }
                     }
                 } else {
-                    @SuppressWarnings("unchecked")
-                    List<Object> list = (List<Object>) obj;
-                    list.add(current.subject);
+                    current.object = coalesce(qName, attrs, parent, current, RDFa.RESOURCE_ATTR, DATA_ATTR,
+                            RDFa.HREF_ATTR, RDFa.SRC_ATTR);
+                    current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
+                            BASE_IF_ROOT_NODE, PARENT_OBJECT, PARENT_OBJECT);
+                    if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
+                        if (attrs.getValue(RDFa.ABOUT_ATTR) != null) {
+                            typedRes = current.subject;
+                        } else {
+                            if (current.object == null) {
+                                current.object = createBnode();
+                            }
+                            typedRes = current.object;
+                        }
+                    }
+                }
+            } else {
+                if (noRelsAndRevs) {
+                    current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
+                            RDFa.SRC_ATTR, RDFa.RESOURCE_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR,
+                            BASE_IF_HEAD_OR_BODY, BNODE_IF_TYPEOF, PARENT_OBJECT);
+                    if (current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null) {
+                        skipElement = true;
+                    }
+                } else {
+                    current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
+                            RDFa.SRC_ATTR, BASE_IF_HEAD_OR_BODY, BNODE_IF_TYPEOF, PARENT_OBJECT);
+                    current.object = coalesce(qName, attrs, parent, current, RDFa.RESOURCE_ATTR,
+                            RDFa.HREF_ATTR);
+                }
+                if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
+                    typedRes = current.subject;
+                }
+            }
+        } catch (ParseException e) {
+            warning(RDFa.WARNING);
+            saveCurrentContext(current, parent);
+        }
+        if (typedRes != null) {
+            for (String type : attrs.getValue(RDFa.TYPEOF_ATTR).split(SEPARATOR)) {
+                String iri = resolvePredOrDatatype(type, current);
+                if (iri == null) {
+                    continue;
+                }
+                if (sinkOutputGraph) {
+                    sink.addIriRef(typedRes, RDF.TYPE, iri);
                 }
             }
         }
-
-        current.parsingLiteral = !recurse;
-
-        if (!recurse) {
-            xmlString = "";
-            xmlStringPred = current.properties;
-            xmlStringSubj = current.subject == null ? parent.subject : current.subject;
-        }
-        if (!recurse || skipElement) {
-            current.subject = parent.subject;
-            current.object = parent.object;
-            current.incomplTriples = parent.incomplTriples;
-            current.objectLit = null;
-            current.objectLitDt = parent.objectLitDt;
-            if (current.objectLitDt != null) {
-                current.objectLit = "";
-            }
-            current.properties = null;
-            contextStack.push(current);
-        } else {
-            saveCurrentContext(current, parent);
-        }
+        return skipElement;
     }
 
     private static List<String> convertRelRevToList(String propertyVal, boolean skipTerms) {
