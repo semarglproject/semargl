@@ -16,7 +16,6 @@
 
 package org.semarglproject.rdf.impl;
 
-import org.ccil.cowan.tagsoup.Parser;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -27,6 +26,7 @@ import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,8 +44,14 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
 
     {
         try {
-            XMLReader reader = new Parser();
-            reader.setFeature(Parser.namespacesFeature, false);
+//            XMLReader reader = new Parser();
+//            reader.setFeature(Parser.namespacesFeature, true);
+//            reader.setFeature(Parser.namespacePrefixesFeature, true);
+//            reader.setFeature(Parser.xmlnsURIsFeature, true);
+//            reader.setFeature(Parser.XML11Feature, true);
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
             dp = new SaxSource(reader).streamingTo(rdfaParser).build();
         } catch (SAXException e) {
         }

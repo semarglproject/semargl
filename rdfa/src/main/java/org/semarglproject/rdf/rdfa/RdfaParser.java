@@ -165,9 +165,6 @@ public final class RdfaParser implements SaxSink, TripleSource {
             return null;
         }
         if (context.vocab != null && value.matches("[a-zA-Z0-9]+")) {
-            if (sinkOutputGraph) {
-                sink.addIriRef(base, RDFa.USES_VOCABULARY, context.vocab);
-            }
             return IRI.resolve(base, context.vocab + value);
         }
         if (value.indexOf(':') == -1) {
@@ -350,6 +347,8 @@ public final class RdfaParser implements SaxSink, TripleSource {
                 current.vocab = attrs.getValue(RDFa.VOCAB_ATTR);
                 if (current.vocab.length() == 0) {
                     current.vocab = null;
+                } else if (sinkOutputGraph) {
+                    sink.addIriRef(base, RDFa.USES_VOCABULARY, current.vocab);
                 }
             }
         }
