@@ -18,11 +18,10 @@ package org.semarglproject.rdf.rdfa;
 
 final class RDFa {
 
-
-    private RDFa() {
-    }
-
     public static final String NS = "http://www.w3.org/ns/rdfa#";
+
+    public static final short VERSION_10 = 0;
+    public static final short VERSION_11 = 1;
 
     public static final String ABOUT_ATTR = "about";
     public static final String CONTENT_ATTR = "content";
@@ -45,5 +44,8 @@ final class RDFa {
     public static final String UNRESOLVED_TERM = NS + "UnresolvedTerm";
     public static final String ERROR = NS + "Error";
     public static final String USES_VOCABULARY = NS + "usesVocabulary";
+
+    private RDFa() {
+    }
 
 }

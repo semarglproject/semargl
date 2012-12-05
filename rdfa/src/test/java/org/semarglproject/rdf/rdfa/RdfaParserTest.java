@@ -118,11 +118,6 @@ public final class RdfaParserTest {
         return result;
     }
 
-    @Test
-    public void prefixesLengthShouldBeTheSame() {
-        assertTrue(RdfaParser.FORWARD.length() == RdfaParser.REVERSE.length());
-    }
-
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
     public void Rdfa10Xhtml1TestsClerezza(TestCase testCase) {
         runTestBundle(testCase, clerezzaWrapper);

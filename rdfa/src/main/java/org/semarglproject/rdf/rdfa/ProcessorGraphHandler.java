@@ -16,23 +16,9 @@
 
 package org.semarglproject.rdf.rdfa;
 
-class PlainLiteral implements LiteralNode {
-    private final String content;
-    private final String lang;
+interface ProcessorGraphHandler {
 
-    public PlainLiteral(String content, String lang) {
-        super();
-        this.content = content;
-        this.lang = lang;
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    @Override
-    public String getContent() {
-        return content;
-    }
+    void warning(String warningClass);
+    void error(String errorClass);
 
 }

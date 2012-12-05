@@ -16,11 +16,15 @@
 
 package org.semarglproject.rdf.rdfa;
 
+import org.semarglproject.rdf.ParseException;
+
+import javax.xml.bind.DatatypeConverter;
+
 class TypedLiteral implements LiteralNode {
     private final String content;
     private final String type;
 
-    public TypedLiteral(String content, String dt) {
+    TypedLiteral(String content, String dt) {
         super();
         this.content = content;
         this.type = dt;
@@ -34,4 +38,34 @@ class TypedLiteral implements LiteralNode {
     public String getType() {
         return type;
     }
+
+    public static TypedLiteral from(String content, String dt) throws ParseException {
+        if (dt.equals(XSD.DATE_TIME)) {
+            try {
+                if (content.matches("-?P\\d+Y\\d+M\\d+DT\\d+H\\d+M\\d+(\\.\\d+)?S")) {
+                    return new TypedLiteral(content, XSD.DURATION);
+                }
+                if (content.indexOf(':') != -1) {
+                    if (content.indexOf('T') != -1) {
+                        DatatypeConverter.parseDateTime(content);
+                        return new TypedLiteral(content, XSD.DATE_TIME);
+                    }
+                    DatatypeConverter.parseTime(content);
+                    return new TypedLiteral(content, XSD.TIME);
+                }
+                if (content.matches("-?\\d{4,}")) {
+                    return new TypedLiteral(content, XSD.G_YEAR);
+                }
+                if (content.matches("-?\\d{4,}-(0[1-9]|1[0-2])")) {
+                    return new TypedLiteral(content, XSD.G_YEAR_MONTH);
+                }
+                DatatypeConverter.parseDate(content);
+                return new TypedLiteral(content, XSD.DATE);
+            } catch (IllegalArgumentException e) {
+                throw new ParseException("Ill-formed typed literal '" + content + "'^^<" + dt + ">");
+            }
+        }
+        return new TypedLiteral(content, dt);
+    }
+
 }

@@ -16,23 +16,10 @@
 
 package org.semarglproject.rdf.rdfa;
 
-class PlainLiteral implements LiteralNode {
-    private final String content;
-    private final String lang;
+import org.semarglproject.ri.MalformedIRIException;
 
-    public PlainLiteral(String content, String lang) {
-        super();
-        this.content = content;
-        this.lang = lang;
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    @Override
-    public String getContent() {
-        return content;
-    }
-
+interface ResourceResolver {
+    String resolveBNode(String value);
+    String resolveIri(String iri) throws MalformedIRIException;
+    void declareVocabulary(String vocab);
 }

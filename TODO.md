@@ -6,4 +6,3 @@
 * deduplication pipes
 * SQL DML sinks
 * Android Example
-* add references to W3C docs parsing sequences
