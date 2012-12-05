@@ -24,18 +24,17 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
 import org.semarglproject.TestUtils;
+import org.semarglproject.TurtleSerializerSinkWrapper;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -94,7 +93,17 @@ public final class NTriplesParserTest {
         runTestBundle(caseName, new JenaSinkWrapper());
     }
 
-    void runTestBundle(String caseName, SinkWrapper wrapper) throws FileNotFoundException {
+    @Test(dataProvider = "getTestFiles")
+    public void NTriplesTestsClerezza(String caseName) throws Exception {
+        runTestBundle(caseName, new ClerezzaSinkWrapper());
+    }
+
+    @Test(dataProvider = "getTestFiles")
+    public void NTriplesTestsTurtle(String caseName) throws Exception {
+        runTestBundle(caseName, new TurtleSerializerSinkWrapper());
+    }
+
+    void runTestBundle(String caseName, SinkWrapper wrapper) throws IOException {
         File docFile = new File(caseName.replace(RDF_TEST_SUITE_ROOT, TESTSUITE_DIR));
 
         File output = new File(FAILURES_DIR, caseName.substring(caseName.lastIndexOf('/') + 1));
@@ -135,26 +144,11 @@ public final class NTriplesParserTest {
     }
 
     private void extract(File inputFile, String baseUri, File outputFile, SinkWrapper wrapper)
-            throws ParseException, FileNotFoundException {
+            throws ParseException, IOException {
         wrapper.reset();
-
         DataProcessor<Reader> dp = new CharSource()
                 .streamingTo(new NTriplesParser()
                     .streamingTo(wrapper.getSink())).build();
-        FileReader reader = new FileReader(inputFile);
-        try {
-            dp.process(reader, baseUri);
-        } finally {
-            TestUtils.closeQuietly(reader);
-        }
-        if (outputFile == null) {
-            return;
-        }
-        FileOutputStream outputStream = new FileOutputStream(outputFile);
-        try {
-            wrapper.dumpToStream(outputStream);
-        } finally {
-            TestUtils.closeQuietly(outputStream);
-        }
+        wrapper.process(dp, inputFile, baseUri, outputFile);
     }
 }

@@ -16,14 +16,16 @@
 
 package org.semarglproject;
 
+import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TripleSink;
 
-import java.io.OutputStream;
+import java.io.File;
+import java.io.IOException;
 
-public interface SinkWrapper {
-    void dumpToStream(OutputStream outputStream);
-
+public interface SinkWrapper<E> {
     TripleSink getSink();
-
     void reset();
+    void process(DataProcessor<E> dp, File inputFile, String baseUri, File outputFile)
+            throws ParseException, IOException;
 }

@@ -38,7 +38,4 @@ public abstract class DataProcessor<T> {
         }
     }
 
-    public static <K> DataProcessor<K> from(MainSource<K, ?> source) {
-        return source.build();
-    }
 }

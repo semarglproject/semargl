@@ -16,48 +16,41 @@
 
 package org.semarglproject;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TripleSink;
-import org.semarglproject.rdf.impl.JenaTripleSink;
+import org.semarglproject.rdf.TurtleSerializerSink;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 
-public final class JenaSinkWrapper implements SinkWrapper<Reader> {
-    private final Model model = ModelFactory.createDefaultModel();
+public final class TurtleSerializerSinkWrapper implements SinkWrapper<Reader> {
+
+    private TurtleSerializerSink sink = new TurtleSerializerSink();
 
     @Override
     public TripleSink getSink() {
-        return new JenaTripleSink(model);
+        return sink;
     }
 
     @Override
     public void reset() {
-        model.removeAll();
     }
 
     @Override
     public void process(DataProcessor<Reader> dp, File inputFile, String baseUri, File outputFile)
             throws ParseException, IOException {
         FileReader reader = new FileReader(inputFile);
+        FileWriter writer = new FileWriter(outputFile);
         try {
+            sink.setWriter(writer);
             dp.process(reader, baseUri);
         } finally {
             TestUtils.closeQuietly(reader);
-        }
-        if (outputFile != null) {
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
-            try {
-                model.write(outputStream, "TURTLE");
-            } finally {
-                TestUtils.closeQuietly(outputStream);
-            }
+            TestUtils.closeQuietly(writer);
         }
     }
 }

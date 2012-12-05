@@ -67,7 +67,7 @@ Supported data formats
 RDF/XML
 -------
 
-Implementation covered by tests from Jena ARQ project. Btw it outperforms Jena
+Implementation covered by tests from Jena ARP project. Btw it outperforms Jena
 parser even if you load triples to Jena model. Benchmark located in examples
 folder.
 
@@ -83,7 +83,7 @@ default version 1.1.
 NTriples
 --------
 
-Implementation covered by tests from Jena ARQ project.
+Implementation covered by tests from Jena ARP project.
 
 Build
 =====

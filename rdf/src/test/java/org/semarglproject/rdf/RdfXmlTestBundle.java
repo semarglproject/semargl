@@ -103,12 +103,7 @@ final class RdfXmlTestBundle {
                     || input.endsWith("xml-literals/reported3.rdf")
 
                     // Jena fails here, but results are right
-                    || input.endsWith("i18n/t9000.rdf")
-
-                    // Temporarily disabled
-                    || input.endsWith("rdf-charmod-uris/test001.rdf")
-                    || input.endsWith("rdf-charmod-literals/test001.rdf")
-                    || input.endsWith("i18n/eq-bug73_0.rdf")) {
+                    || input.endsWith("i18n/t9000.rdf")) {
                 continue;
             }
             testCases.add(new TestCase(testName, input, result));

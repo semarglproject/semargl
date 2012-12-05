@@ -26,6 +26,7 @@ import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
 import org.semarglproject.TestUtils;
+import org.semarglproject.TurtleSerializerSinkWrapper;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
@@ -39,16 +40,15 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Collection;
 
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Automatically downloads and runs test suite from http://rdfa.info
- * <p/>
+ *
  * Test cases:
  * - RDFa 1.0: XHTML1, SVG
  * - RDFa 1.1: HTML4, XHTML1, HTML5, XML, SVG
@@ -64,6 +64,7 @@ public final class RdfaParserTest {
 
     private final SinkWrapper clerezzaWrapper = new ClerezzaSinkWrapper();
     private final SinkWrapper jenaWrapper = new JenaSinkWrapper();
+    private final SinkWrapper turtleSerializerWrapper = new TurtleSerializerSinkWrapper();
 
     @BeforeClass
     public static void cleanTargetDir() {
@@ -118,6 +119,10 @@ public final class RdfaParserTest {
         return result;
     }
 
+    /*
+     * ClerezzaTripleSink
+     */
+
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
     public void Rdfa10Xhtml1TestsClerezza(TestCase testCase) {
         runTestBundle(testCase, clerezzaWrapper);
@@ -153,6 +158,10 @@ public final class RdfaParserTest {
         runTestBundle(testCase, clerezzaWrapper);
     }
 
+    /*
+     * JenaTripleSink
+     */
+
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
     public void Rdfa10Xhtml1TestsJena(TestCase testCase) {
         runTestBundle(testCase, jenaWrapper);
@@ -186,6 +195,45 @@ public final class RdfaParserTest {
     @Test(dataProvider = "getRdfa11SvgTestSuite")
     public void Rdfa11SvgTestsJena(TestCase testCase) {
         runTestBundle(testCase, jenaWrapper);
+    }
+
+    /*
+     * TurtleSerializerSink
+     */
+
+    @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
+    public void Rdfa10Xhtml1TestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "getRdfa10SvgTestSuite")
+    public void Rdfa10SvgTestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "getRdfa11Html4TestSuite")
+    public void Rdfa11Html4TestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
+    public void Rdfa11Xhtml1TestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "getRdfa11Html5TestSuite")
+    public void Rdfa11Html5TestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "getRdfa11XmlTestSuite")
+    public void Rdfa11XmlTestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "getRdfa11SvgTestSuite")
+    public void Rdfa11SvgTestsTurtle(TestCase testCase) {
+        runTestBundle(testCase, turtleSerializerWrapper);
     }
 
     void runTestBundle(TestCase testCase, SinkWrapper wrapper) {
@@ -239,26 +287,17 @@ public final class RdfaParserTest {
         return null;
     }
 
-    private void extract(File inputFile, String baseUri, File outputFile, SinkWrapper wrapper) throws IOException {
+    private void extract(File inputFile, String baseUri, File outputFile, SinkWrapper wrapper) throws IOException, SAXException {
         wrapper.reset();
         try {
-            XMLReader reader;
-            try {
-                reader = XMLReaderFactory.createXMLReader();
-                reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            } catch (SAXException e) {
-                e.printStackTrace();
-                throw new RuntimeException();
-            }
-            DataProcessor.from(new SaxSource(reader)
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            DataProcessor<Reader> dp = new SaxSource(reader)
                     .streamingTo(new RdfaParser()
-                            .streamingTo(wrapper.getSink())))
-                    .process(new FileReader(inputFile), baseUri);
+                            .streamingTo(wrapper.getSink())).build();
+            wrapper.process(dp, inputFile, baseUri, outputFile);
         } catch (ParseException e) {
             System.out.println(">>> " + e.getMessage() + " (" + inputFile.getAbsolutePath() + ")");
-        }
-        if (outputFile != null) {
-            wrapper.dumpToStream(new FileOutputStream(outputFile));
         }
     }
 }

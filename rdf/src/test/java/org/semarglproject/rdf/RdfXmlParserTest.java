@@ -22,6 +22,7 @@ import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
 import org.semarglproject.TestUtils;
+import org.semarglproject.TurtleSerializerSinkWrapper;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -32,8 +33,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
@@ -53,6 +52,7 @@ public final class RdfXmlParserTest {
 
     private final SinkWrapper clerezzaWrapper = new ClerezzaSinkWrapper();
     private final SinkWrapper jenaWrapper = new JenaSinkWrapper();
+    private final SinkWrapper turtleSerializerWrapper = new TurtleSerializerSinkWrapper();
 
     @BeforeClass
     public static void cleanTargetDir() {
@@ -105,6 +105,16 @@ public final class RdfXmlParserTest {
         runTestWith(testCase, clerezzaWrapper);
     }
 
+    @Test(dataProvider = "W3C-Tests-Provider")
+    public void runW3CWithTurtleSink(TestCase testCase) {
+        runTestWith(testCase, turtleSerializerWrapper);
+    }
+
+    @Test(dataProvider = "ARP-Tests-Provider")
+    public void runARPWithTurtleSink(TestCase testCase) {
+        runTestWith(testCase, turtleSerializerWrapper);
+    }
+
     private void runTestWith(TestCase testCase, SinkWrapper wrapper) {
         String inputUri = testCase.getInput();
         String resultUri = testCase.getResult();
@@ -134,6 +144,18 @@ public final class RdfXmlParserTest {
         } catch (IOException e) {
             e.printStackTrace();
             success = false;
+        } catch (SAXException e) {
+            e.printStackTrace();
+            success = false;
+        } catch (ParseException e) {
+            System.err.println(">>> " + e.getMessage() + " (" + inputFile.getAbsolutePath() + ")");
+            // ParseException means we should purge all collected triples, because document is not well formed
+            if (outputFile != null) {
+                try {
+                    outputFile.createNewFile();
+                } catch (IOException e1) {
+                }
+            }
         }
 
         success &= outputFile.exists() && inputModel.isIsomorphicWith(resultModel);
@@ -145,27 +167,13 @@ public final class RdfXmlParserTest {
     }
 
     private void extract(File inputFile, String baseUri, File outputFile, SinkWrapper wrapper)
-            throws IOException {
+            throws IOException, SAXException, ParseException {
         wrapper.reset();
-        try {
-            XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-            DataProcessor<Reader> dp = new SaxSource(xmlReader)
-                    .streamingTo(new RdfXmlParser()
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        DataProcessor<Reader> dp = new SaxSource(xmlReader)
+                .streamingTo(new RdfXmlParser()
                         .streamingTo(wrapper.getSink())).build();
-            dp.process(new FileReader(inputFile), baseUri);
-        } catch (SAXException e) {
-            throw new RuntimeException();
-        } catch (ParseException e) {
-            System.err.println(">>> " + e.getMessage() + " (" + inputFile.getAbsolutePath() + ")");
-            if (outputFile != null) {
-                outputFile.createNewFile();
-            }
-            wrapper.reset();
-            return;
-        }
-        if (outputFile != null) {
-            wrapper.dumpToStream(new FileOutputStream(outputFile));
-        }
+        wrapper.process(dp, inputFile, baseUri, outputFile);
     }
 
     private static String getLocalPath(String uri, String base) {
