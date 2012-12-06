@@ -52,9 +52,14 @@
             <version>7.1.4.v20100610</version>
         </dependency>
         <dependency>
-            <groupId>org.ccil.cowan.tagsoup</groupId>
-            <artifactId>tagsoup</artifactId>
-            <version>1.2.1</version>
+            <groupId>net.rootdev</groupId>
+            <artifactId>java-rdfa</artifactId>
+            <version>0.4.2-RC2</version>
+        </dependency>
+        <dependency>
+            <groupId>nu.validator.htmlparser</groupId>
+            <artifactId>htmlparser</artifactId>
+            <version>1.4</version>
         </dependency>
     </dependencies>
 </project>

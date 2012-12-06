@@ -24,6 +24,7 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.vocab.RDFa;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -95,9 +96,9 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
 
         String rdfaversion = request.getParameter("rdfaversion");
         if ("1.0".equals(rdfaversion)) {
-            rdfaParser.setRdfaVersion(RdfaParser.RDFA_10);
+            rdfaParser.setRdfaVersion(RDFa.VERSION_10);
         } else if ("1.1".equals(rdfaversion)) {
-            rdfaParser.setRdfaVersion(RdfaParser.RDFA_11);
+            rdfaParser.setRdfaVersion(RDFa.VERSION_11);
         }
 
         System.out.println(uri);

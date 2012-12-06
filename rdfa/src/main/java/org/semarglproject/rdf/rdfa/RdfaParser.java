@@ -24,6 +24,7 @@ import org.semarglproject.rdf.TripleSource;
 import org.semarglproject.ri.CURIE;
 import org.semarglproject.ri.MalformedIRIException;
 import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.RDFa;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;

@@ -19,6 +19,7 @@ package org.semarglproject.rdf.rdfa;
 import org.semarglproject.ri.IRI;
 import org.semarglproject.ri.MalformedIRIException;
 import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.RDFa;
 
 import java.util.HashMap;
 import java.util.Map;

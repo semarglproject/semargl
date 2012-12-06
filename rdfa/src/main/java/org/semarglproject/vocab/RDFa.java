@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf.rdfa;
+package org.semarglproject.vocab;
 
-final class RDFa {
+public final class RDFa {
 
     public static final String NS = "http://www.w3.org/ns/rdfa#";
 

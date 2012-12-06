@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Benchmark {
+public class BenchmarkRdfXml {
 
     private static final String BENCHMARK_DIR = "src/main/resources";
     public static final String HTTP_EXAMPLE_COM = "http://example.com";

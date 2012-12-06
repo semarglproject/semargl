@@ -21,6 +21,7 @@ import org.semarglproject.ri.CURIE;
 import org.semarglproject.ri.IRI;
 import org.semarglproject.ri.MalformedCURIEException;
 import org.semarglproject.ri.MalformedIRIException;
+import org.semarglproject.vocab.RDFa;
 import org.xml.sax.SAXException;
 
 import java.util.ArrayList;

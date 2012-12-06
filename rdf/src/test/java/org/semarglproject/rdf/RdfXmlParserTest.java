@@ -22,7 +22,6 @@ import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
 import org.semarglproject.TestUtils;
-import org.semarglproject.TurtleSerializerSinkWrapper;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -33,8 +32,11 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
 
 import static org.testng.Assert.assertTrue;
@@ -52,7 +54,26 @@ public final class RdfXmlParserTest {
 
     private final SinkWrapper clerezzaWrapper = new ClerezzaSinkWrapper();
     private final SinkWrapper jenaWrapper = new JenaSinkWrapper();
-    private final SinkWrapper turtleSerializerWrapper = new TurtleSerializerSinkWrapper();
+    private final SinkWrapper turtleSerializerWrapper = new SinkWrapper<Reader>() {
+
+        private TurtleSerializerSink sink = new TurtleSerializerSink();
+
+        @Override
+        public TripleSink getSink() {
+            return sink;
+        }
+
+        @Override
+        public void reset() {
+        }
+
+        @Override
+        public void process(DataProcessor<Reader> dp, Reader input, String baseUri, Writer output)
+                throws ParseException, IOException {
+            sink.setWriter(output);
+            dp.process(input, baseUri);
+        }
+    };
 
     @BeforeClass
     public static void cleanTargetDir() {
@@ -173,7 +194,14 @@ public final class RdfXmlParserTest {
         DataProcessor<Reader> dp = new SaxSource(xmlReader)
                 .streamingTo(new RdfXmlParser()
                         .streamingTo(wrapper.getSink())).build();
-        wrapper.process(dp, inputFile, baseUri, outputFile);
+        FileReader input = new FileReader(inputFile);
+        FileWriter output = new FileWriter(outputFile);
+        try {
+            wrapper.process(dp, input, baseUri, output);
+        } finally {
+            TestUtils.closeQuietly(input);
+            TestUtils.closeQuietly(output);
+        }
     }
 
     private static String getLocalPath(String uri, String base) {

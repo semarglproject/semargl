@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-final class RdfXmlTestBundle {
+public final class RdfXmlTestBundle {
 
     public final static class TestCase {
         private final String name;

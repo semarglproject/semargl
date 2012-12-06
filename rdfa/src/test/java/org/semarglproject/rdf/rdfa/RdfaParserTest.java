@@ -26,10 +26,11 @@ import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
 import org.semarglproject.TestUtils;
-import org.semarglproject.TurtleSerializerSinkWrapper;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
+import org.semarglproject.rdf.TripleSink;
+import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -40,8 +41,11 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
 
 import static org.testng.AssertJUnit.assertTrue;
@@ -64,7 +68,26 @@ public final class RdfaParserTest {
 
     private final SinkWrapper clerezzaWrapper = new ClerezzaSinkWrapper();
     private final SinkWrapper jenaWrapper = new JenaSinkWrapper();
-    private final SinkWrapper turtleSerializerWrapper = new TurtleSerializerSinkWrapper();
+    private final SinkWrapper turtleSerializerWrapper = new SinkWrapper<Reader>() {
+
+        private TurtleSerializerSink sink = new TurtleSerializerSink();
+
+        @Override
+        public TripleSink getSink() {
+            return sink;
+        }
+
+        @Override
+        public void reset() {
+        }
+
+        @Override
+        public void process(DataProcessor<Reader> dp, Reader input, String baseUri, Writer output)
+                throws ParseException, IOException {
+            sink.setWriter(output);
+            dp.process(input, baseUri);
+        }
+    };
 
     @BeforeClass
     public static void cleanTargetDir() {
@@ -295,7 +318,15 @@ public final class RdfaParserTest {
             DataProcessor<Reader> dp = new SaxSource(reader)
                     .streamingTo(new RdfaParser()
                             .streamingTo(wrapper.getSink())).build();
-            wrapper.process(dp, inputFile, baseUri, outputFile);
+
+            FileReader input = new FileReader(inputFile);
+            FileWriter output = new FileWriter(outputFile);
+            try {
+                wrapper.process(dp, input, baseUri, output);
+            } finally {
+                TestUtils.closeQuietly(input);
+                TestUtils.closeQuietly(output);
+            }
         } catch (ParseException e) {
             System.out.println(">>> " + e.getMessage() + " (" + inputFile.getAbsolutePath() + ")");
         }

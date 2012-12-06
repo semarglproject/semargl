@@ -35,7 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 // http://github.com/rdfa/rdfa-website/raw/master/manifest.ttl
-final class RdfaTestBundle {
+public final class RdfaTestBundle {
 
     private final Collection<TestCase> testCases = new ArrayList<TestCase>();
 

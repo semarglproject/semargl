@@ -19,16 +19,16 @@ package org.semarglproject;
 import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.rdf.impl.ClerezzaTripleSink;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 
 public final class ClerezzaSinkWrapper implements SinkWrapper<Reader> {
     private static final TcManager MANAGER = TcManager.getInstance();
@@ -52,16 +52,11 @@ public final class ClerezzaSinkWrapper implements SinkWrapper<Reader> {
     }
 
     @Override
-    public void process(DataProcessor<Reader> dp, File inputFile, String baseUri, File outputFile)
+    public void process(DataProcessor<Reader> dp, Reader input, String baseUri, Writer output)
             throws ParseException, IOException {
-        FileReader reader = new FileReader(inputFile);
-        try {
-            dp.process(reader, baseUri);
-        } finally {
-            TestUtils.closeQuietly(reader);
-        }
-        if (outputFile != null && graph != null) {
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
+        dp.process(input, baseUri);
+        if (graph != null) {
+            OutputStream outputStream = new WriterOutputStream(output);
             try {
                 TestUtils.dumpToStream(graph, outputStream, "text/turtle");
             } finally {

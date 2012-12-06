@@ -23,11 +23,9 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.rdf.impl.JenaTripleSink;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 
 public final class JenaSinkWrapper implements SinkWrapper<Reader> {
     private final Model model = ModelFactory.createDefaultModel();
@@ -43,21 +41,9 @@ public final class JenaSinkWrapper implements SinkWrapper<Reader> {
     }
 
     @Override
-    public void process(DataProcessor<Reader> dp, File inputFile, String baseUri, File outputFile)
+    public void process(DataProcessor<Reader> dp, Reader input, String baseUri, Writer output)
             throws ParseException, IOException {
-        FileReader reader = new FileReader(inputFile);
-        try {
-            dp.process(reader, baseUri);
-        } finally {
-            TestUtils.closeQuietly(reader);
-        }
-        if (outputFile != null) {
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
-            try {
-                model.write(outputStream, "TURTLE");
-            } finally {
-                TestUtils.closeQuietly(outputStream);
-            }
-        }
+        dp.process(input, baseUri);
+        model.write(output, "TURTLE");
     }
 }

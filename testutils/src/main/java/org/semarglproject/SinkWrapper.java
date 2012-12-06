@@ -20,12 +20,12 @@ import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TripleSink;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 
 public interface SinkWrapper<E> {
     TripleSink getSink();
     void reset();
-    void process(DataProcessor<E> dp, File inputFile, String baseUri, File outputFile)
+    void process(DataProcessor<E> dp, E input, String baseUri, Writer output)
             throws ParseException, IOException;
 }
