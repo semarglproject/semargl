@@ -21,71 +21,94 @@ import java.io.Writer;
 
 public final class TurtleSerializerSink implements TripleSink {
 
-    private Writer writer;
+    private static final short BATCH_SIZE = 10;
 
-    private StringBuilder startTriple(String subj, String pred) {
-        StringBuilder builder = new StringBuilder();
-        if (subj.charAt(0) == '_') {
-            builder.append(subj);
-        } else {
-            builder.append('<').append(subj).append('>');
+    private Writer writer;
+    private String prevSubj;
+    private String prevPred;
+    private StringBuilder builder;
+    private short step;
+
+    private void startTriple(String subj, String pred) {
+        if (builder == null) {
+            builder = new StringBuilder();
         }
-        builder.append(" <").append(pred).append("> ");
-        return builder;
+        if (subj.equals(prevSubj)) {
+            if (pred.equals(prevPred)) {
+                builder.append(", ");
+            } else {
+                builder.append(";\n <").append(pred).append("> ");
+            }
+        } else {
+            if (prevSubj != null) {
+                builder.append(".\n");
+            }
+            if (subj.charAt(0) == '_') {
+                builder.append(subj);
+            } else {
+                builder.append('<').append(subj).append('>');
+            }
+            builder.append(" <").append(pred).append("> ");
+        }
+        prevSubj = subj;
+        prevPred = pred;
     }
 
-    private void endTriple(StringBuilder builder) {
-        builder.append(".\n");
-        try {
-            writer.write(builder.toString());
-        } catch (IOException e) {
+    private void endTriple() {
+        if (step == BATCH_SIZE) {
+            try {
+                writer.write(builder.toString());
+            } catch (IOException e) {
+            }
+            builder = null;
+            step = 0;
+        }
+        step++;
+    }
+
+    private void addContent(String content) {
+        content = content.replace("\"", "\\\"");
+        if (content.contains("\n")) {
+            builder.append("\"\"\"").append(content).append("\"\"\"");
+        } else {
+            builder.append('"').append(content).append('"');
         }
     }
 
     @Override
     public void addNonLiteral(String subj, String pred, String obj) {
-        StringBuilder builder = startTriple(subj, pred);
+        startTriple(subj, pred);
         if (obj.charAt(0) == '_') {
             builder.append(obj);
         } else {
             builder.append('<').append(obj).append('>');
         }
-        endTriple(builder);
+        endTriple();
     }
 
     @Override
     public void addIriRef(String subj, String pred, String iri) {
-        StringBuilder builder = startTriple(subj, pred);
+        startTriple(subj, pred);
         builder.append('<').append(iri).append('>');
-        endTriple(builder);
+        endTriple();
     }
 
     @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
-        StringBuilder builder = startTriple(subj, pred);
-        content = content.replace("\"", "\\\"");
-        if (content.contains("\n")) {
-            builder.append("\"\"\"").append(content).append("\"\"\"");
-        } else {
-            builder.append('"').append(content).append('"');
-        }
+        startTriple(subj, pred);
+        addContent(content);
         if (lang != null) {
             builder.append('@').append(lang);
         }
-        endTriple(builder);
+        endTriple();
     }
 
     @Override
     public void addTypedLiteral(String subj, String pred, String content, String type) {
-        StringBuilder builder = startTriple(subj, pred);
-        content = content.replace("\"", "\\\"");
-        if (content.contains("\n")) {
-            builder.append("\"\"\"").append(content).append("\"\"\"");
-        } else {
-            builder.append('"').append(content).append('"');
-        }
+        startTriple(subj, pred);
+        addContent(content);
         builder.append("^^<").append(type).append('>');
-        endTriple(builder);
+        endTriple();
     }
 
     @Override
@@ -93,12 +116,22 @@ public final class TurtleSerializerSink implements TripleSink {
         if (writer == null) {
             throw new IllegalStateException("No writer specified");
         }
+        prevSubj = null;
+        prevPred = null;
+        builder = null;
+        step = 0;
     }
 
     @Override
     public void endStream() {
         try {
-            writer.write("\n");
+            if (builder != null) {
+                writer.write(builder.toString());
+            }
+            if (prevPred != null) {
+                writer.write('.');
+            }
+            writer.write('\n');
             writer.flush();
         } catch (IOException e) {
         }
