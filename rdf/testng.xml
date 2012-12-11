@@ -1,13 +1,66 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="RDF parsers" verbose="1">
-	<test name="RDF/XML Test">
+    <!--RDF/XML Tests-->
+	<test name="RDF/XML Jena Test">
+        <groups>
+            <run>
+                <include name="Jena" />
+            </run>
+        </groups>
 		<classes>
 			<class name="org.semarglproject.rdf.RdfXmlParserTest" />
 		</classes>
 	</test>
-	<test name="NTriples Test" preserve-order="true">
-		<classes>
-			<class name="org.semarglproject.rdf.NTriplesParserTest" />
-		</classes>
-	</test>
+    <test name="RDF/XML Clerezza Test">
+        <groups>
+            <run>
+                <include name="Clerezza" />
+            </run>
+        </groups>
+        <classes>
+            <class name="org.semarglproject.rdf.RdfXmlParserTest" />
+        </classes>
+    </test>
+    <test name="RDF/XML Semargl Turtle Test">
+        <groups>
+            <run>
+                <include name="Semargl-Turtle" />
+            </run>
+        </groups>
+        <classes>
+            <class name="org.semarglproject.rdf.RdfXmlParserTest" />
+        </classes>
+    </test>
+
+    <!--NTriples Tests-->
+    <test name="NTriples Jena Test">
+        <groups>
+            <run>
+                <include name="Jena" />
+            </run>
+        </groups>
+        <classes>
+            <class name="org.semarglproject.rdf.NTriplesParserTest" />
+        </classes>
+    </test>
+    <test name="NTriples Clerezza Test">
+        <groups>
+            <run>
+                <include name="Clerezza" />
+            </run>
+        </groups>
+        <classes>
+            <class name="org.semarglproject.rdf.NTriplesParserTest" />
+        </classes>
+    </test>
+    <test name="NTriples Semargl Turtle Test">
+        <groups>
+            <run>
+                <include name="Semargl-Turtle" />
+            </run>
+        </groups>
+        <classes>
+            <class name="org.semarglproject.rdf.NTriplesParserTest" />
+        </classes>
+    </test>
 </suite>

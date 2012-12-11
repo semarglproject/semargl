@@ -24,12 +24,18 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.clerezza.rdf.core.MGraph;
+import org.apache.clerezza.rdf.core.UriRef;
+import org.apache.clerezza.rdf.core.access.TcManager;
+import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.semarglproject.ClerezzaSinkWrapper;
-import org.semarglproject.JenaSinkWrapper;
-import org.semarglproject.SinkWrapper;
+import org.apache.commons.io.output.WriterOutputStream;
+import org.semarglproject.rdf.impl.ClerezzaTripleSink;
+import org.semarglproject.rdf.impl.JenaTripleSink;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -38,8 +44,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,16 +53,52 @@ import static org.testng.AssertJUnit.assertTrue;
 
 public final class NTriplesParserTest {
 
-    private static final String FAILURES_DIR = "target/n3_failed";
+    private static final String FAILURES_DIR = "target/n3_failed/";
 
     private static final String TESTSUITE_DIR = "src/test/resources/w3c";
     private static final String RDF_TEST_SUITE_ROOT = "http://www.w3.org/2000/10/rdf-tests/rdfcore";
 
-    @BeforeClass
-    public static void cleanTargetDir() throws IOException {
+    private Model model;
+    private MGraph graph;
+    private TurtleSerializerSink semarglTurtleSink;
+
+    @BeforeClass(groups = { "Jena", "Clerezza", "Semargl-Turtle" })
+    public void cleanTargetDir() throws IOException {
         File failuresDir = new File(FAILURES_DIR);
         FileUtils.deleteDirectory(failuresDir);
         failuresDir.mkdirs();
+    }
+
+    @BeforeGroups(groups = "Jena")
+    public void initJena() {
+        model = ModelFactory.createDefaultModel();
+    }
+
+    @BeforeGroups(groups = "Clerezza")
+    public void initClerezza() {
+        UriRef graphUri = new UriRef("http://example.com/");
+        TcManager MANAGER = TcManager.getInstance();
+        if (MANAGER.listMGraphs().contains(graphUri)) {
+            MANAGER.deleteTripleCollection(graphUri);
+        }
+        graph = MANAGER.createMGraph(graphUri);
+    }
+
+    @BeforeGroups(groups = "Semargl-Turtle")
+    public void initSemarglTertle() {
+        semarglTurtleSink = new TurtleSerializerSink();
+    }
+
+    @BeforeMethod(groups = "Jena")
+    public void setUpJena() {
+        model.removeAll();
+    }
+
+    @BeforeMethod(groups = "Clerezza")
+    public void setUpClerezza() {
+        if (graph != null) {
+            graph.clear();
+        }
     }
 
     @DataProvider
@@ -91,44 +133,54 @@ public final class NTriplesParserTest {
         return res;
     }
 
-    @Test(dataProvider = "getTestFiles")
+    @Test(dataProvider = "getTestFiles", groups = "Jena")
     public void NTriplesTestsJena(String caseName) throws Exception {
-        runTestBundle(caseName, new JenaSinkWrapper());
-    }
-
-    @Test(dataProvider = "getTestFiles")
-    public void NTriplesTestsClerezza(String caseName) throws Exception {
-        runTestBundle(caseName, new ClerezzaSinkWrapper());
-    }
-
-    @Test(dataProvider = "getTestFiles")
-    public void NTriplesTestsTurtle(String caseName) throws Exception {
-        runTestBundle(caseName, new SinkWrapper<Reader>() {
-
-            private TurtleSerializerSink sink = new TurtleSerializerSink();
-
+        runTestBundle(caseName, new JenaTripleSink(model), new SaveToFileCallback() {
             @Override
-            public TripleSink getSink() {
-                return sink;
-            }
-
-            @Override
-            public void reset() {
-            }
-
-            @Override
-            public void process(DataProcessor<Reader> dp, Reader input, String baseUri, Writer output)
-                    throws ParseException, IOException {
-                sink.setWriter(output);
-                dp.process(input, baseUri);
+            public void run(DataProcessor<Reader> dp, FileReader input,
+                            String inputUri, FileWriter output) throws ParseException {
+                dp.process(input, inputUri);
+                model.write(output, "TURTLE");
             }
         });
     }
 
-    void runTestBundle(String caseName, SinkWrapper wrapper) throws IOException {
+    @Test(dataProvider = "getTestFiles", groups = "Clerezza")
+    public void NTriplesTestsClerezza(String caseName) throws Exception {
+        runTestBundle(caseName, new ClerezzaTripleSink(graph), new SaveToFileCallback() {
+            @Override
+            public void run(DataProcessor<Reader> dp, FileReader input,
+                            String inputUri, FileWriter output) throws ParseException {
+                dp.process(input, inputUri);
+                if (graph != null) {
+                    OutputStream outputStream = new WriterOutputStream(output);
+                    try {
+                        Serializer serializer = Serializer.getInstance();
+                        serializer.serialize(outputStream, graph, "text/turtle");
+                    } finally {
+                        IOUtils.closeQuietly(outputStream);
+                    }
+                }
+            }
+        });
+    }
+
+    @Test(dataProvider = "getTestFiles", groups = "Semargl-Turtle")
+    public void NTriplesTestsTurtle(String caseName) throws Exception {
+        runTestBundle(caseName, semarglTurtleSink, new SaveToFileCallback() {
+            @Override
+            public void run(DataProcessor<Reader> dp, FileReader input,
+                            String inputUri, FileWriter output) throws ParseException {
+                semarglTurtleSink.setWriter(output);
+                dp.process(input, inputUri);
+            }
+        });
+    }
+
+    void runTestBundle(String caseName, TripleSink sink, SaveToFileCallback callback) throws IOException {
         File docFile = new File(caseName.replace(RDF_TEST_SUITE_ROOT, TESTSUITE_DIR));
 
-        File output = new File(FAILURES_DIR, caseName.substring(caseName.lastIndexOf('/') + 1));
+        File outputFile = new File(FAILURES_DIR, caseName.substring(caseName.lastIndexOf('/') + 1));
         Model outputModel = ModelFactory.createDefaultModel();
         Model resultModel = ModelFactory.createDefaultModel();
 
@@ -143,15 +195,25 @@ public final class NTriplesParserTest {
         }
 
         try {
-            extract(docFile, caseName, output, wrapper);
+            DataProcessor<Reader> dp = new CharSource()
+                    .streamingTo(new NTriplesParser()
+                            .streamingTo(sink)).build();
+            FileReader input = new FileReader(docFile);
+            FileWriter output = new FileWriter(outputFile);
+            try {
+                callback.run(dp, input, caseName, output);
+            } finally {
+                IOUtils.closeQuietly(input);
+                IOUtils.closeQuietly(output);
+            }
         } catch (ParseException e) {
             if (invalidInput) {
-                output.delete();
+                outputFile.delete();
                 return;
             }
         }
 
-        inputStream = new FileInputStream(output);
+        inputStream = new FileInputStream(outputFile);
         try {
             outputModel.read(inputStream, caseName, "TURTLE");
         } finally {
@@ -160,24 +222,12 @@ public final class NTriplesParserTest {
 
         boolean success = outputModel.isIsomorphicWith(resultModel);
         if (success) {
-            output.delete();
+            outputFile.delete();
         }
         assertTrue(success);
     }
 
-    private void extract(File inputFile, String baseUri, File outputFile, SinkWrapper wrapper)
-            throws ParseException, IOException {
-        wrapper.reset();
-        DataProcessor<Reader> dp = new CharSource()
-                .streamingTo(new NTriplesParser()
-                    .streamingTo(wrapper.getSink())).build();
-        FileReader input = new FileReader(inputFile);
-        FileWriter output = new FileWriter(outputFile);
-        try {
-            wrapper.process(dp, input, baseUri, output);
-        } finally {
-            IOUtils.closeQuietly(input);
-            IOUtils.closeQuietly(output);
-        }
+    private interface SaveToFileCallback {
+        void run(DataProcessor<Reader> dp, FileReader input, String inputUri, FileWriter output) throws ParseException;
     }
 }

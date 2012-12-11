@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public final class RdfXmlTestBundle {
 
@@ -60,7 +60,7 @@ public final class RdfXmlTestBundle {
         }
     }
 
-    private final Collection<TestCase> testCases = new ArrayList<TestCase>();
+    private final List<TestCase> testCases = new ArrayList<TestCase>();
 
     public RdfXmlTestBundle(String manifest, String manifestUri, String testsuiteRoot) {
         super();
@@ -111,7 +111,7 @@ public final class RdfXmlTestBundle {
         qe.close();
     }
 
-    public Collection<TestCase> getTestCases() {
+    public List<TestCase> getTestCases() {
         return testCases;
     }
 }

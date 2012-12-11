@@ -18,13 +18,19 @@ package org.semarglproject.rdf;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.clerezza.rdf.core.MGraph;
+import org.apache.clerezza.rdf.core.UriRef;
+import org.apache.clerezza.rdf.core.access.TcManager;
+import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.semarglproject.ClerezzaSinkWrapper;
-import org.semarglproject.JenaSinkWrapper;
-import org.semarglproject.SinkWrapper;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
+import org.semarglproject.rdf.impl.ClerezzaTripleSink;
+import org.semarglproject.rdf.impl.JenaTripleSink;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -36,9 +42,9 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Reader;
-import java.io.Writer;
-import java.util.Collection;
+import java.util.List;
 
 import static org.testng.Assert.assertTrue;
 
@@ -53,91 +59,107 @@ public final class RdfXmlParserTest {
     private static final String W3C_TESTSUITE_ROOT = "http://www.w3.org/2000/10/rdf-tests/rdfcore/";
     private static final String W3C_TESTSUITE_MANIFEST_URI = W3C_TESTSUITE_ROOT + "Manifest.rdf";
 
-    private final SinkWrapper clerezzaWrapper = new ClerezzaSinkWrapper();
-    private final SinkWrapper jenaWrapper = new JenaSinkWrapper();
-    private final SinkWrapper turtleSerializerWrapper = new SinkWrapper<Reader>() {
+    private Model model;
+    private MGraph graph;
+    private TurtleSerializerSink semarglTurtleSink;
 
-        private TurtleSerializerSink sink = new TurtleSerializerSink();
-
-        @Override
-        public TripleSink getSink() {
-            return sink;
-        }
-
-        @Override
-        public void reset() {
-        }
-
-        @Override
-        public void process(DataProcessor<Reader> dp, Reader input, String baseUri, Writer output)
-                throws ParseException, IOException {
-            sink.setWriter(output);
-            dp.process(input, baseUri);
-        }
-    };
-
-    @BeforeClass
+    @BeforeClass(groups = { "Jena", "Clerezza", "Semargl-Turtle" })
     public static void cleanTargetDir() throws IOException {
         File failuresDir = new File(FAILURES_DIR);
         FileUtils.deleteDirectory(failuresDir);
         failuresDir.mkdirs();
     }
 
-    @DataProvider(name = "W3C-Tests-Provider")
-    public static Object[][] getW3CTestSuite() {
-        Collection<TestCase> testCases = new RdfXmlTestBundle(getLocalPath(W3C_TESTSUITE_MANIFEST_URI,
+    @BeforeGroups(groups = "Jena")
+    public void initJena() {
+        model = ModelFactory.createDefaultModel();
+    }
+
+    @BeforeGroups(groups = "Clerezza")
+    public void initClerezza() {
+        UriRef graphUri = new UriRef("http://example.com/");
+        TcManager MANAGER = TcManager.getInstance();
+        if (MANAGER.listMGraphs().contains(graphUri)) {
+            MANAGER.deleteTripleCollection(graphUri);
+        }
+        graph = MANAGER.createMGraph(graphUri);
+    }
+
+    @BeforeGroups(groups = "Semargl-Turtle")
+    public void initSemarglTertle() {
+        semarglTurtleSink = new TurtleSerializerSink();
+    }
+
+    @BeforeMethod(groups = "Jena")
+    public void setUpJena() {
+        model.removeAll();
+    }
+
+    @BeforeMethod(groups = "Clerezza")
+    public void setUpClerezza() {
+        if (graph != null) {
+            graph.clear();
+        }
+    }
+
+    @DataProvider
+    public static Object[][] getTestSuite() {
+        List<TestCase> testCases = new RdfXmlTestBundle(getLocalPath(W3C_TESTSUITE_MANIFEST_URI,
                 TESTSUITE_DIR), W3C_TESTSUITE_MANIFEST_URI, W3C_TESTSUITE_ROOT).getTestCases();
+        testCases.addAll(new RdfXmlTestBundle(getLocalPath(ARP_TESTSUITE_MANIFEST_URI,
+                TESTSUITE_DIR), ARP_TESTSUITE_MANIFEST_URI, ARP_TESTSUITE_ROOT).getTestCases());
         Object[][] result = new Object[testCases.size()][];
-        int i = 0;
-        for (TestCase testCase : testCases) {
-            result[i++] = new Object[] { testCase };
+        for (int i = 0; i < testCases.size(); i++) {
+            result[i] = new Object[] { testCases.get(i) };
         }
         return result;
     }
 
-    @DataProvider(name = "ARP-Tests-Provider")
-    public static Object[][] getARPTestSuite() {
-        Collection<TestCase> testCases = new RdfXmlTestBundle(getLocalPath(ARP_TESTSUITE_MANIFEST_URI,
-                TESTSUITE_DIR), ARP_TESTSUITE_MANIFEST_URI, ARP_TESTSUITE_ROOT).getTestCases();
-        Object[][] result = new Object[testCases.size()][];
-        int i = 0;
-        for (TestCase testCase : testCases) {
-            result[i++] = new Object[] { testCase };
-        }
-        return result;
-    }
-
-    @Test(dataProvider = "W3C-Tests-Provider")
+    @Test(dataProvider = "getTestSuite", groups = "Jena" )
     public void runW3CWithJenaSink(TestCase testCase) {
-        runTestWith(testCase, jenaWrapper);
+        runTestWith(testCase, new JenaTripleSink(model), new SaveToFileCallback() {
+            @Override
+            public void run(DataProcessor<Reader> dp, FileReader input,
+                            String inputUri, FileWriter output) throws ParseException {
+                dp.process(input, inputUri);
+                model.write(output, "TURTLE");
+            }
+        });
     }
 
-    @Test(dataProvider = "ARP-Tests-Provider")
-    public void runARPWithJenaSink(TestCase testCase) {
-        runTestWith(testCase, jenaWrapper);
-    }
-
-    @Test(dataProvider = "W3C-Tests-Provider")
+    @Test(dataProvider = "getTestSuite", groups = "Clerezza")
     public void runW3CWithClerezzaSink(TestCase testCase) {
-        runTestWith(testCase, clerezzaWrapper);
+        runTestWith(testCase, new ClerezzaTripleSink(graph), new SaveToFileCallback() {
+            @Override
+            public void run(DataProcessor<Reader> dp, FileReader input,
+                            String inputUri, FileWriter output) throws ParseException {
+                dp.process(input, inputUri);
+                if (graph != null) {
+                    OutputStream outputStream = new WriterOutputStream(output);
+                    try {
+                        Serializer serializer = Serializer.getInstance();
+                        serializer.serialize(outputStream, graph, "text/turtle");
+                    } finally {
+                        IOUtils.closeQuietly(outputStream);
+                    }
+                }
+            }
+        });
     }
 
-    @Test(dataProvider = "ARP-Tests-Provider")
-    public void runARPWithClerezzaSink(TestCase testCase) {
-        runTestWith(testCase, clerezzaWrapper);
-    }
-
-    @Test(dataProvider = "W3C-Tests-Provider")
+    @Test(dataProvider = "getTestSuite", groups = "Semargl-Turtle")
     public void runW3CWithTurtleSink(TestCase testCase) {
-        runTestWith(testCase, turtleSerializerWrapper);
+        runTestWith(testCase, semarglTurtleSink, new SaveToFileCallback() {
+            @Override
+            public void run(DataProcessor<Reader> dp, FileReader input,
+                            String inputUri, FileWriter output) throws ParseException {
+                semarglTurtleSink.setWriter(output);
+                dp.process(input, inputUri);
+            }
+        });
     }
 
-    @Test(dataProvider = "ARP-Tests-Provider")
-    public void runARPWithTurtleSink(TestCase testCase) {
-        runTestWith(testCase, turtleSerializerWrapper);
-    }
-
-    private void runTestWith(TestCase testCase, SinkWrapper wrapper) {
+    private void runTestWith(TestCase testCase, TripleSink sink, SaveToFileCallback callback) {
         String inputUri = testCase.getInput();
         String resultUri = testCase.getResult();
 
@@ -150,7 +172,18 @@ public final class RdfXmlParserTest {
         Model resultModel = ModelFactory.createDefaultModel();
         boolean success = true;
         try {
-            extract(inputFile, inputUri, outputFile, wrapper);
+            XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+            DataProcessor<Reader> dp = new SaxSource(xmlReader)
+                    .streamingTo(new RdfXmlParser()
+                            .streamingTo(sink)).build();
+            FileReader input = new FileReader(inputFile);
+            FileWriter output = new FileWriter(outputFile);
+            try {
+                callback.run(dp, input, inputUri, output);
+            } finally {
+                IOUtils.closeQuietly(input);
+                IOUtils.closeQuietly(output);
+            }
             if (outputFile.exists()) {
                 inputModel.read(new FileInputStream(outputFile), inputUri, "TURTLE");
             }
@@ -188,23 +221,6 @@ public final class RdfXmlParserTest {
                 + "\nresult: " + getLocalPath(testCase.getResult(), TESTSUITE_DIR) + "\n");
     }
 
-    private void extract(File inputFile, String baseUri, File outputFile, SinkWrapper wrapper)
-            throws IOException, SAXException, ParseException {
-        wrapper.reset();
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        DataProcessor<Reader> dp = new SaxSource(xmlReader)
-                .streamingTo(new RdfXmlParser()
-                        .streamingTo(wrapper.getSink())).build();
-        FileReader input = new FileReader(inputFile);
-        FileWriter output = new FileWriter(outputFile);
-        try {
-            wrapper.process(dp, input, baseUri, output);
-        } finally {
-            IOUtils.closeQuietly(input);
-            IOUtils.closeQuietly(output);
-        }
-    }
-
     private static String getLocalPath(String uri, String base) {
         if (uri == null) {
             return null;
@@ -216,5 +232,9 @@ public final class RdfXmlParserTest {
             return uri.replace(ARP_TESTSUITE_ROOT, base + "arp/");
         }
         return null;
+    }
+
+    private interface SaveToFileCallback {
+        void run(DataProcessor<Reader> dp, FileReader input, String inputUri, FileWriter output) throws ParseException;
     }
 }
