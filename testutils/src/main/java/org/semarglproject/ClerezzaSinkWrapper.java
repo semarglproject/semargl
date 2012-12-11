@@ -19,6 +19,8 @@ package org.semarglproject;
 import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
+import org.apache.clerezza.rdf.core.serializedform.Serializer;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
@@ -58,9 +60,10 @@ public final class ClerezzaSinkWrapper implements SinkWrapper<Reader> {
         if (graph != null) {
             OutputStream outputStream = new WriterOutputStream(output);
             try {
-                TestUtils.dumpToStream(graph, outputStream, "text/turtle");
+                Serializer serializer = Serializer.getInstance();
+                serializer.serialize(outputStream, graph, "text/turtle");
             } finally {
-                TestUtils.closeQuietly(outputStream);
+                IOUtils.closeQuietly(outputStream);
             }
         }
     }

@@ -18,10 +18,11 @@ package org.semarglproject.rdf;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
-import org.semarglproject.TestUtils;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -76,9 +77,9 @@ public final class RdfXmlParserTest {
     };
 
     @BeforeClass
-    public static void cleanTargetDir() {
+    public static void cleanTargetDir() throws IOException {
         File failuresDir = new File(FAILURES_DIR);
-        TestUtils.deleteDir(failuresDir);
+        FileUtils.deleteDirectory(failuresDir);
         failuresDir.mkdirs();
     }
 
@@ -199,8 +200,8 @@ public final class RdfXmlParserTest {
         try {
             wrapper.process(dp, input, baseUri, output);
         } finally {
-            TestUtils.closeQuietly(input);
-            TestUtils.closeQuietly(output);
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
     }
 

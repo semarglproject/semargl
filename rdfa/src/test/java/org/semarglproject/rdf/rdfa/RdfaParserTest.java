@@ -22,10 +22,11 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
-import org.semarglproject.TestUtils;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
@@ -41,11 +42,16 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Collection;
 
 import static org.testng.AssertJUnit.assertTrue;
@@ -92,7 +98,7 @@ public final class RdfaParserTest {
     @BeforeClass
     public static void cleanTargetDir() {
         File failuresDir = new File(FAILURES_DIR);
-        TestUtils.deleteDir(failuresDir);
+        deleteDir(failuresDir);
         failuresDir.mkdirs();
     }
 
@@ -270,8 +276,8 @@ public final class RdfaParserTest {
         outputFile.getParentFile().mkdirs();
 
         try {
-            TestUtils.downloadFile(inputUri, inputFile, false);
-            TestUtils.downloadFile(resultUri, resultFile, false);
+            downloadFile(inputUri, inputFile, false);
+            downloadFile(resultUri, resultFile, false);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -281,7 +287,7 @@ public final class RdfaParserTest {
         try {
             extract(inputFile, inputUri, outputFile, wrapper);
 
-            Query query = QueryFactory.create(TestUtils.readFileToString(resultFile));
+            Query query = QueryFactory.create(FileUtils.readFileToString(resultFile));
 
             Model resultModel = ModelFactory.createDefaultModel();
             resultModel.read(new FileInputStream(outputFile), inputUri, "TURTLE");
@@ -324,11 +330,47 @@ public final class RdfaParserTest {
             try {
                 wrapper.process(dp, input, baseUri, output);
             } finally {
-                TestUtils.closeQuietly(input);
-                TestUtils.closeQuietly(output);
+                IOUtils.closeQuietly(input);
+                IOUtils.closeQuietly(output);
             }
         } catch (ParseException e) {
             System.out.println(">>> " + e.getMessage() + " (" + inputFile.getAbsolutePath() + ")");
         }
     }
+
+    private static void deleteDir(File dir) {
+        if (!dir.exists()) {
+            return;
+        }
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File child : files) {
+                    deleteDir(child);
+                }
+            }
+        }
+        dir.delete();
+    }
+
+    private static void downloadFile(String sourceUrl, File dest, boolean forced) throws IOException {
+        if (!forced && dest.exists()) {
+            return;
+        }
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        URL url = new URL(sourceUrl);
+        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+        FileOutputStream fos = new FileOutputStream(dest);
+        FileChannel channel = fos.getChannel();
+        try {
+            channel.transferFrom(rbc, 0, 1 << 24);
+        } finally {
+            if (channel != null) {
+                channel.close();
+            }
+        }
+    }
+
 }

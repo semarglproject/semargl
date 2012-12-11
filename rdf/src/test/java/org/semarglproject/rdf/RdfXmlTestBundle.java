@@ -24,7 +24,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import org.semarglproject.TestUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,7 +69,7 @@ public final class RdfXmlTestBundle {
         Model graph = ModelFactory.createDefaultModel();
         try {
             graph.read(new FileInputStream(manifest), manifestUri, "RDF/XML");
-            queryStr = TestUtils.readFileToString(new File(
+            queryStr = FileUtils.readFileToString(new File(
                     "src/test/resources/fetch_rdfxml_tests.sparql"));
         } catch (IOException e) {
             e.printStackTrace();

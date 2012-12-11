@@ -24,10 +24,11 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.semarglproject.ClerezzaSinkWrapper;
 import org.semarglproject.JenaSinkWrapper;
 import org.semarglproject.SinkWrapper;
-import org.semarglproject.TestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,9 +53,9 @@ public final class NTriplesParserTest {
     private static final String RDF_TEST_SUITE_ROOT = "http://www.w3.org/2000/10/rdf-tests/rdfcore";
 
     @BeforeClass
-    public static void cleanTargetDir() {
+    public static void cleanTargetDir() throws IOException {
         File failuresDir = new File(FAILURES_DIR);
-        TestUtils.deleteDir(failuresDir);
+        FileUtils.deleteDirectory(failuresDir);
         failuresDir.mkdirs();
     }
 
@@ -67,7 +68,7 @@ public final class NTriplesParserTest {
 
         try {
             graph.read(new FileInputStream("src/test/resources/w3c/Manifest.rdf"), manifestUri, "RDF/XML");
-            queryStr = TestUtils.readFileToString(new File(
+            queryStr = FileUtils.readFileToString(new File(
                     "src/test/resources/fetch_ntriples_tests.sparql"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,7 +139,7 @@ public final class NTriplesParserTest {
         } catch (Exception e) {
             invalidInput = true;
         } finally {
-            TestUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(inputStream);
         }
 
         try {
@@ -154,7 +155,7 @@ public final class NTriplesParserTest {
         try {
             outputModel.read(inputStream, caseName, "TURTLE");
         } finally {
-            TestUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(inputStream);
         }
 
         boolean success = outputModel.isIsomorphicWith(resultModel);
@@ -175,8 +176,8 @@ public final class NTriplesParserTest {
         try {
             wrapper.process(dp, input, baseUri, output);
         } finally {
-            TestUtils.closeQuietly(input);
-            TestUtils.closeQuietly(output);
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
     }
 }
