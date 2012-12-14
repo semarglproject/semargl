@@ -1,31 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="RDFa parser" verbose="1">
-    <test name="RDFa Jena Test">
-        <groups>
-            <run>
-                <include name="Jena" />
-            </run>
-        </groups>
-        <classes>
-            <class name="org.semarglproject.rdf.rdfa.RdfaParserTest" />
-        </classes>
-    </test>
-    <test name="RDFa Clerezza Test">
-        <groups>
-            <run>
-                <include name="Clerezza" />
-            </run>
-        </groups>
-        <classes>
-            <class name="org.semarglproject.rdf.rdfa.RdfaParserTest" />
-        </classes>
-    </test>
     <test name="RDFa Semargl Turtle Test">
-        <groups>
-            <run>
-                <include name="Semargl-Turtle" />
-            </run>
-        </groups>
         <classes>
             <class name="org.semarglproject.rdf.rdfa.RdfaParserTest" />
         </classes>

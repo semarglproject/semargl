@@ -43,7 +43,6 @@ public final class JenaTripleSink implements TripleSink {
         this.model = model;
         this.batchSize = batchSize;
         bnodeMap = new HashMap<String, Node>();
-        newBatch();
     }
 
     private void newBatch() {
@@ -103,6 +102,7 @@ public final class JenaTripleSink implements TripleSink {
 
     @Override
     public void startStream() {
+        newBatch();
     }
 
     @Override

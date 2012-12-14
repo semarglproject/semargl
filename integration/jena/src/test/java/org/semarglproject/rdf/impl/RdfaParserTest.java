@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf.rdfa;
+package org.semarglproject.rdf.impl;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
-import org.semarglproject.rdf.TurtleSerializerSink;
+import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -37,25 +41,29 @@ import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 
 public final class RdfaParserTest {
 
-    private TurtleSerializerSink semarglTurtleSink;
+    private Model model;
     private DataProcessor<Reader> dp;
-    private SaveToFileCallback semarglTurtleCallback = new SaveToFileCallback() {
+    private SaveToFileCallback jenaCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output) throws ParseException {
-            semarglTurtleSink.setWriter(output);
             dp.process(input, inputUri);
+            model.write(output, "TURTLE");
         }
     };
 
     @BeforeClass
-    public void init() throws SAXException, InterruptedException {
+    public void init() throws SAXException {
         RdfaTestBundle.prepareTestDir();
-        RdfaTestBundle.downloadAllTests(2);
-        semarglTurtleSink = new TurtleSerializerSink();
+        model = ModelFactory.createDefaultModel();
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
         reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(semarglTurtleSink)).build();
+        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(new JenaTripleSink(model))).build();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        model.removeAll();
     }
 
     @DataProvider
@@ -103,38 +111,38 @@ public final class RdfaParserTest {
     }
 
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
-    public void Rdfa10Xhtml1TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa10Xhtml1TestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
     @Test(dataProvider = "getRdfa10SvgTestSuite")
-    public void Rdfa10SvgTestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa10SvgTestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
     @Test(dataProvider = "getRdfa11Html4TestSuite")
-    public void Rdfa11Html4TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11Html4TestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
     @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
-    public void Rdfa11Xhtml1TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11Xhtml1TestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
     @Test(dataProvider = "getRdfa11Html5TestSuite")
-    public void Rdfa11Html5TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11Html5TestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
     @Test(dataProvider = "getRdfa11XmlTestSuite")
-    public void Rdfa11XmlTestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11XmlTestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
     @Test(dataProvider = "getRdfa11SvgTestSuite")
-    public void Rdfa11SvgTestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11SvgTestsJena(TestCase testCase) {
+        runTestBundle(testCase, jenaCallback);
     }
 
 }

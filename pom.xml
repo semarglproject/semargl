@@ -206,6 +206,22 @@
 				<version>${project.version}</version>
 			</dependency>
 
+            <!-- Testing modules -->
+            <dependency>
+                <groupId>org.semarglproject</groupId>
+                <artifactId>semargl-rdfa</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.semarglproject</groupId>
+                <artifactId>semargl-rdf</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
+
 			<!-- TestNG -->
 			<dependency>
 				<groupId>org.testng</groupId>

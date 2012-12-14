@@ -25,14 +25,39 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
 public final class RdfXmlTestBundle {
+
+    private static final String FAILURES_DIR = "target/failed/";
+
+    private static final String ARP_TESTSUITE_ROOT = "http://jcarroll.hpl.hp.com/arp-tests/";
+    private static final String ARP_TESTSUITE_MANIFEST_URI = ARP_TESTSUITE_ROOT + "Manifest.rdf";
+
+    private static final String W3C_TESTSUITE_ROOT = "http://www.w3.org/2000/10/rdf-tests/rdfcore/";
+    private static final String W3C_TESTSUITE_MANIFEST_URI = W3C_TESTSUITE_ROOT + "Manifest.rdf";
+
+    public static final String FETCH_RDFXML_TESTS_SPARQL = "fetch_rdfxml_tests.sparql";
+
+    public interface SaveToFileCallback {
+        void run(Reader input, String inputUri, Writer output) throws ParseException;
+    }
 
     public final static class TestCase {
         private final String name;
@@ -60,17 +85,33 @@ public final class RdfXmlTestBundle {
         }
     }
 
-    private final List<TestCase> testCases = new ArrayList<TestCase>();
+    public static Object[][] getTestFiles() {
+        List<TestCase> testCases = getTestCases(W3C_TESTSUITE_MANIFEST_URI, W3C_TESTSUITE_ROOT);
+        testCases.addAll(getTestCases(ARP_TESTSUITE_MANIFEST_URI, ARP_TESTSUITE_ROOT));
+        Object[][] result = new Object[testCases.size()][];
+        for (int i = 0; i < testCases.size(); i++) {
+            result[i] = new Object[] { testCases.get(i) };
+        }
+        return result;
+    }
 
-    public RdfXmlTestBundle(String manifest, String manifestUri, String testsuiteRoot) {
-        super();
+    public static void prepareTestDir() {
+        try {
+            File testDir = new File(FAILURES_DIR);
+            testDir.mkdirs();
+            FileUtils.cleanDirectory(testDir);
+        } catch (IOException e) {
+            // do nothing
+        }
+    }
 
+    private static List<TestCase> getTestCases(String manifestUri, String testsuiteRoot) {
+        List<TestCase> testCases = new ArrayList<TestCase>();
         String queryStr = null;
         Model graph = ModelFactory.createDefaultModel();
         try {
-            graph.read(new FileInputStream(manifest), manifestUri, "RDF/XML");
-            queryStr = FileUtils.readFileToString(new File(
-                    "src/test/resources/fetch_rdfxml_tests.sparql"));
+            graph.read(openStreamForResource(manifestUri), manifestUri, "RDF/XML");
+            queryStr = IOUtils.toString(openStreamForResource(FETCH_RDFXML_TESTS_SPARQL));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,9 +150,107 @@ public final class RdfXmlTestBundle {
             testCases.add(new TestCase(testName, input, result));
         }
         qe.close();
-    }
-
-    public List<TestCase> getTestCases() {
         return testCases;
     }
+
+    public static void runTestWith(TestCase testCase, SaveToFileCallback callback) {
+        String inputUri = testCase.getInput();
+
+        String resultFilePath = getOutputPath(inputUri);
+        new File(resultFilePath).getParentFile().mkdirs();
+
+        boolean invalidRdfXmlFile = false;
+        try {
+            Reader input = new InputStreamReader(openStreamForResource(inputUri));
+            Writer output = new FileWriter(resultFilePath);
+            try {
+                callback.run(input, inputUri, output);
+            } finally {
+                IOUtils.closeQuietly(input);
+                IOUtils.closeQuietly(output);
+            }
+        } catch (IOException e) {
+            fail();
+        } catch (ParseException e) {
+            invalidRdfXmlFile = true;
+        }
+        try {
+            Model inputModel;
+            if (invalidRdfXmlFile) {
+                // in case of invalid input, we should ignore all document
+                inputModel = ModelFactory.createDefaultModel();
+            } else {
+                inputModel = createModelFromFile(resultFilePath, inputUri);
+            }
+            Model expected;
+            if (testCase.getResult() == null) {
+                // negative test cases assume no resulting triples
+                expected = ModelFactory.createDefaultModel();
+            } else {
+                expected = createModelFromFile(testCase.getResult(), inputUri);
+            }
+            assertTrue(inputModel.isIsomorphicWith(expected));
+        } catch (FileNotFoundException e) {
+            fail();
+        }
+    }
+
+    private static String getOutputPath(String uri) {
+        String result = uri;
+        if (uri.startsWith(W3C_TESTSUITE_ROOT)) {
+            result = uri.replace(W3C_TESTSUITE_ROOT, FAILURES_DIR + "w3c/");
+        } else if (uri.startsWith(ARP_TESTSUITE_ROOT)) {
+            result = uri.replace(ARP_TESTSUITE_ROOT, FAILURES_DIR + "arp/");
+        }
+        return result + ".out.ttl";
+    }
+
+    private static Model createModelFromFile(String filename, String baseUri) throws FileNotFoundException {
+        String fileFormat = detectFileFormat(filename);
+        Model result = ModelFactory.createDefaultModel();
+        InputStream inputStream = openStreamForResource(filename);
+        try {
+            result.read(inputStream, baseUri, fileFormat);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+        return result;
+    }
+
+    private static String detectFileFormat(String filename) {
+        String fileFormat;
+        if (filename.endsWith(".nt")) {
+            fileFormat = "N-TRIPLE";
+        } else if (filename.endsWith(".ttl")) {
+            fileFormat = "TURTLE";
+        } else if (filename.endsWith(".rdf")) {
+            fileFormat = "RDF/XML";
+        } else {
+            throw new IllegalArgumentException("Unknown file format");
+        }
+        return fileFormat;
+    }
+
+    private static InputStream openStreamForResource(String uri) throws FileNotFoundException {
+        String result = uri;
+        if (uri.startsWith(W3C_TESTSUITE_ROOT)) {
+            result = uri.replace(W3C_TESTSUITE_ROOT, "w3c/");
+        } else if (uri.startsWith(ARP_TESTSUITE_ROOT)) {
+            result = uri.replace(ARP_TESTSUITE_ROOT, "arp/");
+        }
+        File file = new File(uri);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        result = RdfXmlTestBundle.class.getClassLoader().getResource(result).getFile();
+        if (result.contains(".jar!/")) {
+            try {
+                return new URL("jar:" + result).openStream();
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        return new FileInputStream(result);
+    }
+
 }

@@ -31,6 +31,14 @@ import java.util.Stack;
 
 public final class RdfXmlParser implements SaxSink, TripleSource {
 
+    private static final short INSIDE_OF_PROPERTY = 1;
+    private static final short INSIDE_OF_RESOURCE = 2;
+    private static final short PARSE_TYPE_LITERAL = 3;
+    private static final short PARSE_TYPE_COLLECTION = 4;
+    private static final short PARSE_TYPE_RESOURCE = 5;
+
+    private short mode = 0;
+
     private TripleSink sink = null;
     private String baseUri = "";
 
@@ -40,14 +48,6 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     private final Stack<String> subjStack = new Stack<String>();
     private final Stack<Integer> subjLiIndexStack = new Stack<Integer>();
     private final Map<String, String> nsMappings = new HashMap<String, String>();
-
-    private short mode = 0;
-
-    private static final short INSIDE_OF_PROPERTY = 1;
-    private static final short INSIDE_OF_RESOURCE = 2;
-    private static final short PARSE_TYPE_LITERAL = 3;
-    private static final short PARSE_TYPE_COLLECTION = 4;
-    private static final short PARSE_TYPE_RESOURCE = 5;
 
     private int bnodeId = 0;
     private String subjRes = null;     // IRI or bnode
@@ -429,6 +429,12 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         baseStack.push(baseUri);
         langStack.push(null);
         captureLiteral = false;
+        subjRes = null;
+        seqTailRes = null;
+        predIri = null;
+        datatypeIri = null;
+        reifyIri = null;
+        parseDepth = 0;
     }
 
     @Override
@@ -438,6 +444,8 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         subjStack.clear();
         modeStack.clear();
         subjLiIndexStack.clear();
+        nsMappings.clear();
+        parse = new StringBuilder();
     }
 
     @Override

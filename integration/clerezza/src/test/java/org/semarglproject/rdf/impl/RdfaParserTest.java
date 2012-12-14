@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf.rdfa;
+package org.semarglproject.rdf.impl;
 
+import org.apache.clerezza.rdf.core.MGraph;
+import org.apache.clerezza.rdf.core.UriRef;
+import org.apache.clerezza.rdf.core.access.TcManager;
+import org.apache.clerezza.rdf.core.serializedform.Serializer;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
-import org.semarglproject.rdf.TurtleSerializerSink;
+import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
@@ -37,25 +46,46 @@ import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 
 public final class RdfaParserTest {
 
-    private TurtleSerializerSink semarglTurtleSink;
+    private MGraph graph;
     private DataProcessor<Reader> dp;
-    private SaveToFileCallback semarglTurtleCallback = new SaveToFileCallback() {
+    private SaveToFileCallback clerezzaCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output) throws ParseException {
-            semarglTurtleSink.setWriter(output);
             dp.process(input, inputUri);
+            if (graph != null) {
+                OutputStream outputStream = new WriterOutputStream(output);
+                try {
+                    Serializer serializer = Serializer.getInstance();
+                    serializer.serialize(outputStream, graph, "text/turtle");
+                } finally {
+                    IOUtils.closeQuietly(outputStream);
+                }
+            }
         }
     };
 
     @BeforeClass
-    public void init() throws SAXException, InterruptedException {
+    public void init() throws SAXException {
         RdfaTestBundle.prepareTestDir();
-        RdfaTestBundle.downloadAllTests(2);
-        semarglTurtleSink = new TurtleSerializerSink();
+
+        UriRef graphUri = new UriRef("http://example.com/");
+        TcManager MANAGER = TcManager.getInstance();
+        if (MANAGER.listMGraphs().contains(graphUri)) {
+            MANAGER.deleteTripleCollection(graphUri);
+        }
+        graph = MANAGER.createMGraph(graphUri);
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
         reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(semarglTurtleSink)).build();
+        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(new ClerezzaTripleSink(graph))).build();
+
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        if (graph != null) {
+            graph.clear();
+        }
     }
 
     @DataProvider
@@ -103,38 +133,38 @@ public final class RdfaParserTest {
     }
 
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
-    public void Rdfa10Xhtml1TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa10Xhtml1TestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
     @Test(dataProvider = "getRdfa10SvgTestSuite")
-    public void Rdfa10SvgTestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa10SvgTestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
     @Test(dataProvider = "getRdfa11Html4TestSuite")
-    public void Rdfa11Html4TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11Html4TestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
     @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
-    public void Rdfa11Xhtml1TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11Xhtml1TestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
     @Test(dataProvider = "getRdfa11Html5TestSuite")
-    public void Rdfa11Html5TestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11Html5TestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
     @Test(dataProvider = "getRdfa11XmlTestSuite")
-    public void Rdfa11XmlTestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11XmlTestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
     @Test(dataProvider = "getRdfa11SvgTestSuite")
-    public void Rdfa11SvgTestsTurtle(TestCase testCase) {
-        runTestBundle(testCase, semarglTurtleCallback);
+    public void Rdfa11SvgTestsClerezza(TestCase testCase) {
+        runTestBundle(testCase, clerezzaCallback);
     }
 
 }

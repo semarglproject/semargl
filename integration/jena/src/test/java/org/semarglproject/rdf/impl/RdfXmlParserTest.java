@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.rdf.impl;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.RdfXmlParser;
+import org.semarglproject.rdf.RdfXmlTestBundle;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
+import org.semarglproject.rdf.SaxSource;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -33,16 +40,21 @@ import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
 
 public final class RdfXmlParserTest {
 
-    private TurtleSerializerSink semarglTurtleSink;
+    private Model model;
     private DataProcessor<Reader> dp;
 
     @BeforeClass
-    public void cleanTargetDir() throws IOException, SAXException {
+    public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
 
-        semarglTurtleSink = new TurtleSerializerSink();
+        model = ModelFactory.createDefaultModel();
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        dp = new SaxSource(xmlReader).streamingTo(new RdfXmlParser().streamingTo(semarglTurtleSink)).build();
+        dp = new SaxSource(xmlReader).streamingTo(new RdfXmlParser().streamingTo(new JenaTripleSink(model))).build();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        model.removeAll();
     }
 
     @DataProvider
@@ -51,12 +63,12 @@ public final class RdfXmlParserTest {
     }
 
     @Test(dataProvider = "getTestSuite")
-    public void runW3CWithTurtleSink(TestCase testCase) {
+    public void runW3CWithJenaSink(TestCase testCase) {
         runTestWith(testCase, new SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                semarglTurtleSink.setWriter(output);
                 dp.process(input, inputUri);
+                model.write(output, "TURTLE");
             }
         });
     }

@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.rdf.impl;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.semarglproject.rdf.CharSource;
+import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.rdf.NTriplesParser;
+import org.semarglproject.rdf.NTriplesTestBundle;
+import org.semarglproject.rdf.ParseException;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -26,30 +34,34 @@ import java.io.Writer;
 
 public final class NTriplesParserTest {
 
-    private TurtleSerializerSink semarglTurtleSink;
+    private Model model;
     private DataProcessor<Reader> dp;
 
     @BeforeClass
-    public void cleanTargetDir() {
+    public void init() {
         NTriplesTestBundle.prepareTestDir();
-        semarglTurtleSink = new TurtleSerializerSink();
-        dp = new CharSource().streamingTo(new NTriplesParser().streamingTo(semarglTurtleSink)).build();
+        model = ModelFactory.createDefaultModel();
+        dp = new CharSource().streamingTo(new NTriplesParser().streamingTo(new JenaTripleSink(model))).build();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        model.removeAll();
+    }
+
+    @Test(dataProvider = "getTestFiles")
+    public void NTriplesTestsJena(String caseName) throws Exception {
+        NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
+            @Override
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+                dp.process(input, inputUri);
+                model.write(output, "TURTLE");
+            }
+        });
     }
 
     @DataProvider
     public Object[][] getTestFiles() throws IOException {
         return NTriplesTestBundle.getTestFiles();
     }
-
-    @Test(dataProvider = "getTestFiles")
-    public void NTriplesTestsTurtle(String caseName) throws Exception {
-        NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
-            @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                semarglTurtleSink.setWriter(output);
-                dp.process(input, inputUri);
-            }
-        });
-    }
-
 }
