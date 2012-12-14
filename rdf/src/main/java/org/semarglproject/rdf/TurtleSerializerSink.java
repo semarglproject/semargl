@@ -16,8 +16,14 @@
 
 package org.semarglproject.rdf;
 
+import org.semarglproject.vocab.RDF;
+
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 
 public final class TurtleSerializerSink implements TripleSink {
 
@@ -28,27 +34,53 @@ public final class TurtleSerializerSink implements TripleSink {
     private String prevPred;
     private StringBuilder builder;
     private short step;
+    private Queue<String> bnodeStack = new LinkedList<String>();
+    private Set<String> namedBnodes = new HashSet<String>();
+    private String baseUri;
 
     private void startTriple(String subj, String pred) {
+        String predicateStr;
+        if (RDF.TYPE.equals(pred)) {
+            predicateStr = " a ";
+        } else if (pred.startsWith(RDF.NS)) {
+            predicateStr = " rdf:" + pred.substring(RDF.NS.length()) + " ";
+        } else {
+            predicateStr = " <" + pred + "> ";
+        }
         if (builder == null) {
             builder = new StringBuilder();
         }
         if (subj.equals(prevSubj)) {
             if (pred.equals(prevPred)) {
                 builder.append(", ");
+            } else if (prevPred != null) {
+                builder.append(";\n").append(predicateStr);
             } else {
-                builder.append(";\n <").append(pred).append("> ");
+                builder.append(predicateStr);
             }
         } else {
-            if (prevSubj != null) {
+            if (!bnodeStack.isEmpty()) {
+                builder.append("]");
+                bnodeStack.poll();
+                prevSubj = bnodeStack.peek();
+                prevPred = null;
+                if (prevSubj == null) {
+                    builder.append(".\n");
+                }
+                startTriple(subj, pred);
+                return;
+            } else if (prevSubj != null) {
                 builder.append(".\n");
             }
             if (subj.charAt(0) == '_') {
                 builder.append(subj);
+                namedBnodes.add(subj);
+            } else if (baseUri != null && subj.startsWith(baseUri)) {
+                builder.append('<').append(subj.substring(baseUri.length())).append('>');
             } else {
                 builder.append('<').append(subj).append('>');
             }
-            builder.append(" <").append(pred).append("> ");
+            builder.append(predicateStr);
         }
         prevSubj = subj;
         prevPred = pred;
@@ -79,7 +111,14 @@ public final class TurtleSerializerSink implements TripleSink {
     public void addNonLiteral(String subj, String pred, String obj) {
         startTriple(subj, pred);
         if (obj.charAt(0) == '_') {
-            builder.append(obj);
+            if (!namedBnodes.contains(obj) && obj.endsWith(RDF.SHORTENABLE_BNODE_SUFFIX)) {
+                builder.append('[');
+                bnodeStack.offer(obj);
+                prevSubj = obj;
+                prevPred = null;
+            } else {
+                builder.append(obj);
+            }
         } else {
             builder.append('<').append(obj).append('>');
         }
@@ -89,7 +128,13 @@ public final class TurtleSerializerSink implements TripleSink {
     @Override
     public void addIriRef(String subj, String pred, String iri) {
         startTriple(subj, pred);
-        builder.append('<').append(iri).append('>');
+        if (iri.startsWith(RDF.NS)) {
+            builder.append("rdf:").append(iri.substring(RDF.NS.length()));
+        } else if (baseUri != null && iri.startsWith(baseUri)) {
+            builder.append('<').append(iri.substring(baseUri.length())).append('>');
+        } else {
+            builder.append('<').append(iri).append('>');
+        }
         endTriple();
     }
 
@@ -118,17 +163,30 @@ public final class TurtleSerializerSink implements TripleSink {
         }
         prevSubj = null;
         prevPred = null;
-        builder = null;
+        builder = new StringBuilder();
+        if (baseUri != null) {
+            builder.append("@base <").append(baseUri).append(">.\n");
+        }
+        builder.append("@prefix rdf: <").append(RDF.NS).append(">.\n");
         step = 0;
+        bnodeStack.clear();
+        namedBnodes.clear();
     }
 
     @Override
     public void endStream() {
+        baseUri = null;
         try {
             if (builder != null) {
                 writer.write(builder.toString());
             }
-            if (prevPred != null) {
+            if (!bnodeStack.isEmpty()) {
+                while (!bnodeStack.isEmpty()) {
+                    writer.write("]");
+                    bnodeStack.poll();
+                }
+                writer.write(".\n");
+            } else if (prevPred != null) {
                 writer.write('.');
             }
             writer.write('\n');
@@ -139,6 +197,8 @@ public final class TurtleSerializerSink implements TripleSink {
 
     @Override
     public void setBaseUri(String baseUri) {
+        this.baseUri = //baseUri;
+            baseUri.substring(0, baseUri.length() - 1);
     }
 
     public void setWriter(Writer writer) {

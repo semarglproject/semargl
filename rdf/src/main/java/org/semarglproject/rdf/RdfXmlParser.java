@@ -216,14 +216,14 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                 parse = new StringBuilder();
                 mode = PARSE_TYPE_LITERAL;
             } else if (value.equalsIgnoreCase("Resource")) {
-                String bnode = RDF.BNODE_PREFIX + bnodeId++;
+                String bnode = newBnode();
                 processNonLiteralTriple(subjRes, predIri, bnode);
                 subjRes = bnode;
                 subjStack.push(subjRes);
                 subjLiIndexStack.push(1);
                 mode = PARSE_TYPE_RESOURCE;
             } else if (value.equalsIgnoreCase("Collection")) {
-                String bnode = RDF.BNODE_PREFIX + bnodeId++;
+                String bnode = newBnode();
                 sink.addNonLiteral(subjRes, predIri, bnode);
                 subjRes = bnode;
                 seqTailRes = null;
@@ -243,7 +243,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
             if (violatesSchema(attr) || attr.equals(RDF.NIL)) {
                 error(attr + " is not allowed here");
             }
-            String bnode = RDF.BNODE_PREFIX + bnodeId++;
+            String bnode = newBnode();
             processNonLiteralTriple(subjRes, predIri, bnode);
             sink.addPlainLiteral(bnode, attr, value, langStack.peek());
             captureLiteral = false;
@@ -286,9 +286,9 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                         seqTailRes = subjStack.peek();
                         sink.addNonLiteral(seqTailRes, RDF.FIRST, subjRes);
                     } else {
-                        String bnode = RDF.BNODE_PREFIX + bnodeId++;
-                        sink.addNonLiteral(bnode, RDF.FIRST, subjRes);
+                        String bnode = newBnode();
                         sink.addNonLiteral(seqTailRes, RDF.REST, bnode);
+                        sink.addNonLiteral(bnode, RDF.FIRST, subjRes);
                         seqTailRes = bnode;
                     }
                 } else {
@@ -353,8 +353,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         }
     }
 
-    private void processLiteralTriple(String subj, String pred, String value, String langOrDt,
-                                      boolean typed) {
+    private void processLiteralTriple(String subj, String pred, String value, String langOrDt, boolean typed) {
         if (typed) {
             sink.addTypedLiteral(subj, pred, value, langOrDt);
         } else {
@@ -392,12 +391,21 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
             count++;
         }
         if (count == 0) {
-            return RDF.BNODE_PREFIX + bnodeId++;
+            return newBnode();
         }
         if (count > 1) {
             error("Ambiguous identifier definition");
         }
         return result;
+    }
+
+    private String newBnode() {
+        String bnode = RDF.BNODE_PREFIX + bnodeId;
+        if (reifyIri == null) {
+            bnode += RDF.SHORTENABLE_BNODE_SUFFIX;
+        }
+        bnodeId++;
+        return bnode;
     }
 
     private static String resolveIRINoResolve(String nsIri, String iri) throws SAXException {
@@ -494,6 +502,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
 
     @Override
     public void startStream() {
+        sink.setBaseUri(baseUri);
         sink.startStream();
     }
 

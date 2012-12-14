@@ -41,7 +41,6 @@ public final class NTriplesParser implements CharSink, TripleSource {
     public void read(Reader r) throws ParseException {
         BufferedReader reader = new BufferedReader(r);
         try {
-//            sink.startStream();
             while ((buffer = reader.readLine()) != null) {
                 if (isEntirelyWhitespaceOrEmpty(buffer)) {
                     continue;
@@ -51,7 +50,6 @@ public final class NTriplesParser implements CharSink, TripleSource {
         } catch (IOException e) {
             throw new ParseException(e);
         } finally {
-//            sink.endStream();
             try {
                 reader.close();
             } catch (IOException e) {

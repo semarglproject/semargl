@@ -20,6 +20,9 @@ public final class RDF {
 
     public static final String BNODE_PREFIX = "_:";
 
+    // indicates that short bnode syntax shouldn't be used for this node
+    public static final String SHORTENABLE_BNODE_SUFFIX = "sbl";
+
     private RDF() {
     }
 
