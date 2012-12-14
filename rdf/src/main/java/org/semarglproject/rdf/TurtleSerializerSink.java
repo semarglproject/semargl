@@ -65,12 +65,12 @@ public final class TurtleSerializerSink implements TripleSink {
                 prevSubj = bnodeStack.peek();
                 prevPred = null;
                 if (prevSubj == null) {
-                    builder.append(".\n");
+                    builder.append(" .\n");
                 }
                 startTriple(subj, pred);
                 return;
             } else if (prevSubj != null) {
-                builder.append(".\n");
+                builder.append(" .\n");
             }
             if (subj.charAt(0) == '_') {
                 builder.append(subj);
@@ -165,9 +165,9 @@ public final class TurtleSerializerSink implements TripleSink {
         prevPred = null;
         builder = new StringBuilder();
         if (baseUri != null) {
-            builder.append("@base <").append(baseUri).append(">.\n");
+            builder.append("@base <").append(baseUri).append("> .\n");
         }
-        builder.append("@prefix rdf: <").append(RDF.NS).append(">.\n");
+        builder.append("@prefix rdf: <").append(RDF.NS).append("> .\n");
         step = 0;
         bnodeStack.clear();
         namedBnodes.clear();
@@ -185,9 +185,9 @@ public final class TurtleSerializerSink implements TripleSink {
                     writer.write("]");
                     bnodeStack.poll();
                 }
-                writer.write(".\n");
+                writer.write(" .\n");
             } else if (prevPred != null) {
-                writer.write('.');
+                writer.write(" .");
             }
             writer.write('\n');
             writer.flush();

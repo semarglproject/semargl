@@ -41,10 +41,11 @@ final class EvalContext {
     public String objectLit;
     public String objectLitDt;
     public String properties;
-    public String vocab;
-    public String profile;
     public boolean parsingLiteral;
     public Map<String, List<Object>> listMapping;
+
+    private String vocab;
+    private String profile;
 
     public EvalContext(ResourceResolver resolver, String base) {
         // RDFa Core 1.0 processing sequence step 1
@@ -116,10 +117,6 @@ final class EvalContext {
         objectLit += content;
     }
 
-    public void setObjectLit(String objectLit) {
-        this.objectLit = objectLit;
-    }
-
     public void updateBase(String oldBase, String base) {
         if (object != null && object.equals(oldBase)) {
             object = base;
@@ -140,6 +137,9 @@ final class EvalContext {
     public String resolvePredOrDatatype(String value, short rdfaVersion) throws SAXException {
         if (value == null || value.isEmpty()) {
             return null;
+        }
+        if (value == RdfaParser.AUTODETECT_DATE_DATATYPE) {
+            return RdfaParser.AUTODETECT_DATE_DATATYPE;
         }
         try {
             if (rdfaVersion > RDFa.VERSION_10) {

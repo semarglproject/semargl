@@ -61,6 +61,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     private static final String VALUE_ATTR = "value";
     private static final String DATA_ATTR = "data";
     private static final String XML_BASE = "xml:base";
+    static final String AUTODETECT_DATE_DATATYPE = "AUTODETECT_DATE_DATATYPE";
 
     // keys for coalesce method
     private static final String BASE_IF_HEAD_OR_BODY = "bihob";
@@ -434,11 +435,11 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
             }
             if (attrs.getValue(DATETIME_ATTR) != null) {
                 if (datatype == null) {
-                    datatype = XSD.DATE_TIME;
+                    datatype = AUTODETECT_DATE_DATATYPE;
                 }
                 content = attrs.getValue(DATETIME_ATTR);
             } else if (qName.equals("time") && datatype == null) {
-                datatype = XSD.DATE_TIME;
+                datatype = AUTODETECT_DATE_DATATYPE;
             }
         }
 
@@ -690,7 +691,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
     private void processContent(String content, EvalContext current, EvalContext parent) {
         if (!parent.parsingLiteral && parent.objectLit != null) {
-            parent.setObjectLit(parent.objectLit + content);
+            parent.objectLit += content;
         } else {
             String dt = current.objectLitDt;
             boolean inlist = current.properties.startsWith(RDFa.INLIST_ATTR + " ");

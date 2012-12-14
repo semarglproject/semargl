@@ -40,7 +40,7 @@ class TypedLiteral implements LiteralNode {
     }
 
     public static TypedLiteral from(String content, String dt) throws ParseException {
-        if (dt.equals(XSD.DATE_TIME)) {
+        if (dt.equals(RdfaParser.AUTODETECT_DATE_DATATYPE)) {
             try {
                 if (content.matches("-?P\\d+Y\\d+M\\d+DT\\d+H\\d+M\\d+(\\.\\d+)?S")) {
                     return new TypedLiteral(content, XSD.DURATION);
