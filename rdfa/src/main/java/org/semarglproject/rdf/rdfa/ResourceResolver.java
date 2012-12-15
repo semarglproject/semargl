@@ -21,5 +21,5 @@ import org.semarglproject.ri.MalformedIRIException;
 interface ResourceResolver {
     String resolveBNode(String value);
     String resolveIri(String iri) throws MalformedIRIException;
-    void declareVocabulary(String vocab);
+    Vocabulary loadVocabulary(String vocab);
 }

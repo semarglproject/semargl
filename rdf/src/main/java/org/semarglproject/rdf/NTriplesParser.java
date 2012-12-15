@@ -94,7 +94,7 @@ public final class NTriplesParser implements CharSink, TripleSource {
                     } else if (pred == null) {
                         pred = value;
                     } else {
-                        sink.addIriRef(subj, pred, value);
+                        sink.addNonLiteral(subj, pred, value);
                         break outer;
                     }
                     break;

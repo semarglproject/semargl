@@ -25,6 +25,7 @@ import org.semarglproject.vocab.RDFa;
 import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ final class EvalContext {
     public boolean parsingLiteral;
     public Map<String, List<Object>> listMapping;
 
-    private String vocab;
+    private Vocabulary vocab;
     private String profile;
 
     public EvalContext(ResourceResolver resolver, String base) {
@@ -53,7 +54,7 @@ final class EvalContext {
         this.subject = base;
     }
 
-    private EvalContext(String lang, String vocab, String profile, ResourceResolver resolver) {
+    private EvalContext(String lang, Vocabulary vocab, String profile, ResourceResolver resolver) {
         this.subject = null;
         this.object = null;
         this.iriMappings = new HashMap<String, String>();
@@ -87,11 +88,10 @@ final class EvalContext {
                 }
             }
             if (vocab != null) {
-                current.vocab = vocab;
-                if (current.vocab.length() == 0) {
+                if (vocab.length() == 0) {
                     current.vocab = null;
                 } else {
-                    resolver.declareVocabulary(current.vocab);
+                    current.vocab = resolver.loadVocabulary(vocab);
                 }
             }
         }
@@ -205,7 +205,7 @@ final class EvalContext {
     private String resolveTermOrSafeCURIE(String value, short rdfaVersion)
             throws MalformedIRIException {
         if (vocab != null && value.matches("[a-zA-Z0-9]+")) {
-            return resolver.resolveIri( vocab + value);
+            return resolver.resolveIri(vocab.url + value);
         }
         if (value.indexOf(':') == -1) {
             String result = CURIE.resolveXhtmlTerm(value);
@@ -229,4 +229,10 @@ final class EvalContext {
         }
     }
 
+    public Iterable<String> expand(String pred) {
+        if (vocab == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return vocab.expand(pred);
+    }
 }

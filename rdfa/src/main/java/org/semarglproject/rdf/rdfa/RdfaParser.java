@@ -80,6 +80,9 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     private boolean sinkOutputGraph;
     private boolean sinkProcessorGraph;
 
+    private boolean expandVocab;
+    private VocabManager vocabManager;
+
     private DocumentContext dh;
 
     private boolean rdfXmlInline;
@@ -88,22 +91,30 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     // document bnodes to inner bnodes mapping
     private final Map<String, String> overwriteMappings = new HashMap<String, String>();
 
-    public RdfaParser(boolean sinkOutputGraph, boolean sinkProcessorGraph) {
-        setOutput(sinkOutputGraph, sinkProcessorGraph);
+    public RdfaParser(boolean sinkOutputGraph, boolean sinkProcessorGraph, boolean expandVocab) {
+        setOutput(sinkOutputGraph, sinkProcessorGraph, expandVocab);
         dh = new DocumentContext(null, defaultRdfaVersion);
         contextStack = new Stack<EvalContext>();
     }
 
     public RdfaParser() {
-        this(true, true);
+        this(true, true, false);
     }
 
-    public void setOutput(boolean sinkOutputGraph, boolean sinkProcessorGraph) {
+    public void setOutput(boolean sinkOutputGraph, boolean sinkProcessorGraph, boolean expandVocab) {
         this.sinkOutputGraph = sinkOutputGraph;
         this.sinkProcessorGraph = sinkProcessorGraph;
-        if (sinkProcessorGraph) {
+        this.expandVocab = expandVocab;
+        if (sinkProcessorGraph || expandVocab) {
             defaultRdfaVersion = RDFa.VERSION_11;
         }
+        if (expandVocab && vocabManager == null) {
+            vocabManager = new VocabManager();
+        }
+    }
+
+    public void setVocabManager(VocabManager vocabManager) {
+        this.vocabManager = vocabManager;
     }
 
     public void setRdfaVersion(short rdfaVersion) {
@@ -131,8 +142,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     }
 
     @Override
-    public void startElement(String nsUri, String localName, String qName, Attributes attrs)
-            throws SAXException {
+    public void startElement(String nsUri, String localName, String qName, Attributes attrs) throws SAXException {
         if (rdfXmlInline) {
             rdfXmlParser.startElement(nsUri, localName, qName, attrs);
             return;
@@ -214,7 +224,8 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         return result;
     }
 
-    private boolean findSubjectAndObject(String qName, Attributes attrs, boolean noRelAndRev, EvalContext current, EvalContext parent) throws SAXException {
+    private boolean findSubjectAndObject(String qName, Attributes attrs, boolean noRelAndRev, EvalContext current,
+                                         EvalContext parent) throws SAXException {
         boolean skipElement = false;
         String newSubject = null;
         try {
@@ -298,7 +309,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                 if (iri == null) {
                     continue;
                 }
-                addIriRef(newSubject, RDF.TYPE, iri);
+                addNonLiteral(newSubject, RDF.TYPE, iri);
             }
         }
         return skipElement;
@@ -353,7 +364,8 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         return null;
     }
 
-    private void processRelsAndRevs(Attributes attrs, List<String> rels, List<String> revs, EvalContext current, EvalContext parent, boolean skipTerms) throws SAXException {
+    private void processRelsAndRevs(Attributes attrs, List<String> rels, List<String> revs, EvalContext current,
+                                    EvalContext parent, boolean skipTerms) throws SAXException {
         // don't fill parent list if subject was changed at this
         // or previous step by current.parentObject
         if (dh.rdfaVersion > RDFa.VERSION_10 && current.subject != null
@@ -677,9 +689,9 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                     prev = child;
                 }
                 if (start == null) {
-                    addIriRef(current.subject, pred, RDF.NIL);
+                    addNonLiteral(current.subject, pred, RDF.NIL);
                 } else {
-                    addIriRef(prev, RDF.REST, RDF.NIL);
+                    addNonLiteral(prev, RDF.REST, RDF.NIL);
                     addNonLiteral(current.subject, pred, start);
                 }
                 list.remove(pred);
@@ -813,10 +825,18 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     }
 
     @Override
-    public void declareVocabulary(String vocab) {
+    public Vocabulary loadVocabulary(String vocabUrl) {
         if (sinkOutputGraph) {
-            sink.addIriRef(dh.base, RDFa.USES_VOCABULARY, vocab);
+            sink.addNonLiteral(dh.base, RDFa.USES_VOCABULARY, vocabUrl);
         }
+        if (vocabManager != null) {
+            return vocabManager.findVocab(vocabUrl, expandVocab);
+        }
+        Vocabulary vocab = new Vocabulary(vocabUrl);
+        if (expandVocab) {
+            vocab.load();
+        }
+        return vocab;
     }
 
     // error handling
@@ -824,14 +844,14 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     @Override
     public void warning(String warningClass) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            sink.addIriRef(dh.createBnode(), RDF.TYPE, warningClass);
+            sink.addNonLiteral(dh.createBnode(), RDF.TYPE, warningClass);
         }
     }
 
     @Override
     public void error(String errorClass) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            sink.addIriRef(dh.createBnode(), RDF.TYPE, errorClass);
+            sink.addNonLiteral(dh.createBnode(), RDF.TYPE, errorClass);
         }
     }
 
@@ -859,29 +879,49 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
     @Override
     public void addNonLiteral(String subj, String pred, String obj) {
-        if (sinkOutputGraph) {
+        if (!sinkOutputGraph) {
+            return;
+        }
+        if (!expandVocab) {
             sink.addNonLiteral(subj, pred, obj);
+            return;
+        }
+        addNonLiteralWithObjExpansion(subj, pred, obj);
+        for (String predSynonym : contextStack.peek().expand(pred)) {
+            addNonLiteralWithObjExpansion(subj, predSynonym, obj);
         }
     }
 
-    @Override
-    public void addIriRef(String subj, String pred, String iri) {
-        if (sinkOutputGraph) {
-            sink.addIriRef(subj, pred, iri);
+    private void addNonLiteralWithObjExpansion(String subj, String pred, String obj) {
+        if (obj.startsWith(RDF.BNODE_PREFIX)) {
+            sink.addNonLiteral(subj, pred, obj);
+            return;
+        }
+        sink.addNonLiteral(subj, pred, obj);
+        for (String objSynonym : contextStack.peek().expand(obj)) {
+            sink.addNonLiteral(subj, pred, objSynonym);
         }
     }
 
     @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
-        if (sinkOutputGraph) {
-            sink.addPlainLiteral(subj, pred, content, lang);
+        if (!sinkOutputGraph) {
+            return;
+        }
+        sink.addPlainLiteral(subj, pred, content, lang);
+        for (String predSynonym : contextStack.peek().expand(pred)) {
+            sink.addPlainLiteral(subj, predSynonym, content, lang);
         }
     }
 
     @Override
     public void addTypedLiteral(String subj, String pred, String content, String type) {
-        if (sinkOutputGraph) {
-            sink.addTypedLiteral(subj, pred, content, type);
+        if (!sinkOutputGraph) {
+            return;
+        }
+        sink.addTypedLiteral(subj, pred, content, type);
+        for (String predSynonym : contextStack.peek().expand(pred)) {
+            sink.addTypedLiteral(subj, predSynonym, content, type);
         }
     }
 

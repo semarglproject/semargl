@@ -55,7 +55,9 @@ public final class RdfaParserTest {
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
         reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(semarglTurtleSink)).build();
+        RdfaParser rdfaParser = new RdfaParser();
+        rdfaParser.setVocabManager(new VocabManager());
+        dp = new SaxSource(reader).streamingTo(rdfaParser.streamingTo(semarglTurtleSink)).build();
     }
 
     @DataProvider

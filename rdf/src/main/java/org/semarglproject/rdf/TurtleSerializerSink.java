@@ -120,20 +120,13 @@ public final class TurtleSerializerSink implements TripleSink {
                 builder.append(obj);
             }
         } else {
-            builder.append('<').append(obj).append('>');
-        }
-        endTriple();
-    }
-
-    @Override
-    public void addIriRef(String subj, String pred, String iri) {
-        startTriple(subj, pred);
-        if (iri.startsWith(RDF.NS)) {
-            builder.append("rdf:").append(iri.substring(RDF.NS.length()));
-        } else if (baseUri != null && iri.startsWith(baseUri)) {
-            builder.append('<').append(iri.substring(baseUri.length())).append('>');
-        } else {
-            builder.append('<').append(iri).append('>');
+            if (obj.startsWith(RDF.NS)) {
+                builder.append("rdf:").append(obj.substring(RDF.NS.length()));
+            } else if (baseUri != null && obj.startsWith(baseUri)) {
+                builder.append('<').append(obj.substring(baseUri.length())).append('>');
+            } else {
+                builder.append('<').append(obj).append('>');
+            }
         }
         endTriple();
     }

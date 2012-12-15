@@ -108,7 +108,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                     if (iri.equals(RDF.LI)) {
                         error(qname + " is not allowed here");
                     }
-                    sink.addIriRef(subjRes, RDF.TYPE, iri);
+                    sink.addNonLiteral(subjRes, RDF.TYPE, iri);
                 }
 
                 for (int i = 0; i < attrs.getLength(); i++) {
@@ -119,7 +119,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                     }
                     String value = attrs.getValue(i);
                     if (tag.equals(RDF.TYPE)) {
-                        sink.addIriRef(subjRes, RDF.TYPE, value);
+                        sink.addNonLiteral(subjRes, RDF.TYPE, value);
                     } else {
                         if (violatesSchema(tag) || tag.equals(RDF.LI)) {
                             error(qname + " is not allowed here");
@@ -205,7 +205,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     private void processPropertyTagAttr(String nsUri, String attr, String value) throws SAXException {
         if (attr.equals(RDF.RESOURCE)) {
             String id = resolveIRI(baseStack.peek(), value);
-            sink.addIriRef(subjRes, predIri, id);
+            sink.addNonLiteral(subjRes, predIri, id);
             processNonLiteralTriple(subjRes, predIri, id);
             captureLiteral = false;
         } else if (attr.equals(RDF.DATATYPE)) {
@@ -292,7 +292,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                         seqTailRes = bnode;
                     }
                 } else {
-                    sink.addIriRef(seqTailRes, RDF.REST, RDF.NIL);
+                    sink.addNonLiteral(seqTailRes, RDF.REST, RDF.NIL);
                     if (!subjStack.isEmpty()) {
                         subjRes = subjStack.peek();
                     }
@@ -345,9 +345,9 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     private void processNonLiteralTriple(String subj, String pred, String obj) {
         sink.addNonLiteral(subj, pred, obj);
         if (reifyIri != null) {
-            sink.addIriRef(reifyIri, RDF.TYPE, RDF.STATEMENT);
+            sink.addNonLiteral(reifyIri, RDF.TYPE, RDF.STATEMENT);
             sink.addNonLiteral(reifyIri, RDF.SUBJECT, subj);
-            sink.addIriRef(reifyIri, RDF.PREDICATE, pred);
+            sink.addNonLiteral(reifyIri, RDF.PREDICATE, pred);
             sink.addNonLiteral(reifyIri, RDF.OBJECT, obj);
             reifyIri = null;
         }
@@ -360,9 +360,9 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
             sink.addPlainLiteral(subj, pred, value, langOrDt);
         }
         if (reifyIri != null) {
-            sink.addIriRef(reifyIri, RDF.TYPE, RDF.STATEMENT);
+            sink.addNonLiteral(reifyIri, RDF.TYPE, RDF.STATEMENT);
             sink.addNonLiteral(reifyIri, RDF.SUBJECT, subj);
-            sink.addIriRef(reifyIri, RDF.PREDICATE, pred);
+            sink.addNonLiteral(reifyIri, RDF.PREDICATE, pred);
             if (typed) {
                 sink.addTypedLiteral(reifyIri, RDF.OBJECT, value, langOrDt);
             } else {

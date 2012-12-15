@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.rdf.rdfa;
 
-public interface TripleSink extends DataSink {
+final class OWL {
+    public static final String NS = "http://www.w3.org/2002/07/owl#";
 
-    void addNonLiteral(String subj, String pred, String obj);
+    public static final String EQUIVALENT_PROPERTY = NS + "equivalentProperty";
+    public static final String EQUIVALENT_CLASS = NS + "equivalentClass";
 
-    void addPlainLiteral(String subj, String pred, String content, String lang);
-
-    void addTypedLiteral(String subj, String pred, String content, String type);
-
+    private OWL() {
+    }
 }

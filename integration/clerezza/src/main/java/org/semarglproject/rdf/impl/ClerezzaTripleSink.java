@@ -62,11 +62,6 @@ public class ClerezzaTripleSink implements TripleSink {
     }
 
     @Override
-    public void addIriRef(String subj, String pred, String obj) {
-        graph.add(new TripleImpl(convertNonLiteral(subj), new UriRef(pred), new UriRef(obj)));
-    }
-
-    @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
         Literal lit;
         if (lang == null || lang.equals("")) {

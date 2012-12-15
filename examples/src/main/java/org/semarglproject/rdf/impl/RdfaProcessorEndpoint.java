@@ -92,7 +92,7 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
             sinkOutputGraph = true;
             sinkProcessorGraph = true;
         }
-        rdfaParser.setOutput(sinkOutputGraph, sinkProcessorGraph);
+        rdfaParser.setOutput(sinkOutputGraph, sinkProcessorGraph, true);
 
         String rdfaversion = request.getParameter("rdfaversion");
         if ("1.0".equals(rdfaversion)) {

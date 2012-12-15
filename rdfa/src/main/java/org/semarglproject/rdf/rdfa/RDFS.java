@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.rdf.rdfa;
 
-public interface TripleSink extends DataSink {
+final class RDFS {
+    public static final String NS = "http://www.w3.org/2000/01/rdf-schema#";
 
-    void addNonLiteral(String subj, String pred, String obj);
+    public static final String SUB_PROPERTY_OF = NS + "subPropertyOf";
+    public static final String SUB_CLASS_OF = NS + "subClassOf";
 
-    void addPlainLiteral(String subj, String pred, String content, String lang);
-
-    void addTypedLiteral(String subj, String pred, String content, String type);
-
+    private RDFS() {
+    }
 }

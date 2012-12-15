@@ -14,14 +14,25 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.rdf.rdfa;
 
-public interface TripleSink extends DataSink {
+import java.util.HashMap;
+import java.util.Map;
 
-    void addNonLiteral(String subj, String pred, String obj);
+public class VocabManager {
 
-    void addPlainLiteral(String subj, String pred, String content, String lang);
+    private Map<String, Vocabulary> vocabCache = new HashMap<String, Vocabulary>();
 
-    void addTypedLiteral(String subj, String pred, String content, String type);
-
+    public Vocabulary findVocab(String vocabUrl, boolean expandVocab) {
+        Vocabulary vocab = vocabCache.get(vocabUrl);
+        if (vocab != null) {
+            return vocab;
+        }
+        vocab = new Vocabulary(vocabUrl);
+        vocabCache.put(vocabUrl, vocab);
+        if (expandVocab) {
+            vocab.load();
+        }
+        return vocab;
+    }
 }

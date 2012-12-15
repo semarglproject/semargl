@@ -80,11 +80,6 @@ public final class JenaTripleSink implements TripleSink {
     }
 
     @Override
-    public void addIriRef(String subj, String pred, String obj) {
-        addTriple(convertNonLiteral(subj), Node.createURI(pred), Node.createURI(obj));
-    }
-
-    @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
         if (lang == null) {
             addTriple(convertNonLiteral(subj), Node.createURI(pred), Node.createLiteral(content));
