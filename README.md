@@ -38,19 +38,26 @@ No jokes!
 
 ```java
 // just init triple sink you want
-Model model = ModelFactory.createDefaultModel();
-TripleSink sink = new JenaTripleSink(model);
+MGraph graph = ... // Clerezza calls
+TripleSink sink = new ClerezzaTripleSink(graph);
 // create processing pipe
-DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
-        .streamingTo(new RdfXmlParser()
+DataProcessor<Reader> dp = new CharSource()
+        .streamingTo(new NTriplesParser()
                 .streamingTo(sink).build();
 // and run it!
 dp.process(new FileReader(file), docUri);
 ```
 
-Semargl works out of the box with Android applications and frameworks such as
-Apache Jena and Apache Clerezza. See examples dir for more info (JavaDocs
-coming soon).
+or use Jena wiring
+
+```java
+JenaRdfaReader.inject();
+Model model = ... // Jena calls
+model.read(new FileReader(file), docUri, "RDFA");
+```
+
+Semargl works out of the box with Android and GAE applications, frameworks
+such as Apache Jena and Apache Clerezza. See examples dir for more info.
 
 What Semargl is not
 ===================
@@ -59,7 +66,7 @@ It's not a validator of any kind.
 
 It's not a triple store (but it provides bridges to other ones).
 
-It's not a framework with stable API (and won't be until major release).
+It's still not a framework with stable API (and won't be until major release).
 
 Supported data formats
 ======================
@@ -67,9 +74,9 @@ Supported data formats
 RDF/XML
 -------
 
-Implementation covered by tests from Jena ARP project. Btw it outperforms Jena
-parser even if you load triples to Jena model. Benchmark located in examples
-folder.
+Parsing support. Implementation covered by tests from Jena ARP project.
+Atm it outperforms Jena parser even if you load triples to Jena model.
+Benchmarks are located in examples folder.
 
 RDFa
 ----
@@ -79,14 +86,20 @@ RDFa parser currently passes all RDFa 1.0 and 1.1
 Document format detection works out-of-the-box, so you shouldn't worry about
 specifying document format. RDFa version detection is also present with
 default version 1.1.
+Supported RDFa extensions: Vocubulary Expansion, Processor Graph.
 
 NTriples
 --------
 
-Implementation covered by tests from Jena ARP project.
+Parsing support. Implementation covered by tests from Jena ARP project.
+
+Turtle
+------
+
+Serialization support. Syntax abbreviations.
 
 Build
 =====
 
-To build framework run mvn install. At some stage RDFa tests will download
+To build framework just run mvn install. At some stage RDFa tests will download
 large dataset from rdfa.info, be patient.
