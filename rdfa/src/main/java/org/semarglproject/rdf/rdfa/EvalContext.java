@@ -204,21 +204,19 @@ final class EvalContext {
      */
     private String resolveTermOrSafeCURIE(String value, short rdfaVersion)
             throws MalformedIRIException {
-        if (vocab != null && value.matches("[a-zA-Z0-9]+")) {
-            return resolver.resolveIri(vocab.url + value);
-        }
-        if (value.indexOf(':') == -1) {
-            String result = CURIE.resolveXhtmlTerm(value);
+        if (value.matches("[a-zA-Z0-9]+")) {
+            if (vocab != null) {
+                return vocab.resolveTerm(value);
+            }
             if (rdfaVersion == RDFa.VERSION_10) {
+                return CURIE.resolveXhtmlTerm(value);
+            } else {
+                String result = CURIE.resolveXhtmlTerm(value);
+                if (result == null) {
+                    result = CURIE.resolvePowderTerm(value);
+                }
                 return result;
             }
-            if (result == null) {
-                result = CURIE.resolvePowderTerm(value);
-                if (result == null) {
-//                    resolver.warning(RDFa.UNRESOLVED_TERM);
-                }
-            }
-            return result;
         }
         try {
             String iri = CURIE.resolve(value, iriMappings, rdfaVersion > RDFa.VERSION_10);

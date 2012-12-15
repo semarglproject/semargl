@@ -21,6 +21,7 @@ final class RDFS {
 
     public static final String SUB_PROPERTY_OF = NS + "subPropertyOf";
     public static final String SUB_CLASS_OF = NS + "subClassOf";
+    public static final String CLASS = NS + "Class";
 
     private RDFS() {
     }

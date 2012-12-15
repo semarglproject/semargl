@@ -18,8 +18,10 @@ package org.semarglproject.rdf.rdfa;
 
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.TripleSink;
+import org.semarglproject.ri.IRI;
 import org.semarglproject.vocab.RDF;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -40,6 +42,7 @@ import java.util.Map;
 public class Vocabulary {
     String url;
     private Map<String, Collection<String>> expansions;
+    private Collection<String> terms;
 
     public Vocabulary(String url) {
         this.url = url;
@@ -53,64 +56,51 @@ public class Vocabulary {
     }
 
     public void load() {
-        if (expansions == null) {
-            expansions = new HashMap<String, Collection<String>>();
-        }
+        VocabParser vocabParser = new VocabParser();
 
         XMLReader xmlReader;
+        URL vocabUrl;
         try {
             xmlReader = XMLReaderFactory.createXMLReader();
             xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            vocabUrl = new URL(url);
+        } catch (MalformedURLException e) {
+            return;
         } catch (SAXException e) {
             return;
         }
 
-        DataProcessor<Reader> dp = new SaxSource(xmlReader).streamingTo(
-                new RdfaParser(true, true, false).streamingTo(
-                        new TripleSink() {
-                            @Override
-                            public void addNonLiteral(String subj, String pred, String obj) {
-                                if (subj.startsWith(RDF.BNODE_PREFIX) || obj.startsWith(RDF.BNODE_PREFIX)) {
-                                    return;
-                                }
-                                if (pred.equals(OWL.EQUIVALENT_PROPERTY) || pred.equals(OWL.EQUIVALENT_CLASS)) {
-                                    addExpansion(subj, obj);
-                                    addExpansion(obj, subj);
-                                } else if (pred.equals(RDFS.SUB_CLASS_OF) || pred.equals(RDFS.SUB_PROPERTY_OF)) {
-                                    addExpansion(subj, obj);
-                                }
-                            }
+        if (expansions == null) {
+            expansions = new HashMap<String, Collection<String>>();
+            terms = new HashSet<String>();
+        }
 
-                            @Override
-                            public void addPlainLiteral(String subj, String pred, String content, String lang) {
-                            }
+        DataProcessor<Reader> rdfaDp = new SaxSource(xmlReader).streamingTo(
+                new RdfaParser(true, true, false).streamingTo(vocabParser)).build();
+        parseVocabWithDp(vocabUrl, xmlReader, rdfaDp);
 
-                            @Override
-                            public void addTypedLiteral(String subj, String pred, String content, String type) {
-                            }
-
-                            @Override
-                            public void setBaseUri(String baseUri) {
-                            }
-
-                            @Override
-                            public void startStream() {
-                            }
-
-                            @Override
-                            public void endStream() {
-                            }
-                        }
-        )).build();
-        InputStream inputStream;
-        try {
-            inputStream = new URL(url).openStream();
-        } catch (MalformedURLException e) {
-            return;
-        } catch (IOException e) {
+        if (!terms.isEmpty() || !expansions.isEmpty()) {
             return;
         }
 
+        // TODO: add format detection
+        DataProcessor<Reader> rdfXmlDp = new SaxSource(xmlReader).streamingTo(
+                new RdfXmlParser().streamingTo(vocabParser)).build();
+        parseVocabWithDp(vocabUrl, xmlReader, rdfXmlDp);
+
+        if (terms.isEmpty() && expansions.isEmpty()) {
+            terms = null;
+            expansions = null;
+        }
+    }
+
+    private void parseVocabWithDp(URL vocabUrl, XMLReader xmlReader, DataProcessor<Reader> dp) {
+        InputStream inputStream;
+        try {
+            inputStream = vocabUrl.openStream();
+        } catch (IOException e) {
+            return;
+        }
         InputStreamReader reader = new InputStreamReader(inputStream);
         try {
             dp.process(reader, url);
@@ -130,5 +120,55 @@ public class Vocabulary {
             return Collections.EMPTY_LIST;
         }
         return expansions.get(uri);
+    }
+
+    public String resolveTerm(String term) {
+        String termUri = url + term;
+        if (terms == null && IRI.isAbsolute(termUri) || terms != null && terms.contains(termUri)) {
+            return termUri;
+        }
+        return null;
+    }
+
+    private final class VocabParser implements TripleSink {
+        @Override
+        public void addNonLiteral(String subj, String pred, String obj) {
+            if (subj.startsWith(RDF.BNODE_PREFIX) || obj.startsWith(RDF.BNODE_PREFIX)) {
+                return;
+            }
+            if (pred.equals(OWL.EQUIVALENT_PROPERTY) || pred.equals(OWL.EQUIVALENT_CLASS)) {
+                addExpansion(subj, obj);
+                addExpansion(obj, subj);
+                terms.add(obj);
+                terms.add(subj);
+            } else if (pred.equals(RDFS.SUB_CLASS_OF) || pred.equals(RDFS.SUB_PROPERTY_OF)) {
+                addExpansion(subj, obj);
+                terms.add(obj);
+                terms.add(subj);
+            }
+            if (pred.equals(RDF.TYPE) && (obj.equals(RDF.PROPERTY) || obj.equals(RDFS.CLASS))) {
+                terms.add(subj);
+            }
+        }
+
+        @Override
+        public void addPlainLiteral(String subj, String pred, String content, String lang) {
+        }
+
+        @Override
+        public void addTypedLiteral(String subj, String pred, String content, String type) {
+        }
+
+        @Override
+        public void setBaseUri(String baseUri) {
+        }
+
+        @Override
+        public void startStream() {
+        }
+
+        @Override
+        public void endStream() {
+        }
     }
 }
