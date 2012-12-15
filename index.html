@@ -15,7 +15,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Semargl by levkhomich</title>
+    <title>Semargl: better linked data processing</title>
   </head>
 
   <body about="" typeof="doap:Project">
@@ -24,95 +24,66 @@
 
         <header>
           <h1 property="doap:name">Semargl</h1>
-          <h2>Crawling linked data from structured documents</h2>
+          <h2>Better linked data processing</h2>
         </header>
-
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/levkhomich/semargl/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="http://demo.semarglproject.org" id="show-demo" class="button"><span>Demo</span></a>
-          <a href="https://github.com/levkhomich/semargl" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
 
         <hr />
 
         <section id="main_content">
-          <h1>Welcome to the home of Semargl!</h1>
 
-<p property="doap:description">Semargl is a modular framework for crawling linked data from structured documents.
+<p property="doap:description">Semargl is a modular framework for crawling
+<a href="http://en.wikipedia.org/wiki/Linked_data">linked data</a> from structured documents.
 The main goal of project is to provide lightweight and performant tool without excess dependencies.</p>
 
-<p>At this moment it offers streaming parsers for:</p>
+<p>At this moment it offers high-performant streaming parsers for RDF/XML,
+<a href="http://en.wikipedia.org/wiki/Rdfa">RDFa</a>, N-Triples, streaming serializer for
+Turtle and integration with Jena and Clerezza.</p>
 
-<ul>
-<li>RDFa 1.0 and 1.1</li>
-<li>RDF/XML</li>
-<li>NTriples</li>
-</ul><h1>Why use Semargl?</h1>
+<p>Small memory footprint, and CPU requirements allow framework to be embedded in any system.
+It runs seamlessly on Android and GAE. You can try
+<a href="http://demo.semarglproject.org">RDFa parser demo</a> or visit
+<a href="https://github.com/levkhomich/semargl">project page</a> at github.</p>
 
-<h2>Lightweight</h2>
+<h1>Supported W3C specifications</h1>
 
-<p>Semargl’s code is small and simple to understand. It will never <a href="http://en.wikipedia.org/wiki/Zawinski's_law_of_software_envelopment">read a mail</a>.
-Internally it operates with raw strings and creates as few objects as possible, so your Android projects will be happy.</p>
+<h2>RDF</h2>
 
-<h2>Standard-conformant</h2>
-
-<p>Framework conforms corresponding W3C standards for IRI's, RDF, RDFa and so on. All code base is covered
-with tests made by W3C, RDF Web Applications Working Group and Jena ARP project.</p>
-
-<h2>Dead Simple</h2>
-
-<p>No jokes!</p>
-
-<pre><code>// just init triple sink you want
-Model model = ModelFactory.createDefaultModel();
-TripleSink sink = new JenaTripleSink(model);
-// create processing pipe
-DataProcessor&lt;Reader&gt; dp = new SaxSource(XMLReaderFactory.createXMLReader())
-        .streamingTo(new RdfXmlParser()
-                .streamingTo(sink).build();
-// and run it!
-dp.process(new FileReader(file), docUri);
-</code></pre>
-
-<p>Semargl works out of the box with Android applications and frameworks such as Apache Jena and Apache Clerezza.
-See examples dir for more info (JavaDocs coming soon).</p>
-
-<h1>What Semargl is not</h1>
-
-<p>It's not a validator of any kind.</p>
-
-<p>It's not a triple store (but it provides bridges to other ones).</p>
-
-<p>It's not a framework with stable API (and won't be until major release).</p>
-
-<h1>Supported data formats</h1>
-
-<h2>RDF/XML</h2>
-
-<p>Implementation covered by tests from Jena ARQ project. Btw it outperforms Jena parser even if you load triples
-to Jena model. Benchmark located in examples folder.</p>
+<ul rel="doap:implements">
+    <li>RDF Semantics (<a href="http://www.w3.org/TR/2004/REC-rdf-mt-20040210/">REC</a>)</li>
+    <li>RDF Test Cases (<a href="http://www.w3.org/TR/2004/REC-rdf-testcases-20040210/">REC</a>)</li>
+</ul>
 
 <h2>RDFa</h2>
 
-<p>RDFa parser currently passes all RDFa 1.0 and 1.1 <a href="http://rdfa.info/test-suite/">conformance</a> tests for
-all document formats. Document format detection works out-of-the-box, so you shouldn't worry about specifying
-document format. RDFa version detection is also present with default version 1.1.</p>
+<ul rel="doap:implements">
+    <li>Core 1.0 (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">REC</a>),
+	Lite 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-lite-20120607/">REC</a>) and
+	Core 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">REC</a>)</li>
+    <li>XHTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/REC-xhtml-rdfa-20120607/">REC</a>)</li>
+    <li>HTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/WD-rdfa-in-html-20120911/">WD</a>)</li>
+    <li>Optional features: Processor Graph Reporting (<a href="http://www.w3.org/ns/rdfa.html">REC</a>), 
+	Vocabulary Expansion (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">REC</a>), 
+	Role Attribute 1.0 (<a href="http://www.w3.org/TR/2012/PR-role-attribute-20121213/">PR</a>)</li>
+</ul>
 
-<h2>NTriples</h2>
+<h2>Other</h2>
 
-<p>Implementation covered by tests from Jena ARQ project.</p>
+<ul rel="doap:implements">
+    <li>RDF/XML Syntax Specification (<a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">REC</a>)</li>
+    <li>Terse RDF Triple Language (<a href="http://www.w3.org/TeamSubmission/2011/SUBM-turtle-20110328/">SUBM</a>)</li>
+    <li>N-Triples (<a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">IWD</a>)</li>
+</ul>
 
-<h1>Build</h1>
-
-<p>To build framework run mvn install. At some stage RDFa tests will download large dataset from rdfa.info, be patient.</p>
         </section>
 
         <footer>
           Semargl is maintained by <a href="https://github.com/levkhomich"
                                             rel="dc:creator doap:maintainer foaf:maker">Lev Khomich</a>.<br />
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.<br />
+          Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.<br />
           Project licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html" rel="doap:license">APL v2.0</a>
         </footer>
+
+<a href="https://github.com/levkhomich/semargl"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
                   <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

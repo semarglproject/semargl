@@ -57,7 +57,7 @@ body {
 }
 
 a {
-  color: #d5000d;
+  color: #80000d;
 }
 a:hover {
   color: #c5000c;
@@ -202,7 +202,7 @@ ul, ol, dl {
 hr {
   height: 1px;
   line-height: 1px;
-  margin-top: 1em;
+  margin-top: 0em;
   padding-bottom: 1em;
   border: none;
   background: transparent url('../images/hr.png') 50% 0 no-repeat;
@@ -242,12 +242,12 @@ form {
 
 h1 {
   font-size: 32px;
+  color: #303030;
 } 
 
 h2 {
   font-size: 22px;
   font-weight: bold;
-  color: #303030;
   margin-bottom: 8px;
 } 
 
