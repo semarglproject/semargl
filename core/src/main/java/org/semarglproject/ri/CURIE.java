@@ -61,10 +61,29 @@ public final class CURIE {
         INITIAL_CONTEXT.put("schema", "http://schema.org/");
     }
 
-    private static final String[] XHTML_VOCAB_PROPS = {"alternate", "appendix", "bookmark",
-            "cite", "chapter", "contents", "copyright", "first", "glossary", "help", "icon",
-            "index", "itsRules", "last", "license", "meta", "next", "p3pv1", "prev", "previous",
-            "role", "section", "stylesheet", "subsection", "start", "top", "up"};
+    private static final String[] XHTML_VOCAB_PROPS = {
+        // XHTML Metainformation Vocabulary
+        "alternate", "appendix", "bookmark", "cite", "chapter", "contents",
+        "copyright", "first", "glossary", "help", "icon", "index", "itsRules",
+        "last", "license", "meta", "next", "p3pv1", "prev", "previous", "role",
+        "section", "stylesheet", "subsection", "start","top", "up",
+
+        // Items from the XHTML Role Module
+        "banner", "complementary", "contentinfo", "definition", "main",
+        "navigation", "note", "search",
+
+        // Items from the Accessible Rich Internet Applications Vocabulary
+        "alert", "alertdialog", "application", "article", "button", "checkbox",
+        "columnheader", "combobox", "dialog", "directory", "document", "form",
+        "grid", "gridcell", "group", "heading", "img", "link", "list", "listbox",
+        "listitem", "log", "marquee", "math", "menu", "menubar", "menuitem",
+        "menuitemcheckbox", "menuitemradio", "option", "presentation",
+        "progressbar", "radio", "radiogroup", "region", "row", "rowgroup",
+        "rowheader", "scrollbar", "separator", "slider", "spinbutton", "status",
+        "tab", "tablist", "tabpanel", "textbox", "timer", "toolbar", "tooltip",
+        "tree", "treegrid", "treeitem"
+    };
+
     private static final String[] POWDER_VOCAB_PROPS = {"text", "issuedby", "matchesregex",
             "notmatchesregex", "hasIRI", "tag", "notknownto", "describedby", "authenticate",
             "validfrom", "validuntil", "logo", "sha1sum", "certified", "certifiedby",

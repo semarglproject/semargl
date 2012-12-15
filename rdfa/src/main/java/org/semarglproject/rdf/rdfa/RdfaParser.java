@@ -202,6 +202,10 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
         boolean recurse = processPropertyAttr(qName, attrs, noRelsAndRevs, current, parent);
 
+        if (dh.rdfaVersion > RDFa.VERSION_10) {
+            processRoleAttribute(attrs.getValue(RDFa.ID_ATTR), attrs.getValue(RDFa.ROLE_ATTR), current);
+        }
+
         pushContext(current, parent, skipElement, recurse);
     }
 
@@ -222,6 +226,30 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
             }
         }
         return result;
+    }
+
+    private void processRoleAttribute(String id, String roleVal, EvalContext current) throws SAXException {
+        if (roleVal == null) {
+            return;
+        }
+        List<String> roles = new ArrayList<String>();
+        for (String role : roleVal.split(SEPARATOR)) {
+            String resolvedTerm = current.resolveRole(role);
+            if (resolvedTerm != null) {
+                roles.add(resolvedTerm);
+            } else  {
+                roles.add(XHTML_VOCAB + role);
+            }
+        }
+        String subject;
+        if (id != null) {
+            subject = dh.base + '#' + id;
+        } else {
+            subject = dh.createBnode();
+        }
+        for (String role : roles) {
+            addNonLiteral(subject, XHTML_VOCAB + "role", role);
+        }
     }
 
     private boolean findSubjectAndObject(String qName, Attributes attrs, boolean noRelAndRev, EvalContext current,

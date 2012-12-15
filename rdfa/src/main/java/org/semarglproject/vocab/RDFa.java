@@ -27,6 +27,7 @@ public final class RDFa {
     public static final String CONTENT_ATTR = "content";
     public static final String DATATYPE_ATTR = "datatype";
     public static final String HREF_ATTR = "href";
+    public static final String ID_ATTR = "id";
     public static final String INLIST_ATTR = "inlist";
     public static final String PREFIX_ATTR = "prefix";
     public static final String PROFILE_ATTR = "profile";
@@ -34,6 +35,7 @@ public final class RDFa {
     public static final String REL_ATTR = "rel";
     public static final String RESOURCE_ATTR = "resource";
     public static final String REV_ATTR = "rev";
+    public static final String ROLE_ATTR = "role";
     public static final String SRC_ATTR = "src";
     public static final String TYPEOF_ATTR = "typeof";
     public static final String VOCAB_ATTR = "vocab";
@@ -47,5 +49,4 @@ public final class RDFa {
 
     private RDFa() {
     }
-
 }

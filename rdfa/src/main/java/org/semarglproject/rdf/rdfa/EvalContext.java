@@ -229,6 +229,23 @@ final class EvalContext {
         }
     }
 
+    public String resolveRole(String value) {
+        if (IRI.isAbsolute(value)) {
+            return value;
+        }
+        if (value.indexOf(':') == -1) {
+            return CURIE.resolveXhtmlTerm(value);
+        }
+        try {
+            String iri = CURIE.resolve(value, iriMappings, true);
+            return resolver.resolveIri(iri);
+        } catch (MalformedCURIEException e) {
+            return null;
+        } catch (MalformedIRIException e) {
+            return null;
+        }
+    }
+
     public Iterable<String> expand(String pred) {
         if (vocab == null) {
             return Collections.EMPTY_LIST;
