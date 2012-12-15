@@ -23,7 +23,6 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
-import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -38,6 +37,7 @@ import java.io.Writer;
 import java.util.Collection;
 
 import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
+import static org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 
 public final class RdfaParserTest {
 
