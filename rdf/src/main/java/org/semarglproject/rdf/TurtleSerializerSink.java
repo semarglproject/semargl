@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+// TODO: improve readability
 public final class TurtleSerializerSink implements TripleSink {
 
     private static final short BATCH_SIZE = 10;
@@ -73,8 +74,13 @@ public final class TurtleSerializerSink implements TripleSink {
                 builder.append(" .\n");
             }
             if (subj.charAt(0) == '_') {
-                builder.append(subj);
-                namedBnodes.add(subj);
+                if (subj.endsWith(RDF.SHORTENABLE_BNODE_SUFFIX)) {
+                    builder.append('[');
+                    bnodeStack.offer(subj);
+                } else {
+                    builder.append(subj);
+                    namedBnodes.add(subj);
+                }
             } else if (baseUri != null && subj.startsWith(baseUri)) {
                 builder.append('<').append(subj.substring(baseUri.length())).append('>');
             } else {

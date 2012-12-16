@@ -62,7 +62,7 @@ final class DocumentContext {
                 name = value.substring(RDF.BNODE_PREFIX.length());
             }
             if (!bnodeMapping.containsKey(name)) {
-                bnodeMapping.put(name, createBnode());
+                bnodeMapping.put(name, createBnode(false));
             }
             return bnodeMapping.get(name);
         }
@@ -89,7 +89,10 @@ final class DocumentContext {
         }
     }
 
-    public String createBnode() {
+    public String createBnode(boolean shortenable) {
+        if (shortenable) {
+            return RDF.BNODE_PREFIX + 'n' + (nextBnodeId++) + RDF.SHORTENABLE_BNODE_SUFFIX;
+        }
         return RDF.BNODE_PREFIX + 'n' + nextBnodeId++;
     }
 

@@ -16,6 +16,7 @@
 
 package org.semarglproject.rdf.rdfa;
 
+import org.semarglproject.ri.MalformedCURIEException;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.ri.IRI;
 import org.semarglproject.ri.MalformedIRIException;
@@ -225,6 +226,8 @@ final class EvalContext {
             }
         } catch (MalformedIRIException e) {
             throw new SAXException(new ParseException(e));
+        } catch (MalformedCURIEException e) {
+            throw new SAXException(new ParseException(e));
         }
     }
 
@@ -233,9 +236,9 @@ final class EvalContext {
      *
      * @param value value of attribute
      * @return resource IRI
-     * @throws org.semarglproject.rdf.ParseException if IRI can not be resolved
+     * @throws MalformedIRIException if IRI can not be resolved
      */
-    public String resolveAboutOrResource(String value) throws MalformedIRIException {
+    public String resolveAboutOrResource(String value) throws MalformedIRIException, MalformedCURIEException {
         String result = documentContext.resolveBNode(value);
         if (result == null) {
             String iri = resolveCurie(value);
@@ -251,10 +254,9 @@ final class EvalContext {
      * Resolves TERMorCURIEorAbsIRI according to RDFa Core 1.1 section A
      * @param value value to be resolved
      * @return resource IRI
-     * @throws org.semarglproject.ri.MalformedIRIException
+     * @throws MalformedIRIException if IRI can not be resolved
      */
-    private String resolveTermOrSafeCURIEOrAbsIri(String value)
-            throws MalformedIRIException {
+    private String resolveTermOrSafeCURIEOrAbsIri(String value) throws MalformedIRIException, MalformedCURIEException {
         if (IRI.isAbsolute(value)) {
             return value;
         }
@@ -265,9 +267,9 @@ final class EvalContext {
      * Resolves TERMorSafeCURIE according to RDFa Core 1.1 section A
      * @param value value to be resolved
      * @return resource IRI
-     * @throws org.semarglproject.ri.MalformedIRIException
+     * @throws MalformedIRIException if IRI can not be resolved
      */
-    private String resolveTermOrSafeCURIE(String value) throws MalformedIRIException {
+    private String resolveTermOrSafeCURIE(String value) throws MalformedIRIException, MalformedCURIEException {
         if (value.matches("[a-zA-Z0-9_]+")) {
             if (vocab != null) {
                 String term = vocab.resolveTerm(value);
@@ -303,10 +305,12 @@ final class EvalContext {
             return documentContext.resolveIri(iri);
         } catch (MalformedIRIException e) {
             return null;
+        } catch (MalformedCURIEException e) {
+            return null;
         }
     }
 
-    private String resolveCurie(String curie) {
+    private String resolveCurie(String curie) throws MalformedCURIEException {
         if (curie == null || curie.isEmpty()) {
             return null;
         }
@@ -317,15 +321,16 @@ final class EvalContext {
 
         int delimPos = curie.indexOf(':');
         if (delimPos == -1) {
-            documentContext.parser.warning(RDFa.UNRESOLVED_CURIE, "CURIE with no prefix (" + curie + ") found");
+            if (safeSyntax) {
+                throw new MalformedCURIEException("CURIE with no prefix (" + curie + ") found");
+            }
             return null;
         }
         String localName = curie.substring(delimPos + 1);
         String prefix = curie.substring(0, delimPos);
 
         if (prefix.equals("_")) {
-            documentContext.parser.warning(RDFa.UNRESOLVED_CURIE, "CURIE with invalid prefix (" + curie + ") found");
-            return null;
+            throw new MalformedCURIEException("CURIE with invalid prefix (" + curie + ") found");
         }
         // TODO: check for correct prefix
         if (!iriMappings.containsKey(prefix)) {
@@ -335,8 +340,7 @@ final class EvalContext {
                 return nsUri + localName;
             }
             if (safeSyntax) {
-                documentContext.parser.warning(RDFa.UNRESOLVED_CURIE,
-                        "CURIE with unresolvable prefix (" + curie + ") found");
+                throw new MalformedCURIEException("CURIE with unresolvable prefix (" + curie + ") found");
             }
             return null;
         }

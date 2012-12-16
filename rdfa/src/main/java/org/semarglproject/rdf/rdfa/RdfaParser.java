@@ -16,6 +16,7 @@
 
 package org.semarglproject.rdf.rdfa;
 
+import org.semarglproject.ri.MalformedCURIEException;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSink;
@@ -242,7 +243,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
         if (id != null) {
             subject = dh.base + '#' + id;
         } else {
-            subject = dh.createBnode();
+            subject = dh.createBnode(true);
         }
         for (String role : roles) {
             addNonLiteral(subject, XHTML_VOCAB + "role", role);
@@ -269,7 +270,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
                                 if (current.subject != null) {
                                     current.object = current.subject;
                                 } else {
-                                    current.object = dh.createBnode();
+                                    current.object = dh.createBnode(noRelAndRev);
                                 }
                             }
                             newSubject = current.object;
@@ -294,7 +295,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
                             newSubject = current.subject;
                         } else {
                             if (current.object == null) {
-                                current.object = dh.createBnode();
+                                current.object = dh.createBnode(noRelAndRev);
                             }
                             newSubject = current.object;
                         }
@@ -316,7 +317,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
                 }
             }
         }  catch (MalformedIRIException e) {
-            warning(RDFa.WARNING, "Malformed IRI: " + e.getMessage());
+            warning(RDFa.WARNING, e.getMessage());
             pushCurrentContext(current, parent);
         }
 
@@ -360,11 +361,16 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
                     if (val.equals("[]")) {
                         continue;
                     }
-                    return current.resolveAboutOrResource(val);
+                    try {
+                        return current.resolveAboutOrResource(val);
+                    } catch (MalformedCURIEException e) {
+                        warning(RDFa.UNRESOLVED_CURIE, e.getMessage());
+                        return null;
+                    }
                 } else if (attr.equals(RDFa.HREF_ATTR) || attr.equals(RDFa.SRC_ATTR) || attr.equals(DATA_ATTR)) {
                     return dh.resolveIri(attrs.getValue(attr));
                 } else if (attr.equals(BNODE_IF_TYPEOF)) {
-                    return dh.createBnode();
+                    return dh.createBnode(false);
                 }
             } else if (attr.equals(PARENT_OBJECT)) {
                 return parent.object;
@@ -432,7 +438,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
             }
         }
         if (current.object == null && (rels != null || revs != null)) {
-            current.object = dh.createBnode();
+            current.object = dh.createBnode(false);
         }
     }
 
@@ -506,7 +512,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
                         objectNonLit = coalesce(qName, attrs, parent, current,
                                 RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
                     } catch (MalformedIRIException e) {
-                        warning(RDFa.WARNING, "Malformed IRI: " + e.getMessage());
+                        warning(RDFa.WARNING, e.getMessage());
                         pushCurrentContext(current, parent);
                     }
                 }
@@ -682,7 +688,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
                 String prev = null;
                 String start = null;
                 for (Object res : list.get(pred)) {
-                    String child = dh.createBnode();
+                    String child = dh.createBnode(false);
                     if (res instanceof LiteralNode) {
                         addLiteralTriple(child, RDF.FIRST, (LiteralNode) res);
                     } else {
@@ -840,7 +846,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
 
     public void warning(String warningClass, String context) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            String warningNode = dh.createBnode();
+            String warningNode = dh.createBnode(true);
             if (locator != null) {
                 context += " at " + locator.getLineNumber() + ':' + locator.getColumnNumber();
             }
@@ -851,9 +857,9 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
 
     public void error(String errorClass, String context) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            String errorNode = dh.createBnode();
+            String errorNode = dh.createBnode(true);
             sink.addNonLiteral(errorNode, RDF.TYPE, errorClass);
-//            sink.addPlainLiteral(errorNode, RDFa.CONTEXT, context, "en");
+            sink.addPlainLiteral(errorNode, RDFa.CONTEXT, context, "en");
         }
     }
 

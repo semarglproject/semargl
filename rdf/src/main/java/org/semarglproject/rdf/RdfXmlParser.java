@@ -401,9 +401,10 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
 
     private String newBnode() {
         String bnode = RDF.BNODE_PREFIX + bnodeId;
-        if (reifyIri == null) {
-            bnode += RDF.SHORTENABLE_BNODE_SUFFIX;
-        }
+        // can't guarantee shortenability because of reification
+//        if (reifyIri == null) {
+//            bnode += RDF.SHORTENABLE_BNODE_SUFFIX;
+//        }
         bnodeId++;
         return bnode;
     }
@@ -419,15 +420,14 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         if (IRI.isAbsolute(result)) {
             return result;
         }
-        throw new SAXException(new ParseException("Malformed IRI: " + iri,
-                new MalformedIRIException("Can not parse IRI")));
+        throw new SAXException(new ParseException(new MalformedIRIException("Malformed IRI: " + iri)));
     }
 
     private static String resolveIRI(String nsIri, String iri) throws SAXException {
         try {
             return IRI.resolve(nsIri, iri);
         } catch (MalformedIRIException e) {
-            throw new SAXException(new ParseException("Malformed IRI: " + iri, e));
+            throw new SAXException(new ParseException(e));
         }
     }
 

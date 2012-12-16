@@ -61,7 +61,7 @@ public final class IRI {
                 if (isAbsolute(result)) {
                     return result;
                 }
-                throw new MalformedIRIException(iri);
+                throw new MalformedIRIException("Malformed IRI: " + iri);
             }
         }
     }
