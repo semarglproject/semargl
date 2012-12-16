@@ -1,17 +1,17 @@
 Welcome to the home of Semargl!
 ===============================
 
-Semargl is a modular framework for crawling linked data from structured
-documents. The main goal of project is to provide lightweight and
-performant tool without excess dependencies.
+Semargl is a modular framework for crawling [linked data](http://en.wikipedia.org/wiki/Linked_data)
+from structured documents. The main goal of project is to provide lightweight
+and performant tool without excess dependencies.
 
-At this moment it offers streaming parsers for:
-* RDFa 1.0 and 1.1
-* RDF/XML
-* NTriples
+At this moment it offers high-performant streaming parsers for RDF/XML,
+[RDFa](http://en.wikipedia.org/wiki/Rdfa), N-Triples,
+streaming serializer for Turtle and integration with Jena and Clerezza.
 
-For more information you can visit [project homepage](http://semarglproject.org),
-or try [demo](http://demo.semarglproject.org).
+Small memory footprint, and CPU requirements allow framework to be embedded in any system.
+It runs seamlessly on Android and GAE. You can try [RDFa parser demo](http://demo.semarglproject.org)
+or visit [project page](http://semarglproject.org) for more information.
 
 Why use Semargl?
 ================
@@ -22,14 +22,13 @@ Lightweight
 Semargl’s code is small and simple to understand. It will never
 [read a mail](http://en.wikipedia.org/wiki/Zawinski's_law_of_software_envelopment).
 Internally it operates with raw strings and creates as few objects as possible,
-so your Android or GAE projects will be happy.
+so your Android or GAE applications will be happy.
 
-Standard-conformant
+Standard conformant
 -------------------
 
-Framework conforms corresponding W3C standards for IRI's, RDF, RDFa and so on.
-All code base is covered with tests made by W3C, RDF Web Applications Working
-Group and Jena ARP project.
+All implementations fully support corresponding W3C specifications and test suites.
+See more at [project page](http://semarglproject.org).
 
 Dead Simple
 -----------
@@ -37,13 +36,12 @@ Dead Simple
 No jokes!
 
 ```java
-// just init triple sink you want
+// just init triple store you want
 MGraph graph = ... // Clerezza calls
-TripleSink sink = new ClerezzaTripleSink(graph);
 // create processing pipe
-DataProcessor<Reader> dp = new CharSource()
-        .streamingTo(new NTriplesParser()
-                .streamingTo(sink).build();
+DataProcessor<Reader> dp = new CharSource().streamingTo(
+    new NTriplesParser().streamingTo(
+        new ClerezzaTripleSink(graph)).build();
 // and run it!
 dp.process(new FileReader(file), docUri);
 ```
@@ -56,8 +54,9 @@ Model model = ... // Jena calls
 model.read(new FileReader(file), docUri, "RDFA");
 ```
 
-Semargl works out of the box with Android and GAE applications, frameworks
-such as Apache Jena and Apache Clerezza. See examples dir for more info.
+If you don't want to use external frameworks, you can always use internal
+serializers or implement own TripleSink to process triple streams.
+Feel free to use examples provided with project.
 
 What Semargl is not
 ===================
@@ -71,35 +70,22 @@ It's still not a framework with stable API (and won't be until major release).
 Supported data formats
 ======================
 
-RDF/XML
--------
+Streaming parsers
+-----------------
 
-Parsing support. Implementation covered by tests from Jena ARP project.
-Atm it outperforms Jena parser even if you load triples to Jena model.
-Benchmarks are located in examples folder.
+* RDF/XML
+* RDFa
+* NTriples
 
-RDFa
-----
+Stream serializers
+------------------
 
-RDFa parser currently passes all RDFa 1.0 and 1.1
-[conformance](http://rdfa.info/test-suite/) tests for all document formats.
-Document format detection works out-of-the-box, so you shouldn't worry about
-specifying document format. RDFa version detection is also present with
-default version 1.1.
-Supported RDFa extensions: Vocubulary Expansion, Processor Graph.
-
-NTriples
---------
-
-Parsing support. Implementation covered by tests from Jena ARP project.
-
-Turtle
-------
-
-Serialization support. Syntax abbreviations.
+* Turtle
+* Jena model
+* Clerezza graph
 
 Build
 =====
 
-To build framework just run mvn install. At some stage RDFa tests will download
+To build framework just run `mvn install`. At some stage RDFa tests will download
 large dataset from rdfa.info, be patient.
