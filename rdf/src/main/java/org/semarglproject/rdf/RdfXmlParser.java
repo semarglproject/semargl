@@ -547,6 +547,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     public void startEntity(String arg0) throws SAXException {
     }
 
+    @Override
     public RdfXmlParser streamingTo(TripleSink sink) {
         this.sink = sink;
         return this;

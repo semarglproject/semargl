@@ -16,7 +16,7 @@
 
 package org.semarglproject.rdf.rdfa;
 
-class PlainLiteral implements LiteralNode {
+final class PlainLiteral implements LiteralNode {
     private final String content;
     private final String lang;
 

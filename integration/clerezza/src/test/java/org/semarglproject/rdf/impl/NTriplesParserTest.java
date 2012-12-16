@@ -67,13 +67,16 @@ public final class NTriplesParserTest {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                dp.process(input, inputUri);
-                OutputStream outputStream = new WriterOutputStream(output);
                 try {
-                    Serializer serializer = Serializer.getInstance();
-                    serializer.serialize(outputStream, graph, "text/turtle");
+                    dp.process(input, inputUri);
                 } finally {
-                    IOUtils.closeQuietly(outputStream);
+                    OutputStream outputStream = new WriterOutputStream(output);
+                    try {
+                        Serializer serializer = Serializer.getInstance();
+                        serializer.serialize(outputStream, graph, "text/turtle");
+                    } finally {
+                        IOUtils.closeQuietly(outputStream);
+                    }
                 }
             }
         });

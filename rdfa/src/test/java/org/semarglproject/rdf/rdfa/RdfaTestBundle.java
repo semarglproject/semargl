@@ -58,7 +58,7 @@ public final class RdfaTestBundle {
     private static final String RDFA_TESTSUITE_MANIFEST_URI = RDFA_TESTSUITE_ROOT + "manifest.ttl";
 
     public interface SaveToFileCallback {
-        void run(Reader input, String inputUri, Writer output) throws ParseException;
+        void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException;
     }
 
     public final static class TestCase {
@@ -182,7 +182,7 @@ public final class RdfaTestBundle {
         executorService.awaitTermination(10, TimeUnit.MINUTES);
     }
 
-    public static void runTestBundle(TestCase testCase, SaveToFileCallback callback) {
+    public static void runTestBundle(TestCase testCase, SaveToFileCallback callback, short rdfaVersion) {
         String inputUri = testCase.getInput();
 
         String resultFilePath = getOutputPath(inputUri);
@@ -193,7 +193,7 @@ public final class RdfaTestBundle {
                 Reader input = new InputStreamReader(openStreamForResource(inputUri));
                 Writer output = new FileWriter(resultFilePath);
                 try {
-                    callback.run(input, inputUri, output);
+                    callback.run(input, inputUri, output, rdfaVersion);
                 } finally {
                     IOUtils.closeQuietly(input);
                     IOUtils.closeQuietly(output);

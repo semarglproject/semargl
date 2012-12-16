@@ -21,7 +21,6 @@ import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSink;
 import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.rdf.TripleSource;
-import org.semarglproject.ri.CURIE;
 import org.semarglproject.ri.MalformedIRIException;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
@@ -32,13 +31,14 @@ import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
-public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHandler, ResourceResolver, TripleSink {
+public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
 
     // prefixes for incompleted triples should be of same length
     private static final String FORWARD = "fwd";
@@ -69,8 +69,8 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     private static final String PARENT_OBJECT = "poie";
     private static final String BNODE_IF_TYPEOF = RDFa.TYPEOF_ATTR;
 
-    private TripleSink sink;
-    private Stack<EvalContext> contextStack = null;
+    private TripleSink sink = null;
+    private Deque<EvalContext> contextStack = null;
 
     private String xmlString = null;
     private String xmlStringPred = null;
@@ -81,20 +81,20 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
     private boolean sinkProcessorGraph;
 
     private boolean expandVocab;
-    private VocabManager vocabManager;
+    private VocabManager vocabManager = null;
 
     private DocumentContext dh;
+    private Locator locator;
 
-    private boolean rdfXmlInline;
-    private RdfXmlParser rdfXmlParser;
+    private boolean rdfXmlInline = false;
+    private RdfXmlParser rdfXmlParser = null;
 
-    // document bnodes to inner bnodes mapping
-    private final Map<String, String> overwriteMappings = new HashMap<String, String>();
+    private final Map<String, String> overwriteMappings = new HashMap<String, String>();;
 
     public RdfaParser(boolean sinkOutputGraph, boolean sinkProcessorGraph, boolean expandVocab) {
         setOutput(sinkOutputGraph, sinkProcessorGraph, expandVocab);
-        dh = new DocumentContext(null, defaultRdfaVersion);
-        contextStack = new Stack<EvalContext>();
+        dh = new DocumentContext(null, defaultRdfaVersion, this);
+        contextStack = new LinkedList<EvalContext>();
     }
 
     public RdfaParser() {
@@ -113,10 +113,6 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         }
     }
 
-    public void setVocabManager(VocabManager vocabManager) {
-        this.vocabManager = vocabManager;
-    }
-
     public void setRdfaVersion(short rdfaVersion) {
         if (rdfaVersion < RDFa.VERSION_10 || rdfaVersion > RDFa.VERSION_11) {
             throw new IllegalArgumentException("Unsupported RDFa version");
@@ -126,11 +122,12 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
     @Override
     public void startDocument() {
-        EvalContext initialContext = new EvalContext(this, dh.base);
+        dh.clear(defaultRdfaVersion);
+
+        EvalContext initialContext = EvalContext.createInitialContext(dh);
         initialContext.iriMappings.put("", XHTML_VOCAB);
         contextStack.push(initialContext);
 
-        dh.clear(defaultRdfaVersion);
         xmlString = null;
         xmlStringPred = null;
         xmlStringSubj = null;
@@ -187,7 +184,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
             lang = attrs.getValue(XmlUtils.LANG);
         }
         EvalContext current = parent.initChildContext(attrs.getValue(RDFa.PROFILE_ATTR),
-                attrs.getValue(RDFa.VOCAB_ATTR), lang, overwriteMappings, dh.rdfaVersion);
+                attrs.getValue(RDFa.VOCAB_ATTR), lang, overwriteMappings);
         overwriteMappings.clear();
 
         boolean skipTerms = dh.rdfaVersion > RDFa.VERSION_10 && dh.isHtmlDocument()
@@ -254,7 +251,6 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
     private boolean findSubjectAndObject(String qName, Attributes attrs, boolean noRelAndRev, EvalContext current,
                                          EvalContext parent) throws SAXException {
-        boolean skipElement = false;
         String newSubject = null;
         try {
             if (dh.rdfaVersion > RDFa.VERSION_10) {
@@ -283,9 +279,6 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                         current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
                                 RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR, BASE_IF_ROOT_NODE,
                                 BNODE_IF_TYPEOF, PARENT_OBJECT);
-                        if (current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null) {
-                            skipElement = true;
-                        }
                         if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
                             newSubject = current.subject;
                         }
@@ -295,7 +288,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                     current.object = coalesce(qName, attrs, parent, current, RDFa.RESOURCE_ATTR, DATA_ATTR,
                             RDFa.HREF_ATTR, RDFa.SRC_ATTR);
                     current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR,
-                            BASE_IF_ROOT_NODE, PARENT_OBJECT, PARENT_OBJECT);
+                            BASE_IF_ROOT_NODE, PARENT_OBJECT);
                     if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
                         if (attrs.getValue(RDFa.ABOUT_ATTR) != null) {
                             newSubject = current.subject;
@@ -312,9 +305,6 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                     // RDFa Core 1.0 processing sequence step 4
                     current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR, RDFa.SRC_ATTR,
                             RDFa.RESOURCE_ATTR, RDFa.HREF_ATTR, BASE_IF_HEAD_OR_BODY, BNODE_IF_TYPEOF, PARENT_OBJECT);
-                    if (current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null) {
-                        skipElement = true;
-                    }
                 } else {
                     // RDFa Core 1.0 processing sequence step 5
                     current.subject = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR, RDFa.SRC_ATTR,
@@ -325,22 +315,23 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                     newSubject = current.subject;
                 }
             }
-        } catch (ParseException e) {
-            warning(RDFa.WARNING);
+        }  catch (MalformedIRIException e) {
+            warning(RDFa.WARNING, "Malformed IRI: " + e.getMessage());
             pushCurrentContext(current, parent);
         }
+
         if (newSubject != null) {
             // RDFa Core 1.0 processing sequence step 6
             // RDFa Core 1.1 processing sequence step 7
             for (String type : attrs.getValue(RDFa.TYPEOF_ATTR).split(SEPARATOR)) {
-                String iri = current.resolvePredOrDatatype(type, dh.rdfaVersion);
+                String iri = current.resolvePredOrDatatype(type);
                 if (iri == null) {
                     continue;
                 }
                 addNonLiteral(newSubject, RDF.TYPE, iri);
             }
         }
-        return skipElement;
+        return noRelAndRev && current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null;
     }
 
     /**
@@ -361,7 +352,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
      * @throws ParseException
      */
     private String coalesce(String tagName, Attributes attrs, EvalContext parent,
-                            EvalContext current, String... attrNames) throws ParseException {
+                            EvalContext current, String... attrNames) throws MalformedIRIException {
         for (String attr : attrNames) {
             if (attrs.getValue(attr) != null) {
                 if (attr.equals(RDFa.ABOUT_ATTR) || attr.equals(RDFa.RESOURCE_ATTR)) {
@@ -369,13 +360,9 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                     if (val.equals("[]")) {
                         continue;
                     }
-                    return current.resolveAboutOrResource(val, dh.rdfaVersion);
+                    return current.resolveAboutOrResource(val);
                 } else if (attr.equals(RDFa.HREF_ATTR) || attr.equals(RDFa.SRC_ATTR) || attr.equals(DATA_ATTR)) {
-                    try {
-                        return resolveIri(attrs.getValue(attr));
-                    } catch (MalformedIRIException e) {
-                        throw new ParseException(e);
-                    }
+                    return dh.resolveIri(attrs.getValue(attr));
                 } else if (attr.equals(BNODE_IF_TYPEOF)) {
                     return dh.createBnode();
                 }
@@ -403,32 +390,25 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         }
 
         if (rels != null) {
-            if (dh.rdfaVersion > RDFa.VERSION_10 && attrs.getValue(RDFa.INLIST_ATTR) != null) {
-                // RDFa Core 1.1 processing sequence steps 9 and 10
-                for (String predicate : rels) {
-                    if (skipTerms && predicate.indexOf(':') == -1) {
-                        continue;
-                    }
-                    String iri = current.resolvePredOrDatatype(predicate, dh.rdfaVersion);
-                    if (iri == null) {
-                        continue;
-                    }
+            boolean inList = dh.rdfaVersion > RDFa.VERSION_10 && attrs.getValue(RDFa.INLIST_ATTR) != null;
+            // RDFa Core 1.1 processing sequence steps 9 and 10
+            // RDFa Core 1.0 processing sequence steps 7 and 8
+            for (String predicate : rels) {
+                if (skipTerms && predicate.indexOf(':') == -1) {
+                    continue;
+                }
+                String iri = current.resolvePredOrDatatype(predicate);
+                if (iri == null) {
+                    continue;
+                }
+                if (inList) {
                     List<Object> list = current.getMappingForIri(iri);
                     if (current.object != null) {
                         list.add(current.object);
                     } else {
                         current.incomplTriples.add(list);
                     }
-                }
-            } else { // RDFa Core 1.0 processing sequence steps 7 and 8
-                for (String predicate : rels) {
-                    if (skipTerms && predicate.indexOf(':') == -1) {
-                        continue;
-                    }
-                    String iri = current.resolvePredOrDatatype(predicate, dh.rdfaVersion);
-                    if (iri == null) {
-                        continue;
-                    }
+                } else {
                     if (current.object != null) {
                         addNonLiteral(current.subject, iri, current.object);
                     } else {
@@ -440,7 +420,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         if (revs != null) {
             for (String predicate : revs) {
                 // RDFa Core 1.1 processing sequence steps 9 and 10
-                String iri = current.resolvePredOrDatatype(predicate, dh.rdfaVersion);
+                String iri = current.resolvePredOrDatatype(predicate);
                 if (iri == null) {
                     continue;
                 }
@@ -483,7 +463,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
             }
         }
 
-        String dt = current.resolvePredOrDatatype(datatype, dh.rdfaVersion);
+        String dt = current.resolvePredOrDatatype(datatype);
         if (dt == null && datatype != null && datatype.length() > 0) {
             datatype = null; // ignore incorrect datatype
         }
@@ -525,8 +505,8 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
                     try {
                         objectNonLit = coalesce(qName, attrs, parent, current,
                                 RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
-                    } catch (ParseException e) {
-                        warning(RDFa.WARNING);
+                    } catch (MalformedIRIException e) {
+                        warning(RDFa.WARNING, "Malformed IRI: " + e.getMessage());
                         pushCurrentContext(current, parent);
                     }
                 }
@@ -557,9 +537,8 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
             }
         }
 
-        String[] parts = attrs.getValue(RDFa.PROPERTY_ATTR).trim().split(SEPARATOR);
-        for (String pred : parts) {
-            String iri = current.resolvePredOrDatatype(pred, dh.rdfaVersion);
+        for (String pred : attrs.getValue(RDFa.PROPERTY_ATTR).trim().split(SEPARATOR)) {
+            String iri = current.resolvePredOrDatatype(pred);
             if (iri == null) {
                 continue;
             }
@@ -807,9 +786,10 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         if (prefix.length() == 0 && XHTML_DEFAULT_XMLNS.equalsIgnoreCase(uri)) {
             overwriteMappings.put(prefix, XHTML_VOCAB);
         } else {
-            if (CURIE.INITIAL_CONTEXT.containsKey(prefix) && !CURIE.INITIAL_CONTEXT.get(prefix).equals(uri)) {
-                warning(RDFa.PREFIX_REDEFINITION);
-            }
+            // TODO: processor graph
+//            if (INITIAL_CONTEXT.containsKey(prefix) && !INITIAL_CONTEXT.get(prefix).equals(uri)) {
+//                warning(RDFa.PREFIX_REDEFINITION);
+//            }
             overwriteMappings.put(prefix, uri);
         }
     }
@@ -842,17 +822,6 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
         return this;
     }
 
-    @Override
-    public String resolveBNode(String value) {
-        return dh.resolveBNode(value);
-    }
-
-    @Override
-    public String resolveIri(String iri) throws MalformedIRIException {
-        return dh.resolveIri(iri);
-    }
-
-    @Override
     public Vocabulary loadVocabulary(String vocabUrl) {
         if (sinkOutputGraph) {
             sink.addNonLiteral(dh.base, RDFa.USES_VOCABULARY, vocabUrl);
@@ -869,27 +838,33 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
     // error handling
 
-    @Override
-    public void warning(String warningClass) {
+    public void warning(String warningClass, String context) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            sink.addNonLiteral(dh.createBnode(), RDF.TYPE, warningClass);
+            String warningNode = dh.createBnode();
+            if (locator != null) {
+                context += " at " + locator.getLineNumber() + ':' + locator.getColumnNumber();
+            }
+            sink.addNonLiteral(warningNode, RDF.TYPE, warningClass);
+            sink.addPlainLiteral(warningNode, RDFa.CONTEXT, context, "en");
         }
     }
 
-    @Override
-    public void error(String errorClass) {
+    public void error(String errorClass, String context) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            sink.addNonLiteral(dh.createBnode(), RDF.TYPE, errorClass);
+            String errorNode = dh.createBnode();
+            sink.addNonLiteral(errorNode, RDF.TYPE, errorClass);
+//            sink.addPlainLiteral(errorNode, RDFa.CONTEXT, context, "en");
         }
     }
 
     @Override
     public ParseException processException(SAXException e) {
-        error(RDFa.ERROR);
         Throwable cause = e.getCause();
         if (cause instanceof ParseException) {
+            error(RDFa.ERROR, cause.getMessage());
             return (ParseException) cause;
         }
+        error(RDFa.ERROR, e.getMessage());
         return new ParseException(e);
     }
 
@@ -961,6 +936,7 @@ public final class RdfaParser implements SaxSink, TripleSource, ProcessorGraphHa
 
     @Override
     public void setDocumentLocator(Locator locator) {
+        this.locator = locator;
     }
 
     @Override

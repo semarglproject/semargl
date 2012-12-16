@@ -17,10 +17,11 @@
 package org.semarglproject.rdf.rdfa;
 
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.vocab.XSD;
 
 import javax.xml.bind.DatatypeConverter;
 
-class TypedLiteral implements LiteralNode {
+final class TypedLiteral implements LiteralNode {
     private final String content;
     private final String type;
 

@@ -244,6 +244,7 @@ public final class NTriplesParser implements CharSink, TripleSource {
     public void setBaseUri(String baseUri) {
     }
 
+    @Override
     public NTriplesParser streamingTo(TripleSink sink) {
         this.sink = sink;
         return this;

@@ -24,6 +24,7 @@ import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
+import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -36,18 +37,23 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 
-import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 import static org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
+import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 
 public final class RdfaParserTest {
 
     private Model model;
+    private RdfaParser rdfaParser;
     private DataProcessor<Reader> dp;
     private SaveToFileCallback jenaCallback = new SaveToFileCallback() {
         @Override
-        public void run(Reader input, String inputUri, Writer output) throws ParseException {
-            dp.process(input, inputUri);
-            model.write(output, "TURTLE");
+        public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
+            rdfaParser.setRdfaVersion(rdfaVersion);
+            try {
+                dp.process(input, inputUri);
+            } finally {
+                model.write(output, "TURTLE");
+            }
         }
     };
 
@@ -58,7 +64,8 @@ public final class RdfaParserTest {
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
         reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(new JenaTripleSink(model))).build();
+        rdfaParser = new RdfaParser(true, true, true);
+        dp = new SaxSource(reader).streamingTo(rdfaParser.streamingTo(new JenaTripleSink(model))).build();
     }
 
     @BeforeMethod
@@ -112,37 +119,37 @@ public final class RdfaParserTest {
 
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
     public void Rdfa10Xhtml1TestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_10);
     }
 
     @Test(dataProvider = "getRdfa10SvgTestSuite")
     public void Rdfa10SvgTestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_10);
     }
 
     @Test(dataProvider = "getRdfa11Html4TestSuite")
     public void Rdfa11Html4TestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
     public void Rdfa11Xhtml1TestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11Html5TestSuite")
     public void Rdfa11Html5TestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11XmlTestSuite")
     public void Rdfa11XmlTestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11SvgTestSuite")
     public void Rdfa11SvgTestsJena(TestCase testCase) {
-        runTestBundle(testCase, jenaCallback);
+        runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
 }

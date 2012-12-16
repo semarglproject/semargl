@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package org.semarglproject.ri;
+package org.semarglproject.vocab;
 
-public final class MalformedCURIEException extends Exception {
+public final class RDFS {
+    public static final String NS = "http://www.w3.org/2000/01/rdf-schema#";
 
-    private static final long serialVersionUID = -1077691754818847298L;
+    public static final String SUB_PROPERTY_OF = NS + "subPropertyOf";
+    public static final String SUB_CLASS_OF = NS + "subClassOf";
+    public static final String CLASS = NS + "Class";
 
-    public MalformedCURIEException(String message) {
-        super(message);
+    private RDFS() {
     }
 }

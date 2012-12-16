@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf.rdfa;
+package org.semarglproject.vocab;
 
-final class RDFS {
-    public static final String NS = "http://www.w3.org/2000/01/rdf-schema#";
+public final class OWL {
+    public static final String NS = "http://www.w3.org/2002/07/owl#";
 
-    public static final String SUB_PROPERTY_OF = NS + "subPropertyOf";
-    public static final String SUB_CLASS_OF = NS + "subClassOf";
-    public static final String CLASS = NS + "Class";
+    public static final String EQUIVALENT_PROPERTY = NS + "equivalentProperty";
+    public static final String EQUIVALENT_CLASS = NS + "equivalentClass";
 
-    private RDFS() {
+    private OWL() {
     }
 }

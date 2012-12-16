@@ -57,7 +57,7 @@ public class BenchmarkRdfa {
                 public boolean accept(File file, String s) {
                     // java-rdfa crashes here
                     if (s.contains("0314") || s.contains("0296") || s.contains("0233")
-                            || s.contains("0175") || s.contains("0065")) {
+                            || s.contains("0175") || s.contains("0065") || s.contains("0236")) {
                         return false;
                     }
                     return s.endsWith(".xhtml") || s.endsWith(".html");

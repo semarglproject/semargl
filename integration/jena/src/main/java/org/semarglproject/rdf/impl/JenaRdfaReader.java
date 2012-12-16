@@ -36,6 +36,7 @@ import java.net.URL;
 
 public class JenaRdfaReader implements RDFReader {
 
+    public static final String FEATURE_VOCAB_EXPANSION = "http://semarglproject.org/rdfa/feature/vocab-expansion";
     private DataProcessor<Reader> dp;
     private RdfaParser rdfaParser = new RdfaParser();
 
@@ -92,6 +93,9 @@ public class JenaRdfaReader implements RDFReader {
 
     @Override
     public Object setProperty(String propName, Object propValue) {
+        if (FEATURE_VOCAB_EXPANSION.equals(propName) && propValue instanceof Boolean) {
+            rdfaParser.setOutput(true, true, (Boolean) propValue);
+        }
         return null;
     }
 

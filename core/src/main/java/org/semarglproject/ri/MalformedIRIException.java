@@ -20,7 +20,7 @@ public final class MalformedIRIException extends Exception {
 
     private static final long serialVersionUID = -8791044111458438579L;
 
-    public MalformedIRIException(String message) {
-        super(message);
+    public MalformedIRIException(String iri) {
+        super(iri);
     }
 }

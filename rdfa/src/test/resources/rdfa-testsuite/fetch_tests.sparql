@@ -3,12 +3,13 @@ prefix rdfatest: <http://rdfa.info/vocabs/rdfa-test#>
 
 select ?test_case ?exp_result ?descr ?input ?result {
 	?test_case a test:TestCase;
-		rdfatest:rdfaVersion !rdfa_version;
+		rdfatest:rdfaVersion ?rdfa_version;
 		rdfatest:hostLanguage !host_lang;
 		test:purpose ?descr;
 		test:informationResourceInput ?input;
 		test:informationResourceResults ?result.
 	optional {
-	?test_case test:expectedResults ?exp_result;
+	    ?test_case test:expectedResults ?exp_result
 	}
+	filter (regex(?rdfa_version, !rdfa_version))
 } order by ?input

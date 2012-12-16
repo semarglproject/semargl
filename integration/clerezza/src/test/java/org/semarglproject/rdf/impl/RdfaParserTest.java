@@ -29,6 +29,7 @@ import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
+import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -48,11 +49,14 @@ public final class RdfaParserTest {
 
     private MGraph graph;
     private DataProcessor<Reader> dp;
+    private RdfaParser rdfaParser;
     private SaveToFileCallback clerezzaCallback = new SaveToFileCallback() {
         @Override
-        public void run(Reader input, String inputUri, Writer output) throws ParseException {
-            dp.process(input, inputUri);
-            if (graph != null) {
+        public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
+            rdfaParser.setRdfaVersion(rdfaVersion);
+            try {
+                dp.process(input, inputUri);
+            } finally {
                 OutputStream outputStream = new WriterOutputStream(output);
                 try {
                     Serializer serializer = Serializer.getInstance();
@@ -77,8 +81,8 @@ public final class RdfaParserTest {
 
         XMLReader reader = XMLReaderFactory.createXMLReader();
         reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        dp = new SaxSource(reader).streamingTo(new RdfaParser().streamingTo(new ClerezzaTripleSink(graph))).build();
-
+        rdfaParser = new RdfaParser(true, true, true);
+        dp = new SaxSource(reader).streamingTo(rdfaParser.streamingTo(new ClerezzaTripleSink(graph))).build();
     }
 
     @BeforeMethod
@@ -134,37 +138,37 @@ public final class RdfaParserTest {
 
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
     public void Rdfa10Xhtml1TestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_10);
     }
 
     @Test(dataProvider = "getRdfa10SvgTestSuite")
     public void Rdfa10SvgTestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_10);
     }
 
     @Test(dataProvider = "getRdfa11Html4TestSuite")
     public void Rdfa11Html4TestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
     public void Rdfa11Xhtml1TestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11Html5TestSuite")
     public void Rdfa11Html5TestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11XmlTestSuite")
     public void Rdfa11XmlTestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11SvgTestSuite")
     public void Rdfa11SvgTestsClerezza(TestCase testCase) {
-        runTestBundle(testCase, clerezzaCallback);
+        runTestBundle(testCase, clerezzaCallback, RDFa.VERSION_11);
     }
 
 }

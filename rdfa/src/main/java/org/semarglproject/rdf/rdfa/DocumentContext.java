@@ -32,7 +32,6 @@ final class DocumentContext {
     public static final short FORMAT_XML = 3;
     public static final short FORMAT_SVG = 4;
 
-
     private static final String HTML_ROOT_ELEMENT = "html";
     private static final String HTML_BASE = "base";
     private static final String SVG_ROOT_ELEMENT = "svg";
@@ -40,12 +39,15 @@ final class DocumentContext {
 
     public short documentFormat;
     public short rdfaVersion;
+
+    final RdfaParser parser;
     private Map<String, String> bnodeMapping = new HashMap<String, String>();
     private int nextBnodeId;
     String base;
 
-    DocumentContext(String base, short defaultRdfaVersion) {
+    DocumentContext(String base, short defaultRdfaVersion, RdfaParser parser) {
         this.base = base;
+        this.parser = parser;
         nextBnodeId = 0;
         clear(defaultRdfaVersion);
     }
@@ -123,5 +125,9 @@ final class DocumentContext {
         rdfaVersion = defaultRdfaVersion;
         documentFormat = FORMAT_UNKNOWN;
         bnodeMapping = new HashMap<String, String>();
+    }
+
+    public Vocabulary loadVocabulary(String vocabUrl) {
+        return parser.loadVocabulary(vocabUrl);
     }
 }

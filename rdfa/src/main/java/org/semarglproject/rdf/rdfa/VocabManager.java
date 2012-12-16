@@ -19,7 +19,7 @@ package org.semarglproject.rdf.rdfa;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VocabManager {
+final class VocabManager {
 
     private Map<String, Vocabulary> vocabCache = new HashMap<String, Vocabulary>();
 

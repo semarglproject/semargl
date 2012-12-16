@@ -22,7 +22,9 @@ import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.ri.IRI;
+import org.semarglproject.vocab.OWL;
 import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.RDFS;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -39,10 +41,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class Vocabulary {
+final class Vocabulary {
     String url;
-    private Map<String, Collection<String>> expansions;
-    private Collection<String> terms;
+    private Map<String, Collection<String>> expansions = null;
+    private Collection<String> terms = null;
 
     public Vocabulary(String url) {
         this.url = url;

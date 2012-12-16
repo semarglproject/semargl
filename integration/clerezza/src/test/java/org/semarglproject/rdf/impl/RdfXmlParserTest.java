@@ -80,8 +80,9 @@ public final class RdfXmlParserTest {
         runTestWith(testCase, new SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                dp.process(input, inputUri);
-                if (graph != null) {
+                try {
+                    dp.process(input, inputUri);
+                } finally {
                     OutputStream outputStream = new WriterOutputStream(output);
                     try {
                         Serializer serializer = Serializer.getInstance();

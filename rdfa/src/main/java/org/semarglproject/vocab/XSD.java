@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf.rdfa;
+package org.semarglproject.vocab;
 
-interface ProcessorGraphHandler {
+public final class XSD {
+    public static final String NS = "http://www.w3.org/2001/XMLSchema#";
 
-    void warning(String warningClass);
-    void error(String errorClass);
+    public static final String DATE = NS + "date";
+    public static final String TIME = NS + "time";
+    public static final String DATE_TIME = NS + "dateTime";
+    public static final String DURATION = NS + "duration";
+    public static final String G_YEAR = NS + "gYear";
+    public static final String G_YEAR_MONTH = NS + "gYearMonth";
 
+    private XSD() {
+    }
 }

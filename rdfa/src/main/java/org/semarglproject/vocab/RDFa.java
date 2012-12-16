@@ -20,8 +20,8 @@ public final class RDFa {
 
     public static final String NS = "http://www.w3.org/ns/rdfa#";
 
-    public static final short VERSION_10 = 0;
-    public static final short VERSION_11 = 1;
+    public static final short VERSION_10 = 1;
+    public static final short VERSION_11 = 2;
 
     public static final String ABOUT_ATTR = "about";
     public static final String CONTENT_ATTR = "content";
@@ -40,6 +40,7 @@ public final class RDFa {
     public static final String TYPEOF_ATTR = "typeof";
     public static final String VOCAB_ATTR = "vocab";
 
+    public static final String CONTEXT = NS + "context";
     public static final String WARNING = NS + "Warning";
     public static final String PREFIX_REDEFINITION = NS + "PrefixRedefinition";
     public static final String UNRESOLVED_CURIE = NS + "UnresolvedCURIE";

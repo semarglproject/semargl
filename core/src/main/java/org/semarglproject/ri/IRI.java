@@ -61,7 +61,7 @@ public final class IRI {
                 if (isAbsolute(result)) {
                     return result;
                 }
-                throw new MalformedIRIException("Can not parse IRI");
+                throw new MalformedIRIException(iri);
             }
         }
     }

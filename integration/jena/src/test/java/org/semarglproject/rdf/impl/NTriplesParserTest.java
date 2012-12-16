@@ -54,8 +54,11 @@ public final class NTriplesParserTest {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                dp.process(input, inputUri);
-                model.write(output, "TURTLE");
+                try {
+                    dp.process(input, inputUri);
+                } finally {
+                    model.write(output, "TURTLE");
+                }
             }
         });
     }

@@ -1,8 +1,8 @@
 Semargl
 Copyright 2012 Lev Khomich
 
-This product includes software developed by The Apache Software
-Foundation (http://www.apache.org/).
+This product uses software developed by The Apache Software Foundation:
+Clerezza, Jena, IO Commons (http://www.apache.org/).
 
 This product includes/uses test suite developed by Hewlett-Packard (http://hp.com/).
 Copyright (c) 2002, Hewlett-Packard Company.
