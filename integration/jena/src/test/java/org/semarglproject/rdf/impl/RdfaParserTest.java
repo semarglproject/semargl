@@ -30,8 +30,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -62,10 +60,10 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
 
-        XMLReader reader = XMLReaderFactory.createXMLReader();
-        reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         rdfaParser = new RdfaParser(true, true, true);
-        dp = new SaxSource(reader).streamingTo(rdfaParser.streamingTo(new JenaTripleSink(model))).build();
+        dp = new SaxSource().streamingTo(
+                rdfaParser.streamingTo(
+                        new JenaTripleSink(model))).build();
     }
 
     @BeforeMethod

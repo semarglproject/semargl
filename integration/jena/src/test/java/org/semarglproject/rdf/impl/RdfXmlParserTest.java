@@ -29,8 +29,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -46,10 +44,10 @@ public final class RdfXmlParserTest {
     @BeforeClass
     public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
-
         model = ModelFactory.createDefaultModel();
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        dp = new SaxSource(xmlReader).streamingTo(new RdfXmlParser().streamingTo(new JenaTripleSink(model))).build();
+        dp = new SaxSource().streamingTo(
+                new RdfXmlParser().streamingTo(
+                        new JenaTripleSink(model))).build();
     }
 
     @BeforeMethod

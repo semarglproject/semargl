@@ -33,8 +33,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.OutputStream;
 import java.io.Reader;
@@ -59,8 +57,9 @@ public final class RdfXmlParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        dp = new SaxSource(xmlReader).streamingTo(new RdfXmlParser().streamingTo(new ClerezzaTripleSink(graph))).build();
+        dp = new SaxSource().streamingTo(
+                new RdfXmlParser().streamingTo(
+                        new ClerezzaTripleSink(graph))).build();
     }
 
     @BeforeMethod

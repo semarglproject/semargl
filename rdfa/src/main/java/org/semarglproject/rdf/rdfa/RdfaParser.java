@@ -132,6 +132,9 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
         xmlString = null;
         xmlStringPred = null;
         xmlStringSubj = null;
+
+        rdfXmlInline = false;
+        rdfXmlParser = null;
     }
 
     @Override

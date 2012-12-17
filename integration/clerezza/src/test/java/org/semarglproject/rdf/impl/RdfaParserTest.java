@@ -35,8 +35,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.OutputStream;
 import java.io.Reader;
@@ -79,10 +77,10 @@ public final class RdfaParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        XMLReader reader = XMLReaderFactory.createXMLReader();
-        reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         rdfaParser = new RdfaParser(true, true, true);
-        dp = new SaxSource(reader).streamingTo(rdfaParser.streamingTo(new ClerezzaTripleSink(graph))).build();
+        dp = new SaxSource().streamingTo(
+                rdfaParser.streamingTo(
+                        new ClerezzaTripleSink(graph))).build();
     }
 
     @BeforeMethod

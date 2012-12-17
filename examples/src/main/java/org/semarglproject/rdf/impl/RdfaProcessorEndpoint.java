@@ -25,9 +25,6 @@ import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.vocab.RDFa;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,23 +36,14 @@ import java.net.URL;
 
 public class RdfaProcessorEndpoint extends AbstractHandler {
 
-    DataProcessor<Reader> dp;
-    TurtleSerializerSink ts = new TurtleSerializerSink();
-    RdfaParser rdfaParser = new RdfaParser().streamingTo(ts);
+    private final DataProcessor<Reader> dp;
+    private final TurtleSerializerSink ts;
+    private final RdfaParser rdfaParser;
 
-    {
-        try {
-//            XMLReader reader = new Parser();
-//            reader.setFeature(Parser.namespacesFeature, true);
-//            reader.setFeature(Parser.namespacePrefixesFeature, true);
-//            reader.setFeature(Parser.xmlnsURIsFeature, true);
-//            reader.setFeature(Parser.XML11Feature, true);
-            XMLReader reader = XMLReaderFactory.createXMLReader();
-            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-
-            dp = new SaxSource(reader).streamingTo(rdfaParser).build();
-        } catch (SAXException e) {
-        }
+    public RdfaProcessorEndpoint() {
+        ts = new TurtleSerializerSink();
+        rdfaParser = new RdfaParser().streamingTo(ts);
+        dp = new SaxSource().streamingTo(rdfaParser).build();
     }
 
     public static void main(String[] args) throws Exception {

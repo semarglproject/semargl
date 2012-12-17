@@ -28,7 +28,6 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,9 +65,9 @@ public class BenchmarkRdfXml {
         System.out.println("Semargl-Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
-        DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
-                .streamingTo(new RdfXmlParser()
-                        .streamingTo(new JenaTripleSink(model))).build();
+        DataProcessor<Reader> dp = new SaxSource().streamingTo(
+                new RdfXmlParser().streamingTo(
+                        new JenaTripleSink(model))).build();
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
@@ -83,9 +82,9 @@ public class BenchmarkRdfXml {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
 
-        DataProcessor<Reader> dp = new SaxSource(XMLReaderFactory.createXMLReader())
-                .streamingTo(new RdfXmlParser()
-                        .streamingTo(new ClerezzaTripleSink(model))).build();
+        DataProcessor<Reader> dp = new SaxSource().streamingTo(
+                new RdfXmlParser().streamingTo(
+                        new ClerezzaTripleSink(model))).build();
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
@@ -113,13 +112,11 @@ public class BenchmarkRdfXml {
         System.out.println("Clerezza benchmark");
         MGraph model = createClerezzaModel();
         Parser parser = Parser.getInstance();
-//        parser.bindParsingProvider();
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
             parser.parse(model, new FileInputStream(file), SupportedFormat.RDF_XML);
-//            model.addAll(deserializedGraph);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;

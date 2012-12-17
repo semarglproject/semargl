@@ -30,7 +30,6 @@ import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -89,11 +88,9 @@ public class BenchmarkRdfa {
         System.out.println("Semargl-Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        DataProcessor<Reader> dp = new SaxSource(xmlReader)
-                .streamingTo(new RdfaParser()
-                        .streamingTo(new JenaTripleSink(model))).build();
+        DataProcessor<Reader> dp = new SaxSource().streamingTo(
+                new RdfaParser().streamingTo(
+                        new JenaTripleSink(model))).build();
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
@@ -130,11 +127,9 @@ public class BenchmarkRdfa {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
 
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-        xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        DataProcessor<Reader> dp = new SaxSource(xmlReader)
-                .streamingTo(new RdfaParser()
-                        .streamingTo(new ClerezzaTripleSink(model))).build();
+        DataProcessor<Reader> dp = new SaxSource().streamingTo(
+                new RdfaParser().streamingTo(
+                        new ClerezzaTripleSink(model))).build();
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();

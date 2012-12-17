@@ -19,6 +19,7 @@ package org.semarglproject.rdf;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -27,6 +28,15 @@ public class SaxSource implements MainSource<Reader, SaxSink> {
 
     private SaxSink sink = null;
     private XMLReader xmlReader = null;
+
+    public SaxSource() {
+        try {
+            xmlReader = XMLReaderFactory.createXMLReader();
+            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (SAXException e) {
+            throw new IllegalArgumentException("Can not create SaxSource with default XMLReader implementation");
+        }
+    }
 
     public SaxSource(XMLReader xmlReader) {
         this.xmlReader = xmlReader;
