@@ -82,7 +82,7 @@ public final class RdfXmlParserTest {
                 try {
                     dp.process(input, inputUri);
                 } finally {
-                    OutputStream outputStream = new WriterOutputStream(output);
+                    OutputStream outputStream = new WriterOutputStream(output, "UTF-8");
                     try {
                         Serializer serializer = Serializer.getInstance();
                         serializer.serialize(outputStream, graph, "text/turtle");

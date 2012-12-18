@@ -31,10 +31,11 @@ import org.semarglproject.rdf.ParseException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
@@ -190,8 +191,8 @@ public final class RdfaTestBundle {
 
         try {
             try {
-                Reader input = new InputStreamReader(openStreamForResource(inputUri));
-                Writer output = new FileWriter(resultFilePath);
+                Reader input = new InputStreamReader(openStreamForResource(inputUri), "UTF-8");
+                Writer output = new OutputStreamWriter(new FileOutputStream(resultFilePath), "UTF-8");
                 try {
                     callback.run(input, inputUri, output, rdfaVersion);
                 } finally {
@@ -203,7 +204,7 @@ public final class RdfaTestBundle {
             }
 
             Model resultModel = createModelFromFile(resultFilePath, inputUri);
-            String queryStr = IOUtils.toString(openStreamForResource(testCase.getResult()));
+            String queryStr = IOUtils.toString(openStreamForResource(testCase.getResult()), "UTF-8");
             assertEquals(askModel(resultModel, queryStr), testCase.getExpectedResult());
         } catch (IOException e) {
             fail();

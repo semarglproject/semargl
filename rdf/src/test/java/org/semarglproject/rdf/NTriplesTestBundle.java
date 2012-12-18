@@ -30,10 +30,11 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
@@ -92,8 +93,8 @@ public final class NTriplesTestBundle {
         String resultFileName = testUrl.substring(testUrl.lastIndexOf('/') + 1).replace(".nt", ".ttl");
         String resultFilePath = FAILURES_DIR + resultFileName;
         try {
-            Reader input = new InputStreamReader(openStreamForResource(testUrl));
-            Writer output = new FileWriter(resultFilePath);
+            Reader input = new InputStreamReader(openStreamForResource(testUrl), "UTF-8");
+            Writer output = new OutputStreamWriter(new FileOutputStream(resultFilePath), "UTF-8");
             try {
                 callback.run(input, testUrl, output);
             } finally {
