@@ -32,8 +32,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.semarglproject</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>semargl-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.clerezza</groupId>
@@ -42,24 +43,28 @@
 
         <!--Testing-->
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdfa</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdfa</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
