@@ -147,7 +147,7 @@ public final class NTriplesTestBundle {
         if (uri.startsWith(RDF_TEST_SUITE_ROOT)) {
             result = uri.replace(RDF_TEST_SUITE_ROOT, "w3c/");
         }
-        File file = new File(uri);
+        File file = new File(result);
         if (file.exists()) {
             return new FileInputStream(file);
         }

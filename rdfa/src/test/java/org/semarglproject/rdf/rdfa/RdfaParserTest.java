@@ -51,7 +51,7 @@ public final class RdfaParserTest {
     @BeforeClass
     public void init() throws SAXException, InterruptedException {
         RdfaTestBundle.prepareTestDir();
-        RdfaTestBundle.downloadAllTests(2);
+//        RdfaTestBundle.downloadAllTests(2);
         semarglTurtleSink = new TurtleSerializerSink();
 
         rdfaParser = new RdfaParser(true, true, true);

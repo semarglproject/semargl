@@ -268,7 +268,7 @@ public final class RdfaTestBundle {
         if (uri.startsWith(RDFA_TESTSUITE_ROOT)) {
             result = uri.replace(RDFA_TESTSUITE_ROOT, "rdfa-testsuite/");
         }
-        File file = new File(uri);
+        File file = new File(result);
         if (file.exists()) {
             return new FileInputStream(file);
         }

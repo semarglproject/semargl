@@ -239,7 +239,7 @@ public final class RdfXmlTestBundle {
         } else if (uri.startsWith(ARP_TESTSUITE_ROOT)) {
             result = uri.replace(ARP_TESTSUITE_ROOT, "arp/");
         }
-        File file = new File(uri);
+        File file = new File(result);
         if (file.exists()) {
             return new FileInputStream(file);
         }
