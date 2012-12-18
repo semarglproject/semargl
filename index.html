@@ -18,7 +18,7 @@
     <title>Semargl: better linked data processing</title>
   </head>
 
-  <body about="" typeof="Project">
+  <body about="http://semarglproject.org" typeof="Project">
     <div id="container">
       <div class="inner">
 
@@ -41,7 +41,7 @@ Turtle and integration with Jena and Clerezza.</p>
 
 <p>Small memory footprint, and CPU requirements allow framework to be embedded in any system.
 It runs seamlessly on Android and GAE. You can try
-<a href="http://demo.semarglproject.org">RDFa parser demo</a> or visit
+<a href="http://demo.semarglproject.org" rel="homepage">RDFa parser demo</a> or visit
 <a href="https://github.com/levkhomich/semargl">project page</a> at github.</p>
 
 <h1>Supported W3C specifications</h1>
@@ -78,13 +78,16 @@ It runs seamlessly on Android and GAE. You can try
         </section>
 
         <footer>
-          Semargl is maintained by <a href="https://github.com/levkhomich"
-                                            rel="dc:creator maintainer foaf:maker">Lev Khomich</a>.<br />
+                Semargl is maintained by <a href="http://levkhomich.ru/foaf#me" typeof="foaf:Person"
+                                            rel="dc:creator maintainer developer foaf:maker">
+		<span property="foaf:name" rel="foaf:homepage" resource="http://levkhomich.ru/">Lev Khomich</span></a>.<br />
           Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.<br />
           Project licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html" rel="license">APL v2.0</a>
         </footer>
 
-<a href="https://github.com/levkhomich/semargl"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+            <a rel="repository" href="https://github.com/levkhomich/semargl.git" typeof="GitRepository">
+		<img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" />
+	    </a>
 
                   <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
