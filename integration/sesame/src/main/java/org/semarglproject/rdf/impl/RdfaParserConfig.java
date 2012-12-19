@@ -25,11 +25,11 @@ public class RdfaParserConfig extends ParserConfig {
     private final boolean vocabExpansionEnabled;
     private final short rdfaCompatibility;
 
-    public RdfaParserConfig(boolean preserveBNodeIDs, boolean processorGraphEnabled,
-                            boolean vocabExpansionEnabled, short rdfaCompatibility) {
+    public RdfaParserConfig(boolean preserveBNodeIDs, boolean enableProcessorGraph,
+                            boolean enableVocabExpansion, short rdfaCompatibility) {
         super(false, true, preserveBNodeIDs, RDFParser.DatatypeHandling.IGNORE);
-        this.processorGraphEnabled = processorGraphEnabled;
-        this.vocabExpansionEnabled = vocabExpansionEnabled;
+        this.processorGraphEnabled = enableProcessorGraph;
+        this.vocabExpansionEnabled = enableVocabExpansion;
         this.rdfaCompatibility = rdfaCompatibility;
     }
 

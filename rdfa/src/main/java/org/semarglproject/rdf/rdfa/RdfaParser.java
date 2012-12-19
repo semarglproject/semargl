@@ -107,11 +107,11 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
         this(true, true, false);
     }
 
-    public void setOutput(boolean sinkOutputGraph, boolean sinkProcessorGraph, boolean expandVocab) {
-        this.sinkOutputGraph = sinkOutputGraph;
-        this.sinkProcessorGraph = sinkProcessorGraph;
-        this.expandVocab = expandVocab;
-        if (sinkProcessorGraph || expandVocab) {
+    public void setOutput(boolean enableOutputGraph, boolean enableProcessorGraph, boolean enableVocabExpansion) {
+        this.sinkOutputGraph = enableOutputGraph;
+        this.sinkProcessorGraph = enableProcessorGraph;
+        this.expandVocab = enableVocabExpansion;
+        if (enableProcessorGraph || enableVocabExpansion) {
             defaultRdfaVersion = RDFa.VERSION_11;
         }
     }

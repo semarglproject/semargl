@@ -129,39 +129,38 @@ public final class RdfaParserTest {
         return result;
     }
 
-//    @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
-//    public void Rdfa10Xhtml1TestsSesame(TestCase testCase) {
-//        runTestBundle(testCase, sesameCallback, RDFa.VERSION_10);
-//    }
-//
-//    @Test(dataProvider = "getRdfa10SvgTestSuite")
-//    public void Rdfa10SvgTestsSesame(TestCase testCase) {
-//        runTestBundle(testCase, sesameCallback, RDFa.VERSION_10);
-//    }
-//
-//    @Test(dataProvider = "getRdfa11Html4TestSuite")
-//    public void Rdfa11Html4TestsSesame(TestCase testCase) {
-//        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
-//    }
-//
-//    @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
-//    public void Rdfa11Xhtml1TestsSesame(TestCase testCase) {
-//        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
-//    }
-//
-//    @Test(dataProvider = "getRdfa11Html5TestSuite")
-//    public void Rdfa11Html5TestsSesame(TestCase testCase) {
-//        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
-//    }
-//
-//    @Test(dataProvider = "getRdfa11XmlTestSuite")
-//    public void Rdfa11XmlTestsSesame(TestCase testCase) {
-//        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
-//    }
+    @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
+    public void Rdfa10Xhtml1TestsSesame(TestCase testCase) {
+        runTestBundle(testCase, sesameCallback, RDFa.VERSION_10);
+    }
+
+    @Test(dataProvider = "getRdfa10SvgTestSuite")
+    public void Rdfa10SvgTestsSesame(TestCase testCase) {
+        runTestBundle(testCase, sesameCallback, RDFa.VERSION_10);
+    }
+
+    @Test(dataProvider = "getRdfa11Html4TestSuite")
+    public void Rdfa11Html4TestsSesame(TestCase testCase) {
+        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
+    }
+
+    @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
+    public void Rdfa11Xhtml1TestsSesame(TestCase testCase) {
+        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
+    }
+
+    @Test(dataProvider = "getRdfa11Html5TestSuite")
+    public void Rdfa11Html5TestsSesame(TestCase testCase) {
+        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
+    }
+
+    @Test(dataProvider = "getRdfa11XmlTestSuite")
+    public void Rdfa11XmlTestsSesame(TestCase testCase) {
+        runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
+    }
 
     @Test(dataProvider = "getRdfa11SvgTestSuite")
     public void Rdfa11SvgTestsSesame(TestCase testCase) {
-        if (testCase.getInput().contains("0236"))
         runTestBundle(testCase, sesameCallback, RDFa.VERSION_11);
     }
 
