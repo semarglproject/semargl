@@ -17,6 +17,7 @@
 package org.semarglproject.rdf.rdfa;
 
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSink;
 import org.semarglproject.rdf.TripleSink;
@@ -39,7 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
+public final class RdfaParser implements SaxSink, TripleSource, TripleSink, ProcessorGraphHandler {
 
     // prefixes for incompleted triples should be of same length
     private static final String FORWARD = "fwd";
@@ -91,6 +92,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
 
     private DocumentContext dh;
     private Locator locator;
+    private ProcessorGraphHandler processorGraphHandler;
 
     private boolean rdfXmlInline = false;
     private RdfXmlParser rdfXmlParser = null;
@@ -849,22 +851,42 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
 
     // error handling
 
-    public void warning(String warningClass, String context) {
-        if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
-            String warningNode = dh.createBnode(true);
-            if (locator != null) {
-                context += " at " + locator.getLineNumber() + ':' + locator.getColumnNumber();
-            }
-            sink.addNonLiteral(warningNode, RDF.TYPE, warningClass);
-            sink.addPlainLiteral(warningNode, RDFa.CONTEXT, context, "en");
+    public void setProcessorGraphHandler(ProcessorGraphHandler processorGraphHandler) {
+        this.processorGraphHandler = processorGraphHandler;
+    }
+
+    @Override
+    public void info(String infoClass, String message) {
+        addProcessorGraphRecord(infoClass, message);
+        if (processorGraphHandler != null) {
+            processorGraphHandler.warning(infoClass, message);
         }
     }
 
-    public void error(String errorClass, String context) {
+    @Override
+    public void warning(String warningClass, String message) {
+        addProcessorGraphRecord(warningClass, message);
+        if (processorGraphHandler != null) {
+            processorGraphHandler.warning(warningClass, message);
+        }
+    }
+
+    @Override
+    public void error(String errorClass, String message) {
+        addProcessorGraphRecord(errorClass, message);
+        if (processorGraphHandler != null) {
+            processorGraphHandler.error(errorClass, message);
+        }
+    }
+
+    private void addProcessorGraphRecord(String recordClass, String recordContext) {
         if (dh.rdfaVersion > RDFa.VERSION_10 && sinkProcessorGraph) {
             String errorNode = dh.createBnode(true);
-            sink.addNonLiteral(errorNode, RDF.TYPE, errorClass);
-            sink.addPlainLiteral(errorNode, RDFa.CONTEXT, context, "en");
+            if (locator != null) {
+                recordContext += " at " + locator.getLineNumber() + ':' + locator.getColumnNumber();
+            }
+            sink.addNonLiteral(errorNode, RDF.TYPE, recordClass);
+            sink.addPlainLiteral(errorNode, RDFa.CONTEXT, recordContext, null);
         }
     }
 
@@ -939,15 +961,15 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
         }
     }
 
+    @Override
+    public void setDocumentLocator(Locator locator) {
+        this.locator = locator;
+    }
+
     // ignored events
 
     @Override
     public void processingInstruction(String target, String data) throws SAXException {
-    }
-
-    @Override
-    public void setDocumentLocator(Locator locator) {
-        this.locator = locator;
     }
 
     @Override

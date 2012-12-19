@@ -28,6 +28,7 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.vocab.RDFa;
@@ -43,7 +44,7 @@ import java.nio.charset.Charset;
  * @author Peter Ansell p_ansell@yahoo.com
  *
  */
-public class SesameRDFaParser implements RDFParser {
+public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     private boolean processorGraphEnabled;
     private boolean vocabExpansionEnabled;
@@ -55,6 +56,7 @@ public class SesameRDFaParser implements RDFParser {
 
     private RDFHandler rdfHandler;
     private ValueFactory valueFactory;
+    private ParseErrorListener parseErrorListener;
 
     public SesameRDFaParser() {
         preserveBNodeIDs = true;
@@ -63,7 +65,9 @@ public class SesameRDFaParser implements RDFParser {
         rdfaCompatibility = RDFa.VERSION_11;
         rdfHandler = null;
         valueFactory = null;
+        parseErrorListener = null;
         rdfaParser = new RdfaParser(true, processorGraphEnabled, vocabExpansionEnabled);
+        rdfaParser.setProcessorGraphHandler(this);
         dp = new SaxSource().streamingTo(rdfaParser).build();
     }
 
@@ -103,7 +107,7 @@ public class SesameRDFaParser implements RDFParser {
 
     @Override
     public void setParseErrorListener(ParseErrorListener el) {
-        // not supported yet
+        this.parseErrorListener  = el;
     }
 
     @Override
@@ -127,7 +131,8 @@ public class SesameRDFaParser implements RDFParser {
 
     @Override
     public RdfaParserConfig getParserConfig() {
-        return new RdfaParserConfig(preserveBNodeIDs, processorGraphEnabled, vocabExpansionEnabled, rdfaCompatibility);
+        return new RdfaParserConfig(false, true, preserveBNodeIDs, DatatypeHandling.IGNORE,
+                processorGraphEnabled, vocabExpansionEnabled, rdfaCompatibility);
     }
 
     @Override
@@ -167,5 +172,23 @@ public class SesameRDFaParser implements RDFParser {
     public void setRdfaCompatibility(short rdfaCompatibility) {
         this.rdfaCompatibility = rdfaCompatibility;
         rdfaParser.setRdfaVersion(rdfaCompatibility);
+    }
+
+    @Override
+    public void info(String infoClass, String message) {
+    }
+
+    @Override
+    public void warning(String warningClass, String message) {
+        if (parseErrorListener != null) {
+            parseErrorListener.warning(message, -1, -1);
+        }
+    }
+
+    @Override
+    public void error(String errorClass, String message) {
+        if (parseErrorListener != null) {
+            parseErrorListener.error(message, -1, -1);
+        }
     }
 }

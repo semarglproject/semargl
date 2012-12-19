@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.semarglproject.rdf.impl;
 
-import org.openrdf.rio.RDFFormat;
+package org.semarglproject.rdf;
 
-import java.nio.charset.Charset;
-import java.util.Arrays;
-
-/**
- * @author Peter Ansell p_ansell@yahoo.com
- *
- */
-public class RDFaFormat {
-    public static final RDFFormat RDFA = new RDFFormat("RDFa", "application/xhtml+rdfa", Charset.forName("UTF-8"), Arrays.asList("xhtml, html"), true, false);
+public interface ProcessorGraphHandler {
+    void info(String infoClass, String message);
+    void warning(String warningClass, String message);
+    void error(String errorClass, String message);
 }
