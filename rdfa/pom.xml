@@ -49,12 +49,14 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.semarglproject</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>semargl-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!--Testing-->
