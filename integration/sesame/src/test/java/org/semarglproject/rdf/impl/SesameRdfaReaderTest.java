@@ -49,7 +49,7 @@ public class SesameRdfaReaderTest {
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
             try {
                 RDFParser rdfParser = Rio.createParser(RDFaFormat.RDFA);
-                rdfParser.setParserConfig(new RdfaParserConfig(true, true, true, RDFa.VERSION_11));
+                rdfParser.setParserConfig(new RdfaParserConfig(true, true, RDFa.VERSION_11));
                 rdfParser.setRDFHandler(model);
                 rdfParser.parse(input, inputUri);
             } catch (OpenRDFException e) {

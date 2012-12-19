@@ -25,9 +25,17 @@ public class RdfaParserConfig extends ParserConfig {
     private final boolean vocabExpansionEnabled;
     private final short rdfaCompatibility;
 
-    public RdfaParserConfig(boolean preserveBNodeIDs, boolean enableProcessorGraph,
-                            boolean enableVocabExpansion, short rdfaCompatibility) {
-        super(false, true, preserveBNodeIDs, RDFParser.DatatypeHandling.IGNORE);
+    public RdfaParserConfig(boolean enableProcessorGraph, boolean enableVocabExpansion, short rdfaCompatibility) {
+        super(false, true, true, RDFParser.DatatypeHandling.IGNORE);
+        this.processorGraphEnabled = enableProcessorGraph;
+        this.vocabExpansionEnabled = enableVocabExpansion;
+        this.rdfaCompatibility = rdfaCompatibility;
+    }
+
+    public RdfaParserConfig(boolean verifyData, boolean stopAtFirstError,
+                            boolean preserveBNodeIDs, RDFParser.DatatypeHandling datatypeHandling,
+                            boolean enableProcessorGraph, boolean enableVocabExpansion, short rdfaCompatibility) {
+        super(verifyData, stopAtFirstError, preserveBNodeIDs, datatypeHandling);
         this.processorGraphEnabled = enableProcessorGraph;
         this.vocabExpansionEnabled = enableVocabExpansion;
         this.rdfaCompatibility = rdfaCompatibility;
