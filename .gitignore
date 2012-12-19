@@ -1,6 +1,37 @@
-target/
-.classpath
+# Android
+bin
+gen
+lint.xml
+
+# Maven
+target
+release.properties
+pom.xml.*
+
+# Eclipse
 .project
+.classpath
 .settings
+.checkstyle
+
+# IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+classes
+gen-external-apklibs
+
+# NetBeans
+nbproject
+build
+nbbuild
+dist
+nbdist
+nbactions.xml
+nb-configuration.xml
+
+# Other
+.DS_Store
+tmp
 *~
-pom.xml.versionsBackup
