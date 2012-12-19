@@ -46,7 +46,9 @@ public final class NTriplesParserTest {
     public void init() {
         NTriplesTestBundle.prepareTestDir();
         model = new StatementCollector();
-        dp = new CharSource().streamingTo(new NTriplesParser().streamingTo(new SesameTripleSink(ValueFactoryImpl.getInstance(), model))).build();
+        dp = new CharSource().streamingTo(
+                new NTriplesParser().streamingTo(
+                        new SesameTripleSink(ValueFactoryImpl.getInstance(), model))).build();
     }
 
     @BeforeMethod
@@ -61,13 +63,17 @@ public final class NTriplesParserTest {
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     dp.process(input, inputUri);
-                    
+                } finally {
                     RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
-                    for(Statement nextStatement : model.getStatements()) {
-                        rdfWriter.handleStatement(nextStatement);
+                    try {
+                        rdfWriter.startRDF();
+                        for(Statement nextStatement : model.getStatements()) {
+                            rdfWriter.handleStatement(nextStatement);
+                        }
+                        rdfWriter.endRDF();
+                    } catch(RDFHandlerException e) {
+                        // do nothing
                     }
-                } catch(RDFHandlerException e) {
-                    throw new ParseException(e);
                 }
             }
         });

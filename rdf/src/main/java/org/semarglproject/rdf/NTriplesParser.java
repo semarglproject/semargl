@@ -88,7 +88,7 @@ public final class NTriplesParser implements CharSink, TripleSource {
             switch (buffer.charAt(pos)) {
                 case '<':
                     pos++;
-                    value = getToken(MODE_SAVE_UNTIL, XmlUtils.GT);
+                    value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.GT));
                     if (subj == null) {
                         subj = value;
                     } else if (pred == null) {
@@ -99,7 +99,7 @@ public final class NTriplesParser implements CharSink, TripleSource {
                     }
                     break;
                 case '_':
-                    value = getToken(MODE_SAVE_WHILE, XmlUtils.ID);
+                    value = unescape(getToken(MODE_SAVE_WHILE, XmlUtils.ID));
                     if (subj == null) {
                         subj = value;
                     } else if (pred == null) {

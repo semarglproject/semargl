@@ -38,7 +38,7 @@
 		<version.org.apache.clerezza.rdf.jena.sparql>0.5-incubating</version.org.apache.clerezza.rdf.jena.sparql>
 		<version.com.hp.hpl.jena>2.6.4</version.com.hp.hpl.jena>
 		<version.com.hp.hpl.jena.arq>2.8.8</version.com.hp.hpl.jena.arq>
-		<version.sesame>2.7-SNAPSHOT</version.sesame>
+		<version.sesame>2.6.10</version.sesame>
 		
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
@@ -222,11 +222,16 @@
 				<artifactId>sesame-model</artifactId>
 				<version>${version.sesame}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.openrdf.sesame</groupId>
-				<artifactId>sesame-rio-api</artifactId>
-				<version>${version.sesame}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-rio-api</artifactId>
+                <version>${version.sesame}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-rio-turtle</artifactId>
+                <version>${version.sesame}</version>
+            </dependency>
 
             <!-- Apache Commons -->
             <dependency>
@@ -236,4 +241,12 @@
             </dependency>
 		</dependencies>
 	</dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>aduna</id>
+            <name>Aduna Software</name>
+            <url>http://repo.aduna-software.org/maven2/releases/</url>
+        </repository>
+    </repositories>
 </project>

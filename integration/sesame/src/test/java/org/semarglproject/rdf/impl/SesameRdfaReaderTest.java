@@ -16,10 +16,10 @@
 
 package org.semarglproject.rdf.impl;
 
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
@@ -51,17 +51,21 @@ public class SesameRdfaReaderTest {
                 RDFParser rdfParser = Rio.createParser(RDFaFormat.RDFA);
                 rdfParser.setRDFHandler(model);
                 rdfParser.parse(input, inputUri);
-                
+            } catch (OpenRDFException e) {
+                // do nothing
+            } catch (IOException e) {
+                // do nothing
+            } finally {
                 RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
-                for(Statement nextStatement : model.getStatements()) {
-                    rdfWriter.handleStatement(nextStatement);
+                try {
+                    rdfWriter.startRDF();
+                    for(Statement nextStatement : model.getStatements()) {
+                        rdfWriter.handleStatement(nextStatement);
+                    }
+                    rdfWriter.endRDF();
+                } catch (RDFHandlerException e) {
+                    // do nothing
                 }
-            } catch(RDFParseException e) {
-                throw new ParseException(e);
-            } catch(RDFHandlerException e) {
-                throw new ParseException(e);
-            } catch(IOException e) {
-                throw new ParseException(e);
             }
         }
     };
@@ -69,6 +73,7 @@ public class SesameRdfaReaderTest {
     @BeforeClass
     public void init() throws SAXException, ClassNotFoundException {
         RdfaTestBundle.prepareTestDir();
+        model = new StatementCollector();
     }
 
     @BeforeMethod

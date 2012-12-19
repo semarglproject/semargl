@@ -7,7 +7,7 @@ and performant tool without excess dependencies.
 
 At this moment it offers high-performant streaming parsers for RDF/XML,
 [RDFa](http://en.wikipedia.org/wiki/Rdfa), N-Triples,
-streaming serializer for Turtle and integration with Jena and Clerezza.
+streaming serializer for Turtle and integration with Jena, Clerezza and Sesame.
 
 Small memory footprint, and CPU requirements allow framework to be embedded in any system.
 It runs seamlessly on Android and GAE. You can try [RDFa parser demo](http://demo.semarglproject.org)
@@ -54,6 +54,14 @@ Model model = ... // Jena calls
 model.read(new FileReader(file), docUri, "RDFA");
 ```
 
+similar for Sesame
+
+```java
+RDFParser rdfParser = Rio.createParser(RDFaFormat.RDFA);
+rdfParser.setRDFHandler(model);
+rdfParser.parse(input, inputUri);
+```
+
 If you don't want to use external frameworks, you can always use internal
 serializers or implement own TripleSink to process triple streams.
 Feel free to use examples provided with project.
@@ -87,5 +95,4 @@ Stream serializers
 Build
 =====
 
-To build framework just run `mvn install`. At some stage RDFa tests will download
-large dataset from rdfa.info, be patient.
+To build framework just run `mvn install`.

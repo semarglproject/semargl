@@ -43,7 +43,7 @@ public class SesameTripleSink implements TripleSink {
     }
 
     private BNode getBNode(String bnode) {
-        return valueFactory.createBNode(bnode);
+        return valueFactory.createBNode(bnode.substring(2));
     }
 
     private Resource convertNonLiteral(String arg) {
@@ -68,7 +68,7 @@ public class SesameTripleSink implements TripleSink {
 
     @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
-        if (lang == null || lang.equals("")) {
+        if (lang == null) {
             addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), valueFactory.createLiteral(content));
         } else {
             addTriple(convertNonLiteral(subj), valueFactory.createURI(pred),

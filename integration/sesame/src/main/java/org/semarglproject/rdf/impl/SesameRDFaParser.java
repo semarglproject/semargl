@@ -26,9 +26,6 @@ import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,18 +40,11 @@ import java.nio.charset.Charset;
  */
 public class SesameRDFaParser extends RDFParserBase implements RDFParser {
 
-    public static final String FEATURE_VOCAB_EXPANSION = "http://semarglproject.org/rdfa/feature/vocab-expansion";
     private DataProcessor<Reader> dp;
-    private RdfaParser rdfaParser = new RdfaParser();
+    private RdfaParser rdfaParser = new RdfaParser(true, true, true);
 
     public SesameRDFaParser() {
-        try {
-            XMLReader reader = XMLReaderFactory.createXMLReader();
-            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            dp = new SaxSource(reader).streamingTo(rdfaParser).build();
-        } catch (SAXException e) {
-            // do nothing
-        }
+        dp = new SaxSource().streamingTo(rdfaParser).build();
     }
 
     @Override
