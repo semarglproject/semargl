@@ -31,34 +31,39 @@
     </build>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.semarglproject</groupId>
-			<artifactId>semargl-core</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>semargl-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>com.hp.hpl.jena</groupId>
 			<artifactId>jena</artifactId>
 		</dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdfa</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!--Testing-->
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdfa</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

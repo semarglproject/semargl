@@ -38,6 +38,7 @@
 		<version.org.apache.clerezza.rdf.jena.sparql>0.5-incubating</version.org.apache.clerezza.rdf.jena.sparql>
 		<version.com.hp.hpl.jena>2.6.4</version.com.hp.hpl.jena>
 		<version.com.hp.hpl.jena.arq>2.8.8</version.com.hp.hpl.jena.arq>
+		<version.sesame>2.7-SNAPSHOT</version.sesame>
 		
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
@@ -45,7 +46,7 @@
 
 	<modules>
 		<module>core</module>
-        <module>rdf</module>
+		<module>rdf</module>
 		<module>rdfa</module>
 		<module>integration</module>
 	</modules>
@@ -169,59 +170,6 @@
 	<dependencyManagement>
 		<dependencies>
 
-			<!-- Modules in this project -->
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-core</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-integration</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-clerezza</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-jena</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-rdf</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-rdfa</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.semarglproject</groupId>
-				<artifactId>semargl-testutils</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-            <!-- Testing modules -->
-            <dependency>
-                <groupId>org.semarglproject</groupId>
-                <artifactId>semargl-rdfa</artifactId>
-                <type>test-jar</type>
-                <scope>test</scope>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.semarglproject</groupId>
-                <artifactId>semargl-rdf</artifactId>
-                <type>test-jar</type>
-                <scope>test</scope>
-                <version>${project.version}</version>
-            </dependency>
-
 			<!-- TestNG -->
 			<dependency>
 				<groupId>org.testng</groupId>
@@ -266,6 +214,18 @@
 				<groupId>com.hp.hpl.jena</groupId>
 				<artifactId>arq</artifactId>
 				<version>${version.com.hp.hpl.jena.arq}</version>
+			</dependency>
+
+			<!-- OpenRDF Sesame -->
+			<dependency>
+				<groupId>org.openrdf.sesame</groupId>
+				<artifactId>sesame-model</artifactId>
+				<version>${version.sesame}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openrdf.sesame</groupId>
+				<artifactId>sesame-rio-api</artifactId>
+				<version>${version.sesame}</version>
 			</dependency>
 
             <!-- Apache Commons -->
