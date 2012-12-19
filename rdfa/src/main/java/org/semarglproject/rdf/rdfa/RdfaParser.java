@@ -16,12 +16,12 @@
 
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.ri.MalformedCURIEException;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSink;
 import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.rdf.TripleSource;
+import org.semarglproject.ri.MalformedCURIEException;
 import org.semarglproject.ri.MalformedIRIException;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
@@ -82,7 +82,12 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
     private boolean sinkProcessorGraph;
 
     private boolean expandVocab;
-    private VocabManager vocabManager = null;
+    private static final ThreadLocal<VocabManager> vocabManager = new ThreadLocal<VocabManager>() {
+        @Override
+        protected VocabManager initialValue() {
+            return new VocabManager();
+        }
+    };
 
     private DocumentContext dh;
     private Locator locator;
@@ -108,9 +113,6 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
         this.expandVocab = expandVocab;
         if (sinkProcessorGraph || expandVocab) {
             defaultRdfaVersion = RDFa.VERSION_11;
-        }
-        if (expandVocab && vocabManager == null) {
-            vocabManager = new VocabManager();
         }
     }
 
@@ -836,7 +838,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink {
             sink.addNonLiteral(dh.base, RDFa.USES_VOCABULARY, vocabUrl);
         }
         if (vocabManager != null) {
-            return vocabManager.findVocab(vocabUrl, expandVocab);
+            return vocabManager.get().findVocab(vocabUrl, expandVocab);
         }
         Vocabulary vocab = new Vocabulary(vocabUrl);
         if (expandVocab) {
