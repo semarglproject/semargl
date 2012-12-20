@@ -130,14 +130,13 @@ public final class RdfXmlTestBundle {
                 result = qs.getResource("result").getURI();
             }
 
-            // streaming parser shouldn't handle this
-            if (input.endsWith("rdfms-difference-between-ID-and-about/error1.rdf")
-                    || input.endsWith("rdfms-empty-property-elements/test013.rdf")
+            if (    // empty property elements are not supported by streaming parser
+                    input.endsWith("rdfms-empty-property-elements/test013.rdf")
                     || input.endsWith("rdfms-not-id-and-resource-attr/test002.rdf")
                     || input.endsWith("rdfms-not-id-and-resource-attr/test005.rdf")
 
-                    // Treatment of namespaces that are not
-                    // visibly used is implementation dependent
+                    // all things fine with this cases, but XMLLiterals can't be compared like plain strings
+                    // correct XMLLiteral comparsion should be implemented first
                     || input.endsWith("rdfms-xml-literal-namespaces/test002.rdf")
                     || input.endsWith("xml-literals/html.rdf")
                     || input.endsWith("xml-literals/reported1.rdf")

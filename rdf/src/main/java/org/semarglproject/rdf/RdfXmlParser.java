@@ -26,7 +26,9 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 public final class RdfXmlParser implements SaxSink, TripleSource {
@@ -48,6 +50,8 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     private final Stack<String> subjStack = new Stack<String>();
     private final Stack<Integer> subjLiIndexStack = new Stack<Integer>();
     private final Map<String, String> nsMappings = new HashMap<String, String>();
+
+    private final Set<String> processedIDs = new HashSet<String>();
 
     private int bnodeId = 0;
     private String subjRes = null;     // IRI or bnode
@@ -382,6 +386,10 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         attrValue = attrs.getValue(RDF.NS, "ID");
         if (attrValue != null) {
             result = resolveIRINoResolve(baseStack.peek(), attrValue);
+            if (processedIDs.contains(result)) {
+                error("Duplicate definition for resource ID = " + result);
+            }
+            processedIDs.add(result);
             count++;
         }
         attrValue = attrs.getValue(RDF.NS, "nodeID");
@@ -447,6 +455,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
         modeStack.clear();
         subjLiIndexStack.clear();
         nsMappings.clear();
+        processedIDs.clear();
         parse = new StringBuilder();
     }
 
