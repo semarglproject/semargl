@@ -18,8 +18,6 @@ package org.semarglproject.rdf.impl;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import net.rootdev.javardfa.ParserFactory;
-import net.rootdev.javardfa.jena.JenaStatementSink;
 import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
@@ -27,17 +25,13 @@ import org.semarglproject.rdf.DataProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,9 +48,8 @@ public class BenchmarkRdfa {
             result.addAll(Arrays.asList(dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {
-                    // java-rdfa crashes here
-                    if (s.contains("0314") || s.contains("0296") || s.contains("0233")
-                            || s.contains("0175") || s.contains("0065") || s.contains("0236")) {
+                    // SAX parser crashes here
+                    if (s.contains("0236")) {
                         return false;
                     }
                     return s.endsWith(".xhtml") || s.endsWith(".html");
@@ -101,28 +94,6 @@ public class BenchmarkRdfa {
         return System.nanoTime() - time;
     }
 
-    private static long benchmarkJavaRdfaJena(File path) throws IOException, SAXException,
-            ParseException, ClassNotFoundException {
-        System.out.println("Java-Rdfa-Jena benchmark");
-        Model model = ModelFactory.createDefaultModel();
-
-        XMLReader reader = ParserFactory.createReaderForFormat(new JenaStatementSink(model), ParserFactory.Format.HTML);
-
-        List<File> files = listFiles(path);
-        long time = System.nanoTime();
-        for (File file : files) {
-            try {
-                reader.parse(new InputSource(new FileReader(file)));
-            } catch (RuntimeException e) {
-                // can't pass all tests
-                System.err.println(file);
-            }
-        }
-        System.out.println("Model size = " + model.size());
-        model.write(new FileWriter("/home/lev/out.txt"), "TURTLE");
-        return System.nanoTime() - time;
-    }
-
     private static long benchmarkSemarglClerezza(File path) throws FileNotFoundException, SAXException, ParseException {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
@@ -148,7 +119,6 @@ public class BenchmarkRdfa {
     public static void main(String[] args) throws Exception {
         printResults(benchmarkSemarglJena(BENCHMARK_PATH));
         printResults(benchmarkSemarglClerezza(BENCHMARK_PATH));
-        printResults(benchmarkJavaRdfaJena(BENCHMARK_PATH));
     }
 
 }

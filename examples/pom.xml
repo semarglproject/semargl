@@ -15,23 +15,27 @@
 	
 	<dependencies>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdfa</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-jena</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.semarglproject</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>semargl-clerezza</artifactId>
         </dependency>
         <dependency>
@@ -50,16 +54,6 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <version>7.1.4.v20100610</version>
-        </dependency>
-        <dependency>
-            <groupId>net.rootdev</groupId>
-            <artifactId>java-rdfa</artifactId>
-            <version>0.4.2-RC2</version>
-        </dependency>
-        <dependency>
-            <groupId>nu.validator.htmlparser</groupId>
-            <artifactId>htmlparser</artifactId>
-            <version>1.4</version>
         </dependency>
     </dependencies>
 </project>
