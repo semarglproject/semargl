@@ -16,9 +16,9 @@
 
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.ri.IRI;
-import org.semarglproject.ri.MalformedCURIEException;
-import org.semarglproject.ri.MalformedIRIException;
+import org.semarglproject.ri.RIUtils;
+import org.semarglproject.ri.MalformedCurieException;
+import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.vocab.RDFa;
 
 import java.util.ArrayList;
@@ -209,11 +209,11 @@ final class EvalContext {
      *
      * @param value value of attribute
      * @return resource IRI
-     * @throws MalformedIRIException if IRI can not be resolved
+     * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
      */
-    public String resolvePredOrDatatype(String value) throws MalformedIRIException {
+    public String resolvePredOrDatatype(String value) throws MalformedIriException {
         if (value == null || value.isEmpty()) {
-            throw new MalformedIRIException("Empty predicate or datatype found");
+            throw new MalformedIriException("Empty predicate or datatype found");
         }
         if (value == RdfaParser.AUTODETECT_DATE_DATATYPE) {
             return RdfaParser.AUTODETECT_DATE_DATATYPE;
@@ -226,9 +226,9 @@ final class EvalContext {
      *
      * @param value value of attribute
      * @return resource IRI
-     * @throws MalformedIRIException if IRI can not be resolved
+     * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
      */
-    public String resolveAboutOrResource(String value) throws MalformedIRIException, MalformedCURIEException {
+    public String resolveAboutOrResource(String value) throws MalformedIriException {
         String result = documentContext.resolveBNode(value);
         if (result != null) {
             return result;
@@ -240,32 +240,28 @@ final class EvalContext {
      * Resolves @role according to Role Attribute 1.0 section 4
      * @param value value of attribute
      * @return role IRI
-     * @throws MalformedIRIException if role can not be resolved
+     * @throws org.semarglproject.ri.MalformedIriException if role can not be resolved
      */
-    public String resolveRole(String value) throws MalformedIRIException {
+    public String resolveRole(String value) throws MalformedIriException {
         if (TERM_PATTERN.matcher(value).matches()) {
             return XHTML_VOCAB + value;
         }
-        try {
-            return resolveCurieOrIri(value, true);
-        } catch (MalformedCURIEException e) {
-            throw new MalformedIRIException(e.getMessage());
-        }
+        return resolveCurieOrIri(value, true);
     }
 
     /**
      * Resolves TERMorCURIEorAbsIRI according to RDFa Core 1.1 section A
      * @param value value to be resolved
      * @return resource IRI
-     * @throws MalformedIRIException if IRI can not be resolved
+     * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
      */
-    private String resolveTermOrCurieOrAbsIri(String value) throws MalformedIRIException {
+    private String resolveTermOrCurieOrAbsIri(String value) throws MalformedIriException {
         if (TERM_PATTERN.matcher(value).matches()) {
             if (vocab != null) {
                 String term = vocab.resolveTerm(value);
                 if (term == null) {
                     documentContext.parser.warning(RDFa.UNRESOLVED_TERM, "Can't resolve term " + value);
-                    throw new MalformedIRIException("Can't resolve term " + value);
+                    throw new MalformedIriException("Can't resolve term " + value);
                 }
                 return term;
             }
@@ -277,14 +273,14 @@ final class EvalContext {
             String term = resolveXhtmlTerm(value);
             if (term == null) {
                 documentContext.parser.warning(RDFa.UNRESOLVED_TERM, "Can't resolve term " + value);
-                throw new MalformedIRIException("Can't resolve term " + value);
+                throw new MalformedIriException("Can't resolve term " + value);
             }
             return term;
         }
         try {
             return resolveCurieOrIri(value, true);
-        } catch (MalformedCURIEException e) {
-            throw new MalformedIRIException(e.getMessage());
+        } catch (MalformedCurieException e) {
+            throw new MalformedIriException(e.getMessage());
         }
     }
 
@@ -295,7 +291,7 @@ final class EvalContext {
         return vocab.expand(pred);
     }
 
-    private String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIRIException, MalformedCURIEException {
+    private String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIriException {
         if (!ignoreRelIri && (curie == null || curie.isEmpty())) {
             return documentContext.resolveIri(curie);
         }
@@ -307,7 +303,7 @@ final class EvalContext {
         int delimPos = curie.indexOf(':');
         if (delimPos == -1) {
             if (safeSyntax || ignoreRelIri) {
-                throw new MalformedCURIEException("CURIE with no prefix (" + curie + ") found");
+                throw new MalformedCurieException("CURIE with no prefix (" + curie + ") found");
             }
             return documentContext.resolveIri(curie);
         }
@@ -316,7 +312,7 @@ final class EvalContext {
         String prefix = curie.substring(0, delimPos);
 
         if (prefix.equals("_")) {
-            throw new MalformedCURIEException("CURIE with invalid prefix (" + curie + ") found");
+            throw new MalformedCurieException("CURIE with invalid prefix (" + curie + ") found");
         }
 
         if (!iriMappings.containsKey(prefix)) {
@@ -324,21 +320,21 @@ final class EvalContext {
                 String nsUri = RDFA11_INITIAL_CONTEXT.get(prefix);
                 iriMappings.put(prefix, nsUri);
                 String result = nsUri + localName;
-                if (IRI.isIri(result)) {
+                if (RIUtils.isIri(result)) {
                     return result;
                 }
-                throw new MalformedCURIEException("Malformed CURIE (" + curie + ")");
+                throw new MalformedCurieException("Malformed CURIE (" + curie + ")");
             }
-            if (!safeSyntax && IRI.isIri(curie)) {
+            if (!safeSyntax && RIUtils.isIri(curie)) {
                 return curie;
             }
-            throw new MalformedCURIEException("CURIE with unresolvable prefix found (" + curie + ")");
+            throw new MalformedCurieException("CURIE with unresolvable prefix found (" + curie + ")");
         }
         String result = iriMappings.get(prefix) + localName;
-        if (IRI.isIri(result)) {
+        if (RIUtils.isIri(result)) {
             return result;
         }
-        throw new MalformedIRIException("Malformed IRI: " + curie);
+        throw new MalformedIriException("Malformed IRI: " + curie);
     }
 
     private static String resolveXhtmlTerm(String predicate) {

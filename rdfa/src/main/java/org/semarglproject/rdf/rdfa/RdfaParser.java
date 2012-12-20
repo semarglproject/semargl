@@ -22,8 +22,8 @@ import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSink;
 import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.rdf.TripleSource;
-import org.semarglproject.ri.MalformedCURIEException;
-import org.semarglproject.ri.MalformedIRIException;
+import org.semarglproject.ri.MalformedCurieException;
+import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
 import org.semarglproject.xml.XmlUtils;
@@ -241,7 +241,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
         for (String role : roleVal.split(SEPARATOR)) {
             try {
                 roles.add(current.resolveRole(role));
-            } catch (MalformedIRIException e) {
+            } catch (MalformedIriException e) {
                 // do nothing
             }
         }
@@ -322,7 +322,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                     newSubject = current.subject;
                 }
             }
-        }  catch (MalformedIRIException e) {
+        }  catch (MalformedIriException e) {
             warning(RDFa.WARNING, e.getMessage());
             pushCurrentContext(current, parent);
         }
@@ -334,7 +334,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                 try {
                     String iri = current.resolvePredOrDatatype(type);
                     addNonLiteral(newSubject, RDF.TYPE, iri);
-                } catch (MalformedIRIException e) {
+                } catch (MalformedIriException e) {
                     continue;
                 }
             }
@@ -360,7 +360,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
      * @throws ParseException
      */
     private String coalesce(String tagName, Attributes attrs, EvalContext parent,
-                            EvalContext current, String... attrNames) throws MalformedIRIException {
+                            EvalContext current, String... attrNames) throws MalformedIriException {
         for (String attr : attrNames) {
             if (attrs.getValue(attr) != null) {
                 if (attr.equals(RDFa.ABOUT_ATTR) || attr.equals(RDFa.RESOURCE_ATTR)) {
@@ -370,7 +370,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                     }
                     try {
                         return current.resolveAboutOrResource(val);
-                    } catch (MalformedCURIEException e) {
+                    } catch (MalformedCurieException e) {
                         warning(RDFa.UNRESOLVED_CURIE, e.getMessage());
                         return null;
                     }
@@ -413,7 +413,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                 String iri;
                 try {
                     iri = current.resolvePredOrDatatype(predicate);
-                } catch (MalformedIRIException e) {
+                } catch (MalformedIriException e) {
                     continue;
                 }
                 if (inList) {
@@ -438,7 +438,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                 String iri;
                 try {
                     iri = current.resolvePredOrDatatype(predicate);
-                } catch (MalformedIRIException e) {
+                } catch (MalformedIriException e) {
                     continue;
                 }
                 if (current.object != null) {
@@ -483,7 +483,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
         String dt = null;
         try {
             dt = current.resolvePredOrDatatype(datatype);
-        } catch (MalformedIRIException e) {
+        } catch (MalformedIriException e) {
             // ignore
         }
         if (dt == null && datatype != null && datatype.length() > 0) {
@@ -527,7 +527,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                     try {
                         objectNonLit = coalesce(qName, attrs, parent, current,
                                 RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
-                    } catch (MalformedIRIException e) {
+                    } catch (MalformedIriException e) {
                         warning(RDFa.WARNING, e.getMessage());
                         pushCurrentContext(current, parent);
                     }
@@ -563,7 +563,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
             String iri;
             try {
                 iri = current.resolvePredOrDatatype(pred);
-            } catch (MalformedIRIException e) {
+            } catch (MalformedIriException e) {
                 continue;
             }
             if (objectLit != null || objectNonLit != null) {

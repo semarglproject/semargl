@@ -16,8 +16,8 @@
 
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.ri.IRI;
-import org.semarglproject.ri.MalformedIRIException;
+import org.semarglproject.ri.RIUtils;
+import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
 
@@ -120,8 +120,8 @@ final class DocumentContext {
         }
     }
 
-    public String resolveIri(String iri) throws MalformedIRIException {
-        return IRI.resolve(base, iri);
+    public String resolveIri(String iri) throws MalformedIriException {
+        return RIUtils.resolveIri(base, iri);
     }
 
     public void clear(short defaultRdfaVersion) {

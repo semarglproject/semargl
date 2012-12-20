@@ -21,7 +21,7 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.TripleSink;
-import org.semarglproject.ri.IRI;
+import org.semarglproject.ri.RIUtils;
 import org.semarglproject.vocab.OWL;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFS;
@@ -126,7 +126,7 @@ final class Vocabulary {
 
     public String resolveTerm(String term) {
         String termUri = url + term;
-        if (terms == null && IRI.isAbsoluteIri(termUri) || terms != null && terms.contains(termUri)) {
+        if (terms == null && RIUtils.isAbsoluteIri(termUri) || terms != null && terms.contains(termUri)) {
             return termUri;
         }
         return null;

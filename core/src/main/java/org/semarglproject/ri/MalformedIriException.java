@@ -16,11 +16,11 @@
 
 package org.semarglproject.ri;
 
-public final class MalformedIRIException extends Exception {
+public class MalformedIriException extends Exception {
 
     private static final long serialVersionUID = -8791044111458438579L;
 
-    public MalformedIRIException(String message) {
+    public MalformedIriException(String message) {
         super(message);
     }
 }

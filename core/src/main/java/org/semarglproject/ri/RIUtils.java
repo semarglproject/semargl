@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
 // TODO: implement http://www.ietf.org/rfc/rfc2396.txt
 // TODO: implement http://www.ietf.org/rfc/rfc2732.txt
 // TODO: implement http://www.ietf.org/rfc/rfc3987.txt
-public final class IRI {
+public final class RIUtils {
 
-    private IRI() {
+    private RIUtils() {
     }
 
     private static final Pattern ABS_OPAQUE_IRI_PATTERN = Pattern.compile(
@@ -45,7 +45,7 @@ public final class IRI {
 
     private static final Pattern URN_PATTERN = Pattern.compile("urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:.+");
 
-    public static String resolve(String base, String iri) throws MalformedIRIException {
+    public static String resolveIri(String base, String iri) throws MalformedIriException {
         if (iri == null) {
             return null;
         }
@@ -68,7 +68,7 @@ public final class IRI {
             if (isIri(result)) {
                 return result;
             }
-            throw new MalformedIRIException("Malformed IRI: " + iri);
+            throw new MalformedIriException("Malformed IRI: " + iri);
         }
     }
 

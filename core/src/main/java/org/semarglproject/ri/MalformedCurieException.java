@@ -16,11 +16,11 @@
 
 package org.semarglproject.ri;
 
-public final class MalformedCURIEException extends Exception {
+public final class MalformedCurieException extends MalformedIriException {
 
     private static final long serialVersionUID = -1077691754818847298L;
 
-    public MalformedCURIEException(String message) {
+    public MalformedCurieException(String message) {
         super(message);
     }
 }

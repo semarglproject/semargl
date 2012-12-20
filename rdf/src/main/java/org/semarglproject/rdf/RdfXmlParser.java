@@ -16,8 +16,8 @@
 
 package org.semarglproject.rdf;
 
-import org.semarglproject.ri.IRI;
-import org.semarglproject.ri.MalformedIRIException;
+import org.semarglproject.ri.RIUtils;
+import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
@@ -146,7 +146,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                 if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
                     error(qname + " is not allowed here");
                 }
-                if (!IRI.isIri(iri)) {
+                if (!RIUtils.isIri(iri)) {
                     error("Invalid property IRI");
                 }
 
@@ -199,7 +199,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                 base = base.substring(0, base.lastIndexOf('#'));
             }
             base += '#';
-            if (!IRI.isAbsoluteIri(base)) {
+            if (!RIUtils.isAbsoluteIri(base)) {
                 error("Invalid base IRI");
             }
         }
@@ -412,23 +412,23 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     }
 
     private static String resolveIRINoResolve(String nsIri, String iri) throws SAXException {
-        if (IRI.isAbsoluteIri(iri)) {
+        if (RIUtils.isAbsoluteIri(iri)) {
             return iri;
         }
         if (!XmlUtils.isValidNCName(iri)) {
             throw new SAXException(new ParseException("Vocab term must be a valid NCName"));
         }
         String result = nsIri + iri;
-        if (IRI.isAbsoluteIri(result)) {
+        if (RIUtils.isAbsoluteIri(result)) {
             return result;
         }
-        throw new SAXException(new ParseException(new MalformedIRIException("Malformed IRI: " + iri)));
+        throw new SAXException(new ParseException(new MalformedIriException("Malformed IRI: " + iri)));
     }
 
     private static String resolveIRI(String nsIri, String iri) throws SAXException {
         try {
-            return IRI.resolve(nsIri, iri);
-        } catch (MalformedIRIException e) {
+            return RIUtils.resolveIri(nsIri, iri);
+        } catch (MalformedIriException e) {
             throw new SAXException(new ParseException(e));
         }
     }
