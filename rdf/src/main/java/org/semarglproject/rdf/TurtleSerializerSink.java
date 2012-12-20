@@ -42,21 +42,25 @@ public final class TurtleSerializerSink implements TripleSink {
     private void startTriple(String subj, String pred) {
         String predicateStr;
         if (RDF.TYPE.equals(pred)) {
-            predicateStr = " a ";
+            predicateStr = "a ";
         } else if (pred.startsWith(RDF.NS)) {
-            predicateStr = " rdf:" + pred.substring(RDF.NS.length()) + " ";
+            predicateStr = "rdf:" + pred.substring(RDF.NS.length()) + " ";
         } else {
-            predicateStr = " <" + pred + "> ";
+            predicateStr = "<" + pred + "> ";
         }
         if (builder == null) {
             builder = new StringBuilder();
         }
         if (subj.equals(prevSubj)) {
             if (pred.equals(prevPred)) {
-                builder.append(", ");
+                builder.append(",\n");
+                indent(2);
             } else if (prevPred != null) {
-                builder.append(";\n").append(predicateStr);
+                builder.append(";\n");
+                indent(1);
+                builder.append(predicateStr);
             } else {
+                indent(0);
                 builder.append(predicateStr);
             }
         } else {
@@ -78,18 +82,24 @@ public final class TurtleSerializerSink implements TripleSink {
                     builder.append('[');
                     bnodeStack.offer(subj);
                 } else {
-                    builder.append(subj);
+                    builder.append(subj).append(' ');
                     namedBnodes.add(subj);
                 }
             } else if (baseUri != null && subj.startsWith(baseUri)) {
-                builder.append('<').append(subj.substring(baseUri.length())).append('>');
+                builder.append('<').append(subj.substring(baseUri.length())).append("> ");
             } else {
-                builder.append('<').append(subj).append('>');
+                builder.append('<').append(subj).append("> ");
             }
             builder.append(predicateStr);
         }
         prevSubj = subj;
         prevPred = pred;
+    }
+
+    private void indent(int additionalIndent) {
+        for (int i = 0; i < bnodeStack.size() + additionalIndent; i++) {
+            builder.append('\t');
+        }
     }
 
     private void endTriple() {
