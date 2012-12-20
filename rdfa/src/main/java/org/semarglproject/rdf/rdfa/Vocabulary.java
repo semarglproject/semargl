@@ -126,7 +126,7 @@ final class Vocabulary {
 
     public String resolveTerm(String term) {
         String termUri = url + term;
-        if (terms == null && IRI.isAbsolute(termUri) || terms != null && terms.contains(termUri)) {
+        if (terms == null && IRI.isAbsoluteIri(termUri) || terms != null && terms.contains(termUri)) {
             return termUri;
         }
         return null;

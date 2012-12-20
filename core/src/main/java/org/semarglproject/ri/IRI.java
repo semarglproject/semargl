@@ -20,57 +20,67 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-// TODO: implement <http://www.ietf.org/rfc/rfc3987.txt>
+// TODO: implement http://www.ietf.org/rfc/rfc2396.txt
+// TODO: implement http://www.ietf.org/rfc/rfc2732.txt
+// TODO: implement http://www.ietf.org/rfc/rfc3987.txt
 public final class IRI {
 
     private IRI() {
     }
 
-    private static final Pattern ABS_IRI_PATTERN = Pattern.compile("[^:/?#^]+://" + // scheme
-            "(([^/?#@]*)@)?" + // user
-            "(\\[[^@/?#]*\\]|([^@/?#:]*))" + // host
-            "(:([^/?#]*))?" + // port
-            "([^#?]*)?" + // path
-            "(\\?([^#]*))?" + // query
-            "(#(.*))?", // frag
+    private static final Pattern ABS_OPAQUE_IRI_PATTERN = Pattern.compile(
+            "[a-zA-Z][a-zA-Z0-9+.-]*:" +     // scheme
+            "[^#/][^#]*",                    // opaque part
             Pattern.DOTALL);
-    private static final Pattern URN_PATTERN = Pattern
-            .compile("urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:.+");
+
+    private static final Pattern ABS_HIER_IRI_PATTERN = Pattern.compile(
+            "[a-zA-Z][a-zA-Z0-9+.-]*:" +     // scheme
+            "//?(([^/?#@]*)@)?" +            // user
+            "(\\[[^@/?#]+\\]|([^@/?#:]+))" + // host
+            "(:([^/?#]*))?" +                // port
+            "([^#?]*)?" +                    // path
+            "(\\?([^#]*))?" +                // query
+            "(#[^#]*)?",                     // fragment
+            Pattern.DOTALL);
+
+    private static final Pattern URN_PATTERN = Pattern.compile("urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:.+");
 
     public static String resolve(String base, String iri) throws MalformedIRIException {
         if (iri == null) {
             return null;
         }
-        if (isAbsolute(iri) || isURN(iri)) {
+        if (isIri(iri) || isUrn(iri)) {
             return iri;
         } else {
-            if (base.endsWith("#")) {
-                base = base.substring(0, base.length() - 1);
-            }
-            if (iri.startsWith("?")) {
+            if (iri.startsWith("?") || iri.isEmpty()) {
+                if (base.endsWith("#")) {
+                    base = base.substring(0, base.length() - 1);
+                }
                 return base + iri;
             }
-            if (iri.isEmpty()) {
-                return base;
-            }
+            String result;
             try {
                 URL basePart = new URL(base);
-                return new URL(basePart, iri).toString();
+                result = new URL(basePart, iri).toString();
             } catch (MalformedURLException e) {
-                String result = base + iri;
-                if (isAbsolute(result)) {
-                    return result;
-                }
-                throw new MalformedIRIException("Malformed IRI: " + iri);
+                result = base + iri;
             }
+            if (isIri(result)) {
+                return result;
+            }
+            throw new MalformedIRIException("Malformed IRI: " + iri);
         }
     }
 
-    public static boolean isAbsolute(String value) {
-        return ABS_IRI_PATTERN.matcher(value).matches();
+    public static boolean isIri(String value) {
+        return ABS_HIER_IRI_PATTERN.matcher(value).matches() || ABS_OPAQUE_IRI_PATTERN.matcher(value).matches();
     }
 
-    private static boolean isURN(String value) {
+    public static boolean isAbsoluteIri(String value) {
+        return ABS_HIER_IRI_PATTERN.matcher(value).matches();
+    }
+
+    public static boolean isUrn(String value) {
         return URN_PATTERN.matcher(value).matches();
     }
 

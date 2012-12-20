@@ -239,11 +239,10 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
         }
         List<String> roles = new ArrayList<String>();
         for (String role : roleVal.split(SEPARATOR)) {
-            String resolvedTerm = current.resolveRole(role);
-            if (resolvedTerm != null) {
-                roles.add(resolvedTerm);
-            } else  {
-                roles.add(XHTML_VOCAB + role);
+            try {
+                roles.add(current.resolveRole(role));
+            } catch (MalformedIRIException e) {
+                // do nothing
             }
         }
         String subject;
@@ -332,11 +331,12 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
             // RDFa Core 1.0 processing sequence step 6
             // RDFa Core 1.1 processing sequence step 7
             for (String type : attrs.getValue(RDFa.TYPEOF_ATTR).split(SEPARATOR)) {
-                String iri = current.resolvePredOrDatatype(type);
-                if (iri == null) {
+                try {
+                    String iri = current.resolvePredOrDatatype(type);
+                    addNonLiteral(newSubject, RDF.TYPE, iri);
+                } catch (MalformedIRIException e) {
                     continue;
                 }
-                addNonLiteral(newSubject, RDF.TYPE, iri);
             }
         }
         return noRelAndRev && current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null;
@@ -410,8 +410,10 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
                 if (skipTerms && predicate.indexOf(':') == -1) {
                     continue;
                 }
-                String iri = current.resolvePredOrDatatype(predicate);
-                if (iri == null) {
+                String iri;
+                try {
+                    iri = current.resolvePredOrDatatype(predicate);
+                } catch (MalformedIRIException e) {
                     continue;
                 }
                 if (inList) {
@@ -433,8 +435,10 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
         if (revs != null) {
             for (String predicate : revs) {
                 // RDFa Core 1.1 processing sequence steps 9 and 10
-                String iri = current.resolvePredOrDatatype(predicate);
-                if (iri == null) {
+                String iri;
+                try {
+                    iri = current.resolvePredOrDatatype(predicate);
+                } catch (MalformedIRIException e) {
                     continue;
                 }
                 if (current.object != null) {
@@ -476,7 +480,12 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
             }
         }
 
-        String dt = current.resolvePredOrDatatype(datatype);
+        String dt = null;
+        try {
+            dt = current.resolvePredOrDatatype(datatype);
+        } catch (MalformedIRIException e) {
+            // ignore
+        }
         if (dt == null && datatype != null && datatype.length() > 0) {
             datatype = null; // ignore incorrect datatype
         }
@@ -551,8 +560,10 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
         }
 
         for (String pred : attrs.getValue(RDFa.PROPERTY_ATTR).trim().split(SEPARATOR)) {
-            String iri = current.resolvePredOrDatatype(pred);
-            if (iri == null) {
+            String iri;
+            try {
+                iri = current.resolvePredOrDatatype(pred);
+            } catch (MalformedIRIException e) {
                 continue;
             }
             if (objectLit != null || objectNonLit != null) {

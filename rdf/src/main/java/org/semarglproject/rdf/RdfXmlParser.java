@@ -142,7 +142,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                 if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
                     error(qname + " is not allowed here");
                 }
-                if (!IRI.isAbsolute(iri)) {
+                if (!IRI.isIri(iri)) {
                     error("Invalid property IRI");
                 }
 
@@ -195,7 +195,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
                 base = base.substring(0, base.lastIndexOf('#'));
             }
             base += '#';
-            if (!IRI.isAbsolute(base)) {
+            if (!IRI.isAbsoluteIri(base)) {
                 error("Invalid base IRI");
             }
         }
@@ -205,7 +205,6 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     private void processPropertyTagAttr(String nsUri, String attr, String value) throws SAXException {
         if (attr.equals(RDF.RESOURCE)) {
             String id = resolveIRI(baseStack.peek(), value);
-            sink.addNonLiteral(subjRes, predIri, id);
             processNonLiteralTriple(subjRes, predIri, id);
             captureLiteral = false;
         } else if (attr.equals(RDF.DATATYPE)) {
@@ -400,24 +399,19 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     }
 
     private String newBnode() {
-        String bnode = RDF.BNODE_PREFIX + bnodeId;
-        // can't guarantee shortenability because of reification
-//        if (reifyIri == null) {
-//            bnode += RDF.SHORTENABLE_BNODE_SUFFIX;
-//        }
         bnodeId++;
-        return bnode;
+        return RDF.BNODE_PREFIX + bnodeId;
     }
 
     private static String resolveIRINoResolve(String nsIri, String iri) throws SAXException {
-        if (IRI.isAbsolute(iri)) {
+        if (IRI.isAbsoluteIri(iri)) {
             return iri;
         }
         if (!XmlUtils.isValidNCName(iri)) {
             throw new SAXException(new ParseException("Vocab term must be a valid NCName"));
         }
         String result = nsIri + iri;
-        if (IRI.isAbsolute(result)) {
+        if (IRI.isAbsoluteIri(result)) {
             return result;
         }
         throw new SAXException(new ParseException(new MalformedIRIException("Malformed IRI: " + iri)));
