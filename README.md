@@ -39,11 +39,11 @@ No jokes!
 // just init triple store you want
 MGraph graph = ... // Clerezza calls
 // create processing pipe
-DataProcessor<Reader> dp = new CharSource().streamingTo(
-    new NTriplesParser().streamingTo(
-        new ClerezzaTripleSink(graph)).build();
+StreamProcessor<Reader> sp = CharSource.streamingTo(
+    NTriplesParser.streamingTo(
+        new ClerezzaTripleSink(graph));
 // and run it!
-dp.process(new FileReader(file), docUri);
+sp.process(new FileReader(file), docUri);
 ```
 
 or use Jena wiring
@@ -91,6 +91,7 @@ Stream serializers
 * Turtle
 * Jena model
 * Clerezza graph
+* Sesame RDFHandler
 
 Build
 =====
