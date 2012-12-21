@@ -17,14 +17,13 @@
 package org.semarglproject.rdf.impl;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.rdf.CharSource;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.CharSource;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.NTriplesParser;
 import org.semarglproject.rdf.NTriplesTestBundle;
 import org.semarglproject.rdf.ParseException;
@@ -40,15 +39,13 @@ import java.io.Writer;
 public final class NTriplesParserTest {
 
     private StatementCollector model;
-    private DataProcessor<Reader> dp;
+    private StreamProcessor<Reader> sp;
 
     @BeforeClass
     public void init() {
         NTriplesTestBundle.prepareTestDir();
         model = new StatementCollector();
-        dp = new CharSource().streamingTo(
-                new NTriplesParser().streamingTo(
-                        new SesameTripleSink(ValueFactoryImpl.getInstance(), model))).build();
+        sp = CharSource.streamingTo(NTriplesParser.streamingTo(new SesameTripleSink(model)));
     }
 
     @BeforeMethod
@@ -62,7 +59,7 @@ public final class NTriplesParserTest {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    dp.process(input, inputUri);
+                    sp.process(input, inputUri);
                 } finally {
                     RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                     try {

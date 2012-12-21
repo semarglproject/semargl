@@ -22,9 +22,10 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
-import org.semarglproject.rdf.TripleSink;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
 /**
@@ -33,13 +34,21 @@ import org.semarglproject.vocab.RDF;
  *
  */
 public class SesameTripleSink implements TripleSink {
+
+    public static final String RDF_HANDLER_PROPERTY = "http://semarglproject.org/sesame/properties/rdf-handler";
+    public static final String VALUE_FACTORY_PROPERTY = "http://semarglproject.org/sesame/properties/value-factory";
+
     private ValueFactory valueFactory;
     private RDFHandler handler;
 
-    public SesameTripleSink(ValueFactory model, RDFHandler handler) {
+    public SesameTripleSink(ValueFactory valueFactory, RDFHandler handler) {
         super();
-        this.valueFactory = model;
+        this.valueFactory = valueFactory;
         this.handler = handler;
+    }
+
+    public SesameTripleSink(RDFHandler handler) {
+        this(ValueFactoryImpl.getInstance(), handler);
     }
 
     private BNode getBNode(String bnode) {
@@ -101,7 +110,18 @@ public class SesameTripleSink implements TripleSink {
     }
 
     @Override
-    public void setBaseUri(String baseUri) {
+    public boolean setProperty(String key, Object value) {
+        if (RDF_HANDLER_PROPERTY.equals(key) && value instanceof RDFHandler) {
+            handler = (RDFHandler) value;
+        } else if (VALUE_FACTORY_PROPERTY.equals(key) && value instanceof ValueFactory) {
+            valueFactory = (ValueFactory) value;
+        } else {
+            return false;
+        }
+        return true;
     }
 
+    @Override
+    public void setBaseUri(String baseUri) {
+    }
 }

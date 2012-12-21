@@ -16,6 +16,8 @@
 
 package org.semarglproject.rdf;
 
+import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.processor.CharSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -27,13 +29,13 @@ import java.io.Writer;
 public final class NTriplesParserTest {
 
     private TurtleSerializerSink semarglTurtleSink;
-    private DataProcessor<Reader> dp;
+    private StreamProcessor<Reader> sp;
 
     @BeforeClass
     public void cleanTargetDir() {
         NTriplesTestBundle.prepareTestDir();
         semarglTurtleSink = new TurtleSerializerSink();
-        dp = new CharSource().streamingTo(new NTriplesParser().streamingTo(semarglTurtleSink)).build();
+        sp = CharSource.streamingTo(NTriplesParser.streamingTo(semarglTurtleSink));
     }
 
     @DataProvider
@@ -47,7 +49,7 @@ public final class NTriplesParserTest {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 semarglTurtleSink.setWriter(output);
-                dp.process(input, inputUri);
+                sp.process(input, inputUri);
             }
         });
     }

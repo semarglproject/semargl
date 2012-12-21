@@ -18,12 +18,12 @@ package org.semarglproject.rdf.impl;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
+import org.semarglproject.processor.SaxSource;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -42,13 +42,13 @@ public final class RdfaParserTest {
 
     private Model model;
     private RdfaParser rdfaParser;
-    private DataProcessor<Reader> dp;
+    private StreamProcessor<Reader> sp;
     private SaveToFileCallback jenaCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
-            rdfaParser.setRdfaVersion(rdfaVersion);
+            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             try {
-                dp.process(input, inputUri);
+                sp.process(input, inputUri);
             } finally {
                 model.write(output, "TURTLE");
             }
@@ -60,10 +60,8 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
 
-        rdfaParser = new RdfaParser(true, true, true);
-        dp = new SaxSource().streamingTo(
-                rdfaParser.streamingTo(
-                        new JenaTripleSink(model))).build();
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new JenaTripleSink(model)));
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     @BeforeMethod

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.sink;
 
 public interface TripleSink extends DataSink {
 

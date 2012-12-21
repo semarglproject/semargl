@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.processor;
 
-public interface TripleSource extends DataSource<TripleSink> {
+import org.semarglproject.rdf.ParseException;
+
+public interface StreamProcessor<T> {
+
+    void process(T reader, String baseUri) throws ParseException;
+
+    boolean setProperty(String key, Object value);
 }

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.sink;
 
-interface DataSink {
+public interface DataSink {
     void setBaseUri(String baseUri);
 
     void startStream();
 
     void endStream();
+
+    boolean setProperty(String key, Object value);
 }

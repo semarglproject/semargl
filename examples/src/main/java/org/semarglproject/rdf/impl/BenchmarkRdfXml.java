@@ -23,10 +23,10 @@ import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
 import org.apache.clerezza.rdf.core.serializedform.Parser;
 import org.apache.clerezza.rdf.core.serializedform.SupportedFormat;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
-import org.semarglproject.rdf.SaxSource;
+import org.semarglproject.processor.SaxSource;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -65,14 +65,12 @@ public class BenchmarkRdfXml {
         System.out.println("Semargl-Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
-        DataProcessor<Reader> dp = new SaxSource().streamingTo(
-                new RdfXmlParser().streamingTo(
-                        new JenaTripleSink(model))).build();
+        StreamProcessor<Reader> sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(new JenaTripleSink(model)));
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
-            dp.process(new FileReader(file), HTTP_EXAMPLE_COM);
+            sp.process(new FileReader(file), HTTP_EXAMPLE_COM);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;
@@ -82,14 +80,12 @@ public class BenchmarkRdfXml {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
 
-        DataProcessor<Reader> dp = new SaxSource().streamingTo(
-                new RdfXmlParser().streamingTo(
-                        new ClerezzaTripleSink(model))).build();
+        StreamProcessor<Reader> sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(new ClerezzaTripleSink(model)));
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
-            dp.process(new FileReader(file), HTTP_EXAMPLE_COM);
+            sp.process(new FileReader(file), HTTP_EXAMPLE_COM);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;

@@ -20,13 +20,10 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFErrorHandler;
 import com.hp.hpl.jena.rdf.model.RDFReader;
 import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+import org.semarglproject.processor.SaxSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,18 +33,10 @@ import java.net.URL;
 
 public class JenaRdfaReader implements RDFReader {
 
-    public static final String FEATURE_VOCAB_EXPANSION = "http://semarglproject.org/rdfa/feature/vocab-expansion";
-    private DataProcessor<Reader> dp;
-    private RdfaParser rdfaParser = new RdfaParser();
+    private StreamProcessor<Reader> sp;
 
     public JenaRdfaReader() {
-        try {
-            XMLReader reader = XMLReaderFactory.createXMLReader();
-            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            dp = new SaxSource(reader).streamingTo(rdfaParser).build();
-        } catch (SAXException e) {
-            // do nothing
-        }
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new JenaTripleSink(null)));
     }
 
     public static void inject() {
@@ -56,9 +45,9 @@ public class JenaRdfaReader implements RDFReader {
 
     @Override
     public void read(Model model, Reader reader, String base) {
-        rdfaParser.streamingTo(new JenaTripleSink(model));
+        sp.setProperty(JenaTripleSink.OUTPUT_MODEL_PROPERTY, model);
         try {
-            dp.process(reader, base);
+            sp.process(reader, base);
         } catch (ParseException e) {
             // do nothing
         }
@@ -93,10 +82,7 @@ public class JenaRdfaReader implements RDFReader {
 
     @Override
     public Object setProperty(String propName, Object propValue) {
-        if (FEATURE_VOCAB_EXPANSION.equals(propName) && propValue instanceof Boolean) {
-            rdfaParser.setOutput(true, true, (Boolean) propValue);
-        }
-        return null;
+        return sp.setProperty(propName, propValue);
     }
 
     @Override

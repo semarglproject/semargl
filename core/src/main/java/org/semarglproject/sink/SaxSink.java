@@ -14,28 +14,13 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.sink;
 
-public abstract class DataProcessor<T> {
+import org.semarglproject.rdf.ParseException;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 
-    abstract void process(T reader) throws ParseException;
-
-    abstract boolean isStreamFinished();
-
-    abstract void endStream() throws ParseException;
-
-    abstract void setBaseUri(String baseUri);
-
-    public void process(T reader, String baseUri) throws ParseException {
-        try {
-            setBaseUri(baseUri);
-            process(reader);
-        } catch (ParseException e) {
-            if (!isStreamFinished()) {
-                endStream();
-            }
-            throw e;
-        }
-    }
-
+public interface SaxSink extends DataSink, ContentHandler, LexicalHandler {
+    ParseException processException(SAXException e);
 }

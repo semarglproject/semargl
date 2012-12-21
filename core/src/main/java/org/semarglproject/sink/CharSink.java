@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.sink;
 
-interface DataSource<T extends DataSink> {
-    DataSource<T> streamingTo(T sink);
+import org.semarglproject.rdf.ParseException;
+
+import java.io.Reader;
+
+public interface CharSink extends DataSink {
+    void read(Reader reader) throws ParseException;
 }

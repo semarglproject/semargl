@@ -19,11 +19,11 @@ package org.semarglproject.rdf.rdfa;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.RdfXmlParser;
-import org.semarglproject.rdf.SaxSink;
-import org.semarglproject.rdf.TripleSink;
-import org.semarglproject.rdf.TripleSource;
 import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
+import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.SaxSink;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
 import org.semarglproject.xml.XmlUtils;
@@ -40,7 +40,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public final class RdfaParser implements SaxSink, TripleSource, TripleSink, ProcessorGraphHandler {
+public final class RdfaParser extends Converter<SaxSink, TripleSink> implements SaxSink, TripleSink, ProcessorGraphHandler {
+
+    public static final String RDFA_VERSION_PROPERTY = "http://semarglproject.org/rdfa/properties/version";
+    public static final String PROCESSOR_GRAPH_HANDLER_PROPERTY = "http://semarglproject.org/rdfa/properties/processor-graph-handler";
+    public static final String ENABLE_OUTPUT_GRAPH = "http://semarglproject.org/rdfa/properties/enable-output-graph";
+    public static final String ENABLE_PROCESSOR_GRAPH = "http://semarglproject.org/rdfa/properties/enable-processor-graph";
+    public static final String ENABLE_VOCAB_EXPANSION = "http://semarglproject.org/rdfa/properties/enable-vocab-expansion";
 
     // prefixes for incompleted triples should be of same length
     private static final String FORWARD = "fwd";
@@ -71,14 +77,13 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
     private static final String PARENT_OBJECT = "poie";
     private static final String BNODE_IF_TYPEOF = RDFa.TYPEOF_ATTR;
 
-    private TripleSink sink = null;
     private Deque<EvalContext> contextStack = null;
 
     private String xmlString = null;
     private String xmlStringPred = null;
     private String xmlStringSubj = null;
 
-    private short defaultRdfaVersion = RDFa.VERSION_10;
+    private short defaultRdfaVersion = RDFa.VERSION_11;
     private boolean sinkOutputGraph;
     private boolean sinkProcessorGraph;
 
@@ -95,34 +100,22 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
     private ProcessorGraphHandler processorGraphHandler;
 
     private boolean rdfXmlInline = false;
-    private RdfXmlParser rdfXmlParser = null;
+    private SaxSink rdfXmlParser = null;
 
-    private final Map<String, String> overwriteMappings = new HashMap<String, String>();;
+    private final Map<String, String> overwriteMappings = new HashMap<String, String>();
 
-    public RdfaParser(boolean sinkOutputGraph, boolean sinkProcessorGraph, boolean expandVocab) {
-        setOutput(sinkOutputGraph, sinkProcessorGraph, expandVocab);
-        dh = new DocumentContext(null, defaultRdfaVersion, this);
+    private RdfaParser() {
         contextStack = new LinkedList<EvalContext>();
+        dh = new DocumentContext(null, RDFa.VERSION_11, this);
+        sinkProcessorGraph = true;
+        sinkOutputGraph = true;
+        expandVocab = false;
     }
 
-    public RdfaParser() {
-        this(true, true, false);
-    }
-
-    public void setOutput(boolean enableOutputGraph, boolean enableProcessorGraph, boolean enableVocabExpansion) {
-        this.sinkOutputGraph = enableOutputGraph;
-        this.sinkProcessorGraph = enableProcessorGraph;
-        this.expandVocab = enableVocabExpansion;
-        if (enableProcessorGraph || enableVocabExpansion) {
-            defaultRdfaVersion = RDFa.VERSION_11;
-        }
-    }
-
-    public void setRdfaVersion(short rdfaVersion) {
-        if (rdfaVersion < RDFa.VERSION_10 || rdfaVersion > RDFa.VERSION_11) {
-            throw new IllegalArgumentException("Unsupported RDFa version");
-        }
-        defaultRdfaVersion = rdfaVersion;
+    public static SaxSink streamingTo(TripleSink sink) {
+        RdfaParser parser = new RdfaParser();
+        parser.sink = sink;
+        return parser;
     }
 
     @Override
@@ -153,7 +146,7 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
             return;
         } else if (dh.documentFormat == DocumentContext.FORMAT_SVG && localName.equals(METADATA)) {
             if (rdfXmlParser == null) {
-                rdfXmlParser = new RdfXmlParser().streamingTo(this);
+                rdfXmlParser = RdfXmlParser.streamingTo(this);
                 rdfXmlParser.setBaseUri(dh.base);
                 rdfXmlParser.startDocument();
             }
@@ -826,24 +819,33 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
     }
 
     @Override
-    public void startStream() {
-        sink.startStream();
-    }
-
-    @Override
-    public void endStream() {
-        sink.endStream();
+    public boolean setProperty(String key, Object value) {
+        boolean sinkResult = super.setProperty(key, value);
+        if (ENABLE_OUTPUT_GRAPH.equals(key) && value instanceof Boolean) {
+            sinkOutputGraph = (Boolean) value;
+        } else if (ENABLE_PROCESSOR_GRAPH.equals(key) && value instanceof Boolean) {
+            sinkProcessorGraph = (Boolean) value;
+        } else if (ENABLE_VOCAB_EXPANSION.equals(key) && value instanceof Boolean) {
+            expandVocab = (Boolean) value;
+        } else if (sinkProcessorGraph || expandVocab) {
+            defaultRdfaVersion = RDFa.VERSION_11;
+        } else if (RDFA_VERSION_PROPERTY.equals(key) && value instanceof Integer) {
+            int rdfaVersion = (Integer) value;
+            if (rdfaVersion < RDFa.VERSION_10 || rdfaVersion > RDFa.VERSION_11) {
+                throw new IllegalArgumentException("Unsupported RDFa version");
+            }
+            defaultRdfaVersion = (short) rdfaVersion;
+        } else if (PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key) && value instanceof ProcessorGraphHandler) {
+            processorGraphHandler = (ProcessorGraphHandler) value;
+        } else {
+            return sinkResult;
+        }
+        return true;
     }
 
     @Override
     public void setBaseUri(String baseUri) {
         dh.base = baseUri;
-    }
-
-    @Override
-    public RdfaParser streamingTo(TripleSink sink) {
-        this.sink = sink;
-        return this;
     }
 
     public Vocabulary loadVocabulary(String vocabUrl) {
@@ -861,10 +863,6 @@ public final class RdfaParser implements SaxSink, TripleSource, TripleSink, Proc
     }
 
     // error handling
-
-    public void setProcessorGraphHandler(ProcessorGraphHandler processorGraphHandler) {
-        this.processorGraphHandler = processorGraphHandler;
-    }
 
     @Override
     public void info(String infoClass, String message) {

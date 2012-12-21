@@ -16,8 +16,11 @@
 
 package org.semarglproject.rdf;
 
-import org.semarglproject.ri.RIUtils;
 import org.semarglproject.ri.MalformedIriException;
+import org.semarglproject.ri.RIUtils;
+import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.SaxSink;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
@@ -31,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-public final class RdfXmlParser implements SaxSink, TripleSource {
+public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implements SaxSink {
 
     private static final short INSIDE_OF_PROPERTY = 1;
     private static final short INSIDE_OF_RESOURCE = 2;
@@ -41,7 +44,6 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
 
     private short mode = 0;
 
-    private TripleSink sink = null;
     private String baseUri = "";
 
     private final Stack<Short> modeStack = new Stack<Short>();
@@ -63,6 +65,15 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
 
     private int parseDepth = 0;
     private StringBuilder parse = new StringBuilder();
+
+    private RdfXmlParser() {
+    }
+
+    public static SaxSink streamingTo(TripleSink sink) {
+        RdfXmlParser parser = new RdfXmlParser();
+        parser.sink = sink;
+        return parser;
+    }
 
     private static void error(String msg) throws SAXException {
         throw new SAXException(new ParseException(msg));
@@ -506,12 +517,7 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
     @Override
     public void startStream() {
         sink.setBaseUri(baseUri);
-        sink.startStream();
-    }
-
-    @Override
-    public void endStream() {
-        sink.endStream();
+        super.startStream();
     }
 
     @Override
@@ -548,12 +554,6 @@ public final class RdfXmlParser implements SaxSink, TripleSource {
 
     @Override
     public void startEntity(String arg0) throws SAXException {
-    }
-
-    @Override
-    public RdfXmlParser streamingTo(TripleSink sink) {
-        this.sink = sink;
-        return this;
     }
 
     @Override

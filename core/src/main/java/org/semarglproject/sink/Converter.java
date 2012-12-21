@@ -14,8 +14,27 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.sink;
 
-public interface MainSource<T, S extends DataSink> extends DataSource<S> {
-    DataProcessor<T> build();
+public abstract class Converter<T extends DataSink, S extends DataSink> implements DataSink {
+    protected S sink;
+
+    @Override
+    public void startStream() {
+        sink.startStream();
+    }
+
+    @Override
+    public void endStream() {
+        sink.endStream();
+    }
+
+    @Override
+    public boolean setProperty(String key, Object value) {
+        if (sink != null) {
+            return sink.setProperty(key, value);
+        }
+        return false;
+    }
+
 }

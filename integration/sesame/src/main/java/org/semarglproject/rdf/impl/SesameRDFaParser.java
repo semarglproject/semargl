@@ -17,7 +17,6 @@
 package org.semarglproject.rdf.impl;
 
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.ParseErrorListener;
 import org.openrdf.rio.ParseLocationListener;
 import org.openrdf.rio.ParserConfig;
@@ -26,10 +25,10 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.SaxSource;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.ProcessorGraphHandler;
-import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.vocab.RDFa;
 
@@ -51,11 +50,8 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
     private boolean preserveBNodeIDs;
     private short rdfaCompatibility;
 
-    private DataProcessor<Reader> dp;
-    private final RdfaParser rdfaParser;
+    private StreamProcessor<Reader> sp;
 
-    private RDFHandler rdfHandler;
-    private ValueFactory valueFactory;
     private ParseErrorListener parseErrorListener;
 
     public SesameRDFaParser() {
@@ -63,12 +59,11 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
         vocabExpansionEnabled = false;
         processorGraphEnabled = false;
         rdfaCompatibility = RDFa.VERSION_11;
-        rdfHandler = null;
-        valueFactory = null;
         parseErrorListener = null;
-        rdfaParser = new RdfaParser(true, processorGraphEnabled, vocabExpansionEnabled);
-        rdfaParser.setProcessorGraphHandler(this);
-        dp = new SaxSource().streamingTo(rdfaParser).build();
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new SesameTripleSink(null)));
+        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
+        sp.setProperty(RdfaParser.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
     }
 
     @Override
@@ -83,13 +78,8 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     @Override
     public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        if (valueFactory == null) {
-            rdfaParser.streamingTo(new SesameTripleSink(ValueFactoryImpl.getInstance(), rdfHandler));
-        } else {
-            rdfaParser.streamingTo(new SesameTripleSink(valueFactory, rdfHandler));
-        }
         try {
-            dp.process(reader, baseURI);
+            sp.process(reader, baseURI);
         } catch (ParseException e) {
             throw new RDFParseException(e);
         }
@@ -97,12 +87,12 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     @Override
     public void setValueFactory(ValueFactory valueFactory) {
-        this.valueFactory = valueFactory;
+        sp.setProperty(SesameTripleSink.VALUE_FACTORY_PROPERTY, valueFactory);
     }
 
     @Override
     public void setRDFHandler(RDFHandler handler) {
-        this.rdfHandler = handler;
+        sp.setProperty(SesameTripleSink.RDF_HANDLER_PROPERTY, handler);
     }
 
     @Override
@@ -119,14 +109,11 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
     public void setParserConfig(ParserConfig config) {
         if (config instanceof RdfaParserConfig) {
             RdfaParserConfig rdfaParserConfig = (RdfaParserConfig) config;
-            this.processorGraphEnabled = rdfaParserConfig.isProcessorGraphEnabled();
-            this.vocabExpansionEnabled = rdfaParserConfig.isVocabExpansionEnabled();
-            this.rdfaCompatibility = rdfaParserConfig.getRdfaCompatibility();
+            setProcessorGraphEnabled(rdfaParserConfig.isProcessorGraphEnabled());
+            setVocabExpansionEnabled(rdfaParserConfig.isVocabExpansionEnabled());
+            setRdfaCompatibility(rdfaParserConfig.getRdfaCompatibility());
         }
         this.preserveBNodeIDs = config.isPreserveBNodeIDs();
-
-        rdfaParser.setOutput(true, processorGraphEnabled, vocabExpansionEnabled);
-        rdfaParser.setRdfaVersion(rdfaCompatibility);
     }
 
     @Override
@@ -161,17 +148,17 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     public void setProcessorGraphEnabled(boolean processorGraphEnabled) {
         this.processorGraphEnabled = processorGraphEnabled;
-        rdfaParser.setOutput(true, processorGraphEnabled, vocabExpansionEnabled);
+        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
     }
 
     public void setVocabExpansionEnabled(boolean vocabExpansionEnabled) {
         this.vocabExpansionEnabled = vocabExpansionEnabled;
-        rdfaParser.setOutput(true, processorGraphEnabled, vocabExpansionEnabled);
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
     }
 
     public void setRdfaCompatibility(short rdfaCompatibility) {
         this.rdfaCompatibility = rdfaCompatibility;
-        rdfaParser.setRdfaVersion(rdfaCompatibility);
+        sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaCompatibility);
     }
 
     @Override

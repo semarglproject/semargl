@@ -16,18 +16,15 @@
 
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.SaxSource;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
-import org.semarglproject.rdf.SaxSource;
-import org.semarglproject.rdf.TripleSink;
 import org.semarglproject.ri.RIUtils;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.OWL;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFS;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,15 +57,10 @@ final class Vocabulary {
     public void load() {
         VocabParser vocabParser = new VocabParser();
 
-        XMLReader xmlReader;
         URL vocabUrl;
         try {
-            xmlReader = XMLReaderFactory.createXMLReader();
-            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             vocabUrl = new URL(url);
         } catch (MalformedURLException e) {
-            return;
-        } catch (SAXException e) {
             return;
         }
 
@@ -77,18 +69,18 @@ final class Vocabulary {
             terms = new HashSet<String>();
         }
 
-        DataProcessor<Reader> rdfaDp = new SaxSource(xmlReader).streamingTo(
-                new RdfaParser(true, true, false).streamingTo(vocabParser)).build();
-        parseVocabWithDp(vocabUrl, xmlReader, rdfaDp);
+        StreamProcessor<Reader> rdfaSp = SaxSource.streamingTo(RdfaParser.streamingTo(vocabParser));
+        rdfaSp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, false);
+        parseVocabWithDp(vocabUrl, rdfaSp);
 
         if (!terms.isEmpty() || !expansions.isEmpty()) {
             return;
         }
 
         // TODO: add format detection
-        DataProcessor<Reader> rdfXmlDp = new SaxSource(xmlReader).streamingTo(
-                new RdfXmlParser().streamingTo(vocabParser)).build();
-        parseVocabWithDp(vocabUrl, xmlReader, rdfXmlDp);
+        StreamProcessor<Reader> rdfXmlSp = SaxSource.streamingTo(RdfXmlParser.streamingTo(vocabParser));
+        rdfaSp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, false);
+        parseVocabWithDp(vocabUrl, rdfXmlSp);
 
         if (terms.isEmpty() && expansions.isEmpty()) {
             terms = null;
@@ -96,7 +88,7 @@ final class Vocabulary {
         }
     }
 
-    private void parseVocabWithDp(URL vocabUrl, XMLReader xmlReader, DataProcessor<Reader> dp) {
+    private void parseVocabWithDp(URL vocabUrl, StreamProcessor<Reader> sp) {
         InputStream inputStream;
         try {
             inputStream = vocabUrl.openStream();
@@ -105,7 +97,7 @@ final class Vocabulary {
         }
         InputStreamReader reader = new InputStreamReader(inputStream);
         try {
-            dp.process(reader, url);
+            sp.process(reader, url);
         } catch (ParseException e) {
             // do nothing
         } finally {
@@ -171,6 +163,11 @@ final class Vocabulary {
 
         @Override
         public void endStream() {
+        }
+
+        @Override
+        public boolean setProperty(String key, Object value) {
+            return false;
         }
     }
 }

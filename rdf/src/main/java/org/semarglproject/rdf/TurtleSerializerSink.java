@@ -16,6 +16,7 @@
 
 package org.semarglproject.rdf;
 
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
 import java.io.IOException;
@@ -202,6 +203,11 @@ public final class TurtleSerializerSink implements TripleSink {
             writer.flush();
         } catch (IOException e) {
         }
+    }
+
+    @Override
+    public boolean setProperty(String key, Object value) {
+        return false;
     }
 
     @Override

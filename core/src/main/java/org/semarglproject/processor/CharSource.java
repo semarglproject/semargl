@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-package org.semarglproject.rdf;
+package org.semarglproject.processor;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.ext.LexicalHandler;
+import org.semarglproject.rdf.ParseException;
+import org.semarglproject.sink.CharSink;
 
-public interface SaxSink extends DataSink, ContentHandler, LexicalHandler {
-    ParseException processException(SAXException e);
+import java.io.Reader;
+
+public class CharSource extends DataProcessor<Reader, CharSink> {
+
+    private CharSource(CharSink sink) {
+        super(sink);
+    }
+
+    @Override
+    public void process(Reader source) throws ParseException {
+        startStream();
+        sink.read(source);
+        endStream();
+    }
+
+    public static StreamProcessor<Reader> streamingTo(CharSink sink) {
+        return new CharSource(sink);
+    }
 }

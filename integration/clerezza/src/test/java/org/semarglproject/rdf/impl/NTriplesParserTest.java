@@ -22,11 +22,11 @@ import org.apache.clerezza.rdf.core.access.TcManager;
 import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.semarglproject.rdf.CharSource;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.NTriplesParser;
 import org.semarglproject.rdf.NTriplesTestBundle;
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.processor.CharSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -40,7 +40,7 @@ import java.io.Writer;
 public final class NTriplesParserTest {
 
     private MGraph graph;
-    private DataProcessor<Reader> dp;
+    private StreamProcessor<Reader> sp;
 
     @BeforeClass
     public void init() {
@@ -52,7 +52,7 @@ public final class NTriplesParserTest {
             tcManager.deleteTripleCollection(graphUri);
         }
         graph = tcManager.createMGraph(graphUri);
-        dp = new CharSource().streamingTo(new NTriplesParser().streamingTo(new ClerezzaTripleSink(graph))).build();
+        sp = CharSource.streamingTo(NTriplesParser.streamingTo(new ClerezzaTripleSink(graph)));
     }
 
     @BeforeMethod
@@ -68,7 +68,7 @@ public final class NTriplesParserTest {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    dp.process(input, inputUri);
+                    sp.process(input, inputUri);
                 } finally {
                     OutputStream outputStream = new WriterOutputStream(output, "UTF-8");
                     try {

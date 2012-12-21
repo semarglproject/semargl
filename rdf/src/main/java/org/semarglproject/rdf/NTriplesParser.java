@@ -16,6 +16,9 @@
 
 package org.semarglproject.rdf;
 
+import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.CharSink;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.xml.XmlUtils;
 
 import java.io.BufferedReader;
@@ -23,15 +26,23 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.BitSet;
 
-public final class NTriplesParser implements CharSink, TripleSource {
+public final class NTriplesParser extends Converter<CharSink, TripleSink> implements CharSink {
 
     private static final short MODE_SAVE_UNTIL = 1;
     private static final short MODE_SAVE_WHILE = 2;
 
     private String buffer = null;
-    private TripleSink sink = null;
     private int pos = -1;
     private int limit = -1;
+
+    private NTriplesParser() {
+    }
+
+    public static CharSink streamingTo(TripleSink sink) {
+        NTriplesParser parser = new NTriplesParser();
+        parser.sink = sink;
+        return parser;
+    }
 
     private static void error(String msg) throws ParseException {
         throw new ParseException(msg);
@@ -242,22 +253,6 @@ public final class NTriplesParser implements CharSink, TripleSource {
 
     @Override
     public void setBaseUri(String baseUri) {
-    }
-
-    @Override
-    public NTriplesParser streamingTo(TripleSink sink) {
-        this.sink = sink;
-        return this;
-    }
-
-    @Override
-    public void startStream() {
-        sink.startStream();
-    }
-
-    @Override
-    public void endStream() {
-        sink.endStream();
     }
 
 }

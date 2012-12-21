@@ -25,7 +25,7 @@ import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.PlainLiteralImpl;
 import org.apache.clerezza.rdf.core.impl.TripleImpl;
 import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
-import org.semarglproject.rdf.TripleSink;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
 import java.util.HashMap;
@@ -33,7 +33,9 @@ import java.util.Map;
 
 public class ClerezzaTripleSink implements TripleSink {
 
-    private final MGraph graph;
+    public static final String OUTPUT_GRAPH_PROPERTY = "http://semarglproject.org/clerezza/properties/output-graph";
+
+    private MGraph graph;
     private final Map<String, BNode> bnodeMap;
 
     public ClerezzaTripleSink(MGraph graph) {
@@ -84,6 +86,15 @@ public class ClerezzaTripleSink implements TripleSink {
 
     @Override
     public void endStream() {
+    }
+
+    @Override
+    public boolean setProperty(String key, Object value) {
+        if (OUTPUT_GRAPH_PROPERTY.equals(key) && value instanceof MGraph) {
+            graph = (MGraph) value;
+            return true;
+        }
+        return false;
     }
 
     @Override

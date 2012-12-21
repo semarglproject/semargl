@@ -17,15 +17,14 @@
 package org.semarglproject.rdf.impl;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.SaxSource;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
@@ -47,13 +46,13 @@ public final class RdfaParserTest {
 
     private StatementCollector model;
     private RdfaParser rdfaParser;
-    private DataProcessor<Reader> dp;
+    private StreamProcessor<Reader> sp;
     private SaveToFileCallback sesameCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
-            rdfaParser.setRdfaVersion(rdfaVersion);
+            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             try {
-                dp.process(input, inputUri);
+                sp.process(input, inputUri);
             } finally {
                 RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                 try {
@@ -74,10 +73,8 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = new StatementCollector();
         
-        rdfaParser = new RdfaParser(true, true, true);
-        dp = new SaxSource().streamingTo(
-                rdfaParser.streamingTo(
-                        new SesameTripleSink(ValueFactoryImpl.getInstance(), model))).build();
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new SesameTripleSink(model)));
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     @BeforeMethod

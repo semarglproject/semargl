@@ -21,14 +21,17 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.shared.Lock;
-import org.semarglproject.rdf.TripleSink;
+import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public final class JenaTripleSink implements TripleSink {
-    private final Model model;
+
+    public static final String OUTPUT_MODEL_PROPERTY = "http://semarglproject.org/jena/properties/output-model";
+
+    private Model model;
     private final int batchSize;
     private int pos;
     private final Map<String, Node> bnodeMap;
@@ -110,6 +113,15 @@ public final class JenaTripleSink implements TripleSink {
         model.enterCriticalSection(Lock.WRITE);
         model.getGraph().getBulkUpdateHandler().add(dummy);
         model.leaveCriticalSection();
+    }
+
+    @Override
+    public boolean setProperty(String key, Object value) {
+        if (OUTPUT_MODEL_PROPERTY.equals(key) && value instanceof Model) {
+            model = (Model) value;
+            return true;
+        }
+        return false;
     }
 
     @Override

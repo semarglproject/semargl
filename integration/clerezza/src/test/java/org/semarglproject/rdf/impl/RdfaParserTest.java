@@ -22,13 +22,13 @@ import org.apache.clerezza.rdf.core.access.TcManager;
 import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
+import org.semarglproject.processor.SaxSource;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -46,14 +46,13 @@ import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 public final class RdfaParserTest {
 
     private MGraph graph;
-    private DataProcessor<Reader> dp;
-    private RdfaParser rdfaParser;
+    private StreamProcessor<Reader> sp;
     private SaveToFileCallback clerezzaCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
-            rdfaParser.setRdfaVersion(rdfaVersion);
+            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             try {
-                dp.process(input, inputUri);
+                sp.process(input, inputUri);
             } finally {
                 OutputStream outputStream = new WriterOutputStream(output, "UTF-8");
                 try {
@@ -77,10 +76,8 @@ public final class RdfaParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        rdfaParser = new RdfaParser(true, true, true);
-        dp = new SaxSource().streamingTo(
-                rdfaParser.streamingTo(
-                        new ClerezzaTripleSink(graph))).build();
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new ClerezzaTripleSink(graph)));
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     @BeforeMethod

@@ -17,18 +17,17 @@
 package org.semarglproject.rdf.impl;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.SaxSource;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.RdfXmlTestBundle;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
-import org.semarglproject.rdf.SaxSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -44,15 +43,13 @@ import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
 public final class RdfXmlParserTest {
 
     private StatementCollector model;
-    private DataProcessor<Reader> dp;
+    private StreamProcessor<Reader> sp;
 
     @BeforeClass
     public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
         model = new StatementCollector();
-        dp = new SaxSource().streamingTo(
-                new RdfXmlParser().streamingTo(
-                        new SesameTripleSink(ValueFactoryImpl.getInstance(), model))).build();
+        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(new SesameTripleSink(model)));
     }
 
     @BeforeMethod
@@ -71,7 +68,7 @@ public final class RdfXmlParserTest {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    dp.process(input, inputUri);
+                    sp.process(input, inputUri);
                 } finally {
                     RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                     try {

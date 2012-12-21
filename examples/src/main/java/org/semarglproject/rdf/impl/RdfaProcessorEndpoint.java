@@ -19,11 +19,11 @@ package org.semarglproject.rdf.impl;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.semarglproject.rdf.DataProcessor;
+import org.semarglproject.processor.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.SaxSource;
 import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.processor.SaxSource;
 import org.semarglproject.vocab.RDFa;
 
 import javax.servlet.ServletException;
@@ -36,14 +36,13 @@ import java.net.URL;
 
 public class RdfaProcessorEndpoint extends AbstractHandler {
 
-    private final DataProcessor<Reader> dp;
+    private final StreamProcessor<Reader> sp;
     private final TurtleSerializerSink ts;
-    private final RdfaParser rdfaParser;
 
     public RdfaProcessorEndpoint() {
         ts = new TurtleSerializerSink();
-        rdfaParser = new RdfaParser().streamingTo(ts);
-        dp = new SaxSource().streamingTo(rdfaParser).build();
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(ts));
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     public static void main(String[] args) throws Exception {
@@ -80,13 +79,14 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
             sinkOutputGraph = true;
             sinkProcessorGraph = true;
         }
-        rdfaParser.setOutput(sinkOutputGraph, sinkProcessorGraph, true);
+        sp.setProperty(RdfaParser.ENABLE_OUTPUT_GRAPH, sinkOutputGraph);
+        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, sinkProcessorGraph);
 
         String rdfaversion = request.getParameter("rdfaversion");
         if ("1.0".equals(rdfaversion)) {
-            rdfaParser.setRdfaVersion(RDFa.VERSION_10);
+            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_10);
         } else if ("1.1".equals(rdfaversion)) {
-            rdfaParser.setRdfaVersion(RDFa.VERSION_11);
+            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);
         }
 
         System.out.println(uri);
@@ -96,7 +96,7 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
         response.setContentType("text/turtle; charset=UTF-8");
         ts.setWriter(response.getWriter());
         try {
-            dp.process(reader, uri);
+            sp.process(reader, uri);
         } catch (ParseException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             baseRequest.setHandled(false);
