@@ -58,7 +58,7 @@ public final class RdfXmlParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(new ClerezzaSink(graph)));
+        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(ClerezzaSink.to(graph)));
     }
 
     @BeforeMethod

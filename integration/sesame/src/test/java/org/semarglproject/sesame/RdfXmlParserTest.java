@@ -50,7 +50,7 @@ public final class RdfXmlParserTest {
     public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
         model = new StatementCollector();
-        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(new SesameSink(model)));
+        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(SesameSink.to(model)));
     }
 
     @BeforeMethod

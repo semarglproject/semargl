@@ -53,7 +53,7 @@ public final class NTriplesParserTest {
             tcManager.deleteTripleCollection(graphUri);
         }
         graph = tcManager.createMGraph(graphUri);
-        sp = CharSource.streamingTo(NTriplesParser.streamingTo(new ClerezzaSink(graph)));
+        sp = CharSource.streamingTo(NTriplesParser.streamingTo(ClerezzaSink.to(graph)));
     }
 
     @BeforeMethod

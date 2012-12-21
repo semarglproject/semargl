@@ -77,7 +77,7 @@ public final class RdfaParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new ClerezzaSink(graph)));
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(ClerezzaSink.to(graph)));
         sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

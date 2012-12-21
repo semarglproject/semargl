@@ -74,7 +74,7 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = new StatementCollector();
         
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new SesameSink(model)));
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(SesameSink.to(model)));
         sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

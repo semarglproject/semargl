@@ -61,7 +61,7 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
 
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new JenaSink(model)));
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(JenaSink.to(model)));
         sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

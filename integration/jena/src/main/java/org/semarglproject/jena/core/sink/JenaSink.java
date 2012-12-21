@@ -39,15 +39,14 @@ public final class JenaSink implements TripleSink {
     private final Map<String, Node> bnodeMap;
     private Triple[] triples;
 
-    public JenaSink(Model model) {
-        this(model, DEFAULT_BATCH_SIZE);
+    private JenaSink(Model model) {
+        this.model = model;
+        this.batchSize = DEFAULT_BATCH_SIZE;
+        bnodeMap = new HashMap<String, Node>();
     }
 
-    public JenaSink(Model model, int batchSize) {
-        super();
-        this.model = model;
-        this.batchSize = batchSize;
-        bnodeMap = new HashMap<String, Node>();
+    public static TripleSink to(Model model) {
+        return new JenaSink(model);
     }
 
     private void newBatch() {

@@ -41,14 +41,13 @@ public class SesameSink implements TripleSink {
     private ValueFactory valueFactory;
     private RDFHandler handler;
 
-    public SesameSink(ValueFactory valueFactory, RDFHandler handler) {
-        super();
-        this.valueFactory = valueFactory;
+    private SesameSink(RDFHandler handler) {
+        this.valueFactory = ValueFactoryImpl.getInstance();
         this.handler = handler;
     }
 
-    public SesameSink(RDFHandler handler) {
-        this(ValueFactoryImpl.getInstance(), handler);
+    public static TripleSink to(RDFHandler handler) {
+        return new SesameSink(handler);
     }
 
     private BNode getBNode(String bnode) {

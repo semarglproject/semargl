@@ -38,10 +38,14 @@ public class ClerezzaSink implements TripleSink {
     private MGraph graph;
     private final Map<String, BNode> bnodeMap;
 
-    public ClerezzaSink(MGraph graph) {
+    private ClerezzaSink(MGraph graph) {
         super();
         this.graph = graph;
         bnodeMap = new HashMap<String, BNode>();
+    }
+
+    public static TripleSink to(MGraph graph) {
+        return new ClerezzaSink(graph);
     }
 
     private BNode getBNode(String bnode) {

@@ -42,7 +42,7 @@ public final class NTriplesParserTest {
     public void init() {
         NTriplesTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
-        sp = CharSource.streamingTo(NTriplesParser.streamingTo(new JenaSink(model)));
+        sp = CharSource.streamingTo(NTriplesParser.streamingTo(JenaSink.to(model)));
     }
 
     @BeforeMethod
