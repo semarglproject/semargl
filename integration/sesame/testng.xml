@@ -15,13 +15,13 @@
   -->
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="RDFa parser" verbose="1">
-    <test name="Sesame Integration Tests">
+<suite name="Integration tests" verbose="1">
+    <test name="Sesame integration tests">
         <classes>
-            <class name="org.semarglproject.rdf.impl.RdfXmlParserTest" />
-            <class name="org.semarglproject.rdf.impl.NTriplesParserTest" />
-            <class name="org.semarglproject.rdf.impl.RdfaParserTest" />
-            <class name="org.semarglproject.rdf.impl.SesameRdfaReaderTest" />
+            <class name="org.semarglproject.sesame.RdfXmlParserTest" />
+            <class name="org.semarglproject.sesame.NTriplesParserTest" />
+            <class name="org.semarglproject.sesame.RdfaParserTest" />
+            <class name="org.semarglproject.sesame.SesameRdfaReaderTest" />
         </classes>
     </test>
 </suite>

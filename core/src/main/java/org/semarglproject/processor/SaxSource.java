@@ -28,7 +28,7 @@ import java.io.Reader;
 
 public final class SaxSource extends DataProcessor<Reader, SaxSink> {
 
-    public static final String XML_PARSER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
+    public static final String XML_READER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
 
     private XMLReader xmlReader = null;
 
@@ -78,7 +78,7 @@ public final class SaxSource extends DataProcessor<Reader, SaxSink> {
     @Override
     public boolean setProperty(String key, Object value) {
         boolean sinkResult = super.setProperty(key, value);
-        if (XML_PARSER_PROPERTY.equals(key) && value instanceof XMLReader) {
+        if (XML_READER_PROPERTY.equals(key) && value instanceof XMLReader) {
             xmlReader = (XMLReader) value;
         } else {
             return sinkResult;

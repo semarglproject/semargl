@@ -15,12 +15,12 @@
   -->
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="RDFa parser" verbose="1">
-    <test name="Jena Integration Tests">
+<suite name="Integration tests" verbose="1">
+    <test name="Jena integration tests">
         <classes>
-            <class name="org.semarglproject.rdf.impl.RdfXmlParserTest" />
-            <class name="org.semarglproject.rdf.impl.NTriplesParserTest" />
-            <class name="org.semarglproject.rdf.impl.RdfaParserTest" />
+            <class name="org.semarglproject.jena.RdfXmlParserTest" />
+            <class name="org.semarglproject.jena.NTriplesParserTest" />
+            <class name="org.semarglproject.jena.RdfaParserTest" />
         </classes>
     </test>
 </suite>

@@ -1,0 +1,182 @@
+/*
+ * Copyright 2012 Lev Khomich
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.semarglproject.sesame.rdf.rdfa;
+
+import org.openrdf.model.ValueFactory;
+import org.openrdf.rio.ParseErrorListener;
+import org.openrdf.rio.ParseLocationListener;
+import org.openrdf.rio.ParserConfig;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.semarglproject.processor.SaxSource;
+import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.ProcessorGraphHandler;
+import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.sesame.core.sink.SesameSink;
+import org.semarglproject.vocab.RDFa;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+
+/**
+ * 
+ * @author Peter Ansell p_ansell@yahoo.com
+ *
+ */
+public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
+
+    private boolean processorGraphEnabled;
+    private boolean vocabExpansionEnabled;
+    private boolean preserveBNodeIDs;
+    private short rdfaCompatibility;
+
+    private StreamProcessor<Reader> sp;
+
+    private ParseErrorListener parseErrorListener;
+
+    public SesameRDFaParser() {
+        preserveBNodeIDs = true;
+        vocabExpansionEnabled = false;
+        processorGraphEnabled = false;
+        rdfaCompatibility = RDFa.VERSION_11;
+        parseErrorListener = null;
+        sp = SaxSource.streamingTo(RdfaParser.streamingTo(new SesameSink(null)));
+        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
+        sp.setProperty(RdfaParser.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
+    }
+
+    @Override
+    public RDFFormat getRDFFormat() {
+        return RDFaFormat.RDFA;
+    }
+
+    @Override
+    public void parse(InputStream in, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
+        this.parse(new InputStreamReader(in, Charset.forName("UTF-8")), baseURI);
+    }
+
+    @Override
+    public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
+        try {
+            sp.process(reader, baseURI);
+        } catch (ParseException e) {
+            throw new RDFParseException(e);
+        }
+    }
+
+    @Override
+    public void setValueFactory(ValueFactory valueFactory) {
+        sp.setProperty(SesameSink.VALUE_FACTORY_PROPERTY, valueFactory);
+    }
+
+    @Override
+    public void setRDFHandler(RDFHandler handler) {
+        sp.setProperty(SesameSink.RDF_HANDLER_PROPERTY, handler);
+    }
+
+    @Override
+    public void setParseErrorListener(ParseErrorListener el) {
+        this.parseErrorListener  = el;
+    }
+
+    @Override
+    public void setParseLocationListener(ParseLocationListener ll) {
+        // not supported yet
+    }
+
+    @Override
+    public void setParserConfig(ParserConfig config) {
+        if (config instanceof RdfaParserConfig) {
+            RdfaParserConfig rdfaParserConfig = (RdfaParserConfig) config;
+            setProcessorGraphEnabled(rdfaParserConfig.isProcessorGraphEnabled());
+            setVocabExpansionEnabled(rdfaParserConfig.isVocabExpansionEnabled());
+            setRdfaCompatibility(rdfaParserConfig.getRdfaCompatibility());
+        }
+        this.preserveBNodeIDs = config.isPreserveBNodeIDs();
+    }
+
+    @Override
+    public RdfaParserConfig getParserConfig() {
+        return new RdfaParserConfig(false, true, preserveBNodeIDs, DatatypeHandling.IGNORE,
+                processorGraphEnabled, vocabExpansionEnabled, rdfaCompatibility);
+    }
+
+    @Override
+    public void setVerifyData(boolean verifyData) {
+        // ignore
+    }
+
+    @Override
+    public void setPreserveBNodeIDs(boolean preserveBNodeIDs) {
+        this.preserveBNodeIDs = preserveBNodeIDs;
+    }
+
+    @Override
+    public void setStopAtFirstError(boolean stopAtFirstError) {
+        if (!stopAtFirstError) {
+            throw new IllegalArgumentException("Parser doesn't support stopAtFirstError = " + stopAtFirstError);
+        }
+    }
+
+    @Override
+    public void setDatatypeHandling(DatatypeHandling datatypeHandling) {
+        if (!datatypeHandling.equals(DatatypeHandling.IGNORE)) {
+            throw new IllegalArgumentException("Parser doesn't support datatypeHandling = " + datatypeHandling.name());
+        }
+    }
+
+    public void setProcessorGraphEnabled(boolean processorGraphEnabled) {
+        this.processorGraphEnabled = processorGraphEnabled;
+        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
+    }
+
+    public void setVocabExpansionEnabled(boolean vocabExpansionEnabled) {
+        this.vocabExpansionEnabled = vocabExpansionEnabled;
+        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
+    }
+
+    public void setRdfaCompatibility(short rdfaCompatibility) {
+        this.rdfaCompatibility = rdfaCompatibility;
+        sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaCompatibility);
+    }
+
+    @Override
+    public void info(String infoClass, String message) {
+    }
+
+    @Override
+    public void warning(String warningClass, String message) {
+        if (parseErrorListener != null) {
+            parseErrorListener.warning(message, -1, -1);
+        }
+    }
+
+    @Override
+    public void error(String errorClass, String message) {
+        if (parseErrorListener != null) {
+            parseErrorListener.error(message, -1, -1);
+        }
+    }
+}

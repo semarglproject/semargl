@@ -39,9 +39,7 @@ No jokes!
 // just init triple store you want
 MGraph graph = ... // Clerezza calls
 // create processing pipe
-StreamProcessor<Reader> sp = CharSource.streamingTo(
-    NTriplesParser.streamingTo(
-        new ClerezzaTripleSink(graph));
+StreamProcessor<Reader> sp = CharSource.streamingTo(NTriplesParser.streamingTo(new ClerezzaSink(graph));
 // and run it!
 sp.process(new FileReader(file), docUri);
 ```
