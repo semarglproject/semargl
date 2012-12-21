@@ -26,7 +26,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import java.io.IOException;
 import java.io.Reader;
 
-public class SaxSource extends DataProcessor<Reader, SaxSink> {
+public final class SaxSource extends DataProcessor<Reader, SaxSink> {
 
     public static final String XML_PARSER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
 

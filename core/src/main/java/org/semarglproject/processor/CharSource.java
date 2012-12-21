@@ -21,7 +21,7 @@ import org.semarglproject.sink.CharSink;
 
 import java.io.Reader;
 
-public class CharSource extends DataProcessor<Reader, CharSink> {
+public final class CharSource extends DataProcessor<Reader, CharSink> {
 
     private CharSource(CharSink sink) {
         super(sink);

@@ -35,6 +35,8 @@ final class EvalContext {
     private static final Map<String, String> RDFA11_INITIAL_CONTEXT = new HashMap<String, String>();
     private static final Pattern TERM_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+", Pattern.DOTALL);
 
+    private static final String CAN_NOT_RESOLVE_TERM = "Can't resolve term ";
+
     private static final String XHTML_VOCAB = "http://www.w3.org/1999/xhtml/vocab#";
     private static final String POWDER_DESCRIBED_BY = "http://www.w3.org/2007/05/powder-s#describedby";
 
@@ -257,23 +259,18 @@ final class EvalContext {
      */
     private String resolveTermOrCurieOrAbsIri(String value) throws MalformedIriException {
         if (TERM_PATTERN.matcher(value).matches()) {
+            if (vocab == null && documentContext.rdfaVersion > RDFa.VERSION_10 && "describedby".equals(value)) {
+                return POWDER_DESCRIBED_BY;
+            }
+            String term;
             if (vocab != null) {
-                String term = vocab.resolveTerm(value);
-                if (term == null) {
-                    documentContext.parser.warning(RDFa.UNRESOLVED_TERM, "Can't resolve term " + value);
-                    throw new MalformedIriException("Can't resolve term " + value);
-                }
-                return term;
+                term = vocab.resolveTerm(value);
+            } else {
+                term = resolveXhtmlTerm(value);
             }
-            if (documentContext.rdfaVersion > RDFa.VERSION_10) {
-                if ("describedby".equals(value)) {
-                    return POWDER_DESCRIBED_BY;
-                }
-            }
-            String term = resolveXhtmlTerm(value);
             if (term == null) {
-                documentContext.parser.warning(RDFa.UNRESOLVED_TERM, "Can't resolve term " + value);
-                throw new MalformedIriException("Can't resolve term " + value);
+                documentContext.parser.warning(RDFa.UNRESOLVED_TERM, CAN_NOT_RESOLVE_TERM + value);
+                throw new MalformedIriException(CAN_NOT_RESOLVE_TERM + value);
             }
             return term;
         }

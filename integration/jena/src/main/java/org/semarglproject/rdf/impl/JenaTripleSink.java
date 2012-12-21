@@ -29,6 +29,8 @@ import java.util.Map;
 
 public final class JenaTripleSink implements TripleSink {
 
+    private static final int DEFAULT_BATCH_SIZE = 512;
+
     public static final String OUTPUT_MODEL_PROPERTY = "http://semarglproject.org/jena/properties/output-model";
 
     private Model model;
@@ -38,7 +40,7 @@ public final class JenaTripleSink implements TripleSink {
     private Triple[] triples;
 
     public JenaTripleSink(Model model) {
-        this(model, 512);
+        this(model, DEFAULT_BATCH_SIZE);
     }
 
     public JenaTripleSink(Model model, int batchSize) {

@@ -88,7 +88,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
     private boolean sinkProcessorGraph;
 
     private boolean expandVocab;
-    private static final ThreadLocal<VocabManager> vocabManager = new ThreadLocal<VocabManager>() {
+    private static final ThreadLocal<VocabManager> VOCAB_MANAGER = new ThreadLocal<VocabManager>() {
         @Override
         protected VocabManager initialValue() {
             return new VocabManager();
@@ -852,8 +852,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
         if (sinkOutputGraph) {
             sink.addNonLiteral(dh.base, RDFa.USES_VOCABULARY, vocabUrl);
         }
-        if (vocabManager != null) {
-            return vocabManager.get().findVocab(vocabUrl, expandVocab);
+        if (VOCAB_MANAGER != null) {
+            return VOCAB_MANAGER.get().findVocab(vocabUrl, expandVocab);
         }
         Vocabulary vocab = new Vocabulary(vocabUrl);
         if (expandVocab) {

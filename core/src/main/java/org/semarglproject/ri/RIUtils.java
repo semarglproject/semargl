@@ -54,7 +54,7 @@ public final class RIUtils {
         } else {
             if (iri.startsWith("?") || iri.isEmpty()) {
                 if (base.endsWith("#")) {
-                    base = base.substring(0, base.length() - 1);
+                    return base.substring(0, base.length() - 1) + iri;
                 }
                 return base + iri;
             }

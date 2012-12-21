@@ -36,6 +36,8 @@ import java.util.Stack;
 
 public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implements SaxSink {
 
+    private static final String IS_NOT_ALLOWED_HERE = " is not allowed here";
+
     private static final short INSIDE_OF_PROPERTY = 1;
     private static final short INSIDE_OF_RESOURCE = 2;
     private static final short PARSE_TYPE_LITERAL = 3;
@@ -107,7 +109,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
             return;
         }
         if (violatesSchema(iri)) {
-            error(qname + " is not allowed here");
+            error(qname + IS_NOT_ALLOWED_HERE);
         }
 
         switch (mode) {
@@ -121,7 +123,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
 
                 if (!iri.equals(RDF.DESCRIPTION)) {
                     if (iri.equals(RDF.LI)) {
-                        error(qname + " is not allowed here");
+                        error(qname + IS_NOT_ALLOWED_HERE);
                     }
                     sink.addNonLiteral(subjRes, RDF.TYPE, iri);
                 }
@@ -137,7 +139,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
                         sink.addNonLiteral(subjRes, RDF.TYPE, value);
                     } else {
                         if (violatesSchema(tag) || tag.equals(RDF.LI)) {
-                            error(qname + " is not allowed here");
+                            error(qname + IS_NOT_ALLOWED_HERE);
                         }
                         sink.addPlainLiteral(subjRes, tag, value, langStack.peek());
                     }
@@ -155,7 +157,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
                 int liIndex = subjLiIndexStack.pop();
 
                 if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
-                    error(qname + " is not allowed here");
+                    error(qname + IS_NOT_ALLOWED_HERE);
                 }
                 if (!RIUtils.isIri(iri)) {
                     error("Invalid property IRI");
@@ -255,7 +257,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
             captureLiteral = false;
         } else {
             if (violatesSchema(attr) || attr.equals(RDF.NIL)) {
-                error(attr + " is not allowed here");
+                error(attr + IS_NOT_ALLOWED_HERE);
             }
             String bnode = newBnode();
             processNonLiteralTriple(subjRes, predIri, bnode);
