@@ -5,17 +5,37 @@
 	<groupId>org.semarglproject</groupId>
 	<artifactId>semargl-parent</artifactId>
 	<version>0.2</version>
+    <packaging>pom</packaging>
 
     <name>Semargl: Parent Aggregator</name>
-	<packaging>pom</packaging>
+    <url>http://semarglproject.org</url>
+    <description>
+        Semargl is a modular framework for crawling linked data from structured documents.
+        The main goal of project is to provide lightweight and performant tool without excess dependencies.
+    </description>
+    <inceptionYear>2012</inceptionYear>
 
-	<licenses>
-		<license>
-			<name>Apache Public License 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <developers>
+        <developer>
+            <name>Lev Khomich</name>
+            <email>levkhomich@gmail.com</email>
+            <url>http://levkhomich.ru</url>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache Public License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:levkhomich/semargl.git</connection>
+        <developerConnection>scm:git:git@github.com:levkhomich/semargl.git</developerConnection>
+        <url>git@github.com:levkhomich/semargl.git</url>
+    </scm>
 
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,18 +46,19 @@
 
 		<!-- Plugins -->
 		<version.license.plugin>1.9.0</version.license.plugin>
-		<version.checkstyle.plugin>2.9.1</version.checkstyle.plugin>
+        <version.checkstyle.plugin>2.9.1</version.checkstyle.plugin>
+        <version.source.plugin>2.2.1</version.source.plugin>
 
 		<!-- External dependencies -->
-		<version.org.testng>6.8</version.org.testng>
-		<version.org.apache.commons>2.4</version.org.apache.commons>
-        <version.org.apache.clerezza.rdf.core>0.12-incubating</version.org.apache.clerezza.rdf.core>
-		<version.org.apache.clerezza.rdf.simple.storage>0.7-incubating</version.org.apache.clerezza.rdf.simple.storage>
-		<version.org.apache.clerezza.rdf.jena.serializer>0.9-incubating</version.org.apache.clerezza.rdf.jena.serializer>
-		<version.org.apache.clerezza.rdf.jena.parser>0.10-incubating</version.org.apache.clerezza.rdf.jena.parser>
-		<version.org.apache.clerezza.rdf.jena.sparql>0.5-incubating</version.org.apache.clerezza.rdf.jena.sparql>
-		<version.com.hp.hpl.jena>2.6.4</version.com.hp.hpl.jena>
-		<version.com.hp.hpl.jena.arq>2.8.8</version.com.hp.hpl.jena.arq>
+		<version.testng>6.8</version.testng>
+		<version.apache.commons>2.4</version.apache.commons>
+        <version.clerezza.core>0.12-incubating</version.clerezza.core>
+		<version.clerezza.simple.storage>0.7-incubating</version.clerezza.simple.storage>
+		<version.clerezza.jena.serializer>0.9-incubating</version.clerezza.jena.serializer>
+		<version.clerezza.jena.parser>0.10-incubating</version.clerezza.jena.parser>
+		<version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
+		<version.jena>2.6.4</version.jena>
+		<version.jena.arq>2.8.8</version.jena.arq>
 		<version.sesame>2.6.10</version.sesame>
 		
         <!-- Checkstyle configuration -->
@@ -64,6 +85,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
+
+
+            <!-- Sources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
 		</plugins>
 		
 		<pluginManagement>
@@ -133,7 +162,21 @@
 						</execution>
 					</executions>
 				</plugin>
-				
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${version.source.plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
                 <!-- This plugin's configuration is used in m2e only. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -174,46 +217,46 @@
 			<dependency>
 				<groupId>org.testng</groupId>
 				<artifactId>testng</artifactId>
-				<version>${version.org.testng}</version>
+				<version>${version.testng}</version>
 			</dependency>
 
 			<!-- Apache Clerezza -->
 			<dependency>
 				<groupId>org.apache.clerezza</groupId>
 				<artifactId>rdf.core</artifactId>
-				<version>${version.org.apache.clerezza.rdf.core}</version>
+				<version>${version.clerezza.core}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.clerezza</groupId>
 				<artifactId>rdf.simple.storage</artifactId>
-				<version>${version.org.apache.clerezza.rdf.simple.storage}</version>
+				<version>${version.clerezza.simple.storage}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.clerezza</groupId>
 				<artifactId>rdf.jena.serializer</artifactId>
-				<version>${version.org.apache.clerezza.rdf.jena.serializer}</version>
+				<version>${version.clerezza.jena.serializer}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.clerezza</groupId>
 				<artifactId>rdf.jena.parser</artifactId>
-				<version>${version.org.apache.clerezza.rdf.jena.parser}</version>
+				<version>${version.clerezza.jena.parser}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.clerezza</groupId>
 				<artifactId>rdf.jena.sparql</artifactId>
-				<version>${version.org.apache.clerezza.rdf.jena.sparql}</version>
+				<version>${version.clerezza.jena.sparql}</version>
 			</dependency>
 
 			<!-- Apache Jena -->
 			<dependency>
 				<groupId>com.hp.hpl.jena</groupId>
 				<artifactId>jena</artifactId>
-				<version>${version.com.hp.hpl.jena}</version>
+				<version>${version.jena}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.hp.hpl.jena</groupId>
 				<artifactId>arq</artifactId>
-				<version>${version.com.hp.hpl.jena.arq}</version>
+				<version>${version.jena.arq}</version>
 			</dependency>
 
 			<!-- OpenRDF Sesame -->
@@ -237,7 +280,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>${version.org.apache.commons}</version>
+                <version>${version.apache.commons}</version>
             </dependency>
 		</dependencies>
 	</dependencyManagement>
