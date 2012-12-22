@@ -71,7 +71,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     private RdfXmlParser() {
     }
 
-    public static SaxSink streamingTo(TripleSink sink) {
+    public static SaxSink connect(TripleSink sink) {
         RdfXmlParser parser = new RdfXmlParser();
         parser.sink = sink;
         return parser;

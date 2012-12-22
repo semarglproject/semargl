@@ -45,7 +45,7 @@ public final class RdfXmlParserTest {
     public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
-        streamProcessor = new StreamProcessor(RdfXmlParser.streamingTo(JenaSink.to(model)));
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(JenaSink.connect(model)));
     }
 
     @BeforeMethod

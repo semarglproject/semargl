@@ -40,7 +40,7 @@ public final class RdfXmlParserTest {
         RdfXmlTestBundle.prepareTestDir();
 
         semarglTurtleSink = new TurtleSerializerSink();
-        streamProcessor = new StreamProcessor(RdfXmlParser.streamingTo(semarglTurtleSink));
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(semarglTurtleSink));
     }
 
     @DataProvider

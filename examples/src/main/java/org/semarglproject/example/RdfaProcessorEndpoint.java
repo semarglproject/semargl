@@ -40,7 +40,7 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
 
     public RdfaProcessorEndpoint() {
         ts = new TurtleSerializerSink();
-        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(ts));
+        streamProcessor = new StreamProcessor(RdfaParser.connect(ts));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

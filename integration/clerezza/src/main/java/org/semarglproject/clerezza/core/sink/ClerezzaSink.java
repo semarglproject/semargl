@@ -44,7 +44,7 @@ public class ClerezzaSink implements TripleSink {
         bnodeMap = new HashMap<String, BNode>();
     }
 
-    public static TripleSink to(MGraph graph) {
+    public static TripleSink connect(MGraph graph) {
         return new ClerezzaSink(graph);
     }
 

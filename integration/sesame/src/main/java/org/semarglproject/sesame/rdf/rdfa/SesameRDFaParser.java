@@ -60,7 +60,7 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
         processorGraphEnabled = false;
         rdfaCompatibility = RDFa.VERSION_11;
         parseErrorListener = null;
-        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(SesameSink.to(null)));
+        streamProcessor = new StreamProcessor(RdfaParser.connect(SesameSink.connect(null)));
         streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
         streamProcessor.setProperty(RdfaParser.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);

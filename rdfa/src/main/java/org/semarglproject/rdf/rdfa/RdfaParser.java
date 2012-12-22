@@ -112,7 +112,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
         expandVocab = false;
     }
 
-    public static SaxSink streamingTo(TripleSink sink) {
+    public static SaxSink connect(TripleSink sink) {
         RdfaParser parser = new RdfaParser();
         parser.sink = sink;
         return parser;
@@ -146,7 +146,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
             return;
         } else if (dh.documentFormat == DocumentContext.FORMAT_SVG && localName.equals(METADATA)) {
             if (rdfXmlParser == null) {
-                rdfXmlParser = RdfXmlParser.streamingTo(this);
+                rdfXmlParser = RdfXmlParser.connect(this);
                 rdfXmlParser.setBaseUri(dh.base);
                 rdfXmlParser.startDocument();
             }

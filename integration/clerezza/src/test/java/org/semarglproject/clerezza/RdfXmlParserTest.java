@@ -57,7 +57,7 @@ public final class RdfXmlParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        streamProcessor = new StreamProcessor(RdfXmlParser.streamingTo(ClerezzaSink.to(graph)));
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(ClerezzaSink.connect(graph)));
     }
 
     @BeforeMethod

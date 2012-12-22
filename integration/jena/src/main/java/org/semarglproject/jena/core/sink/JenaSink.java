@@ -45,7 +45,7 @@ public final class JenaSink implements TripleSink {
         bnodeMap = new HashMap<String, Node>();
     }
 
-    public static TripleSink to(Model model) {
+    public static TripleSink connect(Model model) {
         return new JenaSink(model);
     }
 

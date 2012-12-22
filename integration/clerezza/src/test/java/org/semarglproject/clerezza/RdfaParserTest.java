@@ -76,7 +76,7 @@ public final class RdfaParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(ClerezzaSink.to(graph)));
+        streamProcessor = new StreamProcessor(RdfaParser.connect(ClerezzaSink.connect(graph)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

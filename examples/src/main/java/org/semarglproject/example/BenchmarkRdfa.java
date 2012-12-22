@@ -81,7 +81,7 @@ public class BenchmarkRdfa {
         System.out.println("Semargl-Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
-        StreamProcessor streamProcessor = new StreamProcessor(RdfaParser.streamingTo(JenaSink.to(model)));
+        StreamProcessor streamProcessor = new StreamProcessor(RdfaParser.connect(JenaSink.connect(model)));
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
@@ -96,7 +96,7 @@ public class BenchmarkRdfa {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
 
-        StreamProcessor streamProcessor = new StreamProcessor(RdfaParser.streamingTo(ClerezzaSink.to(model)));
+        StreamProcessor streamProcessor = new StreamProcessor(RdfaParser.connect(ClerezzaSink.connect(model)));
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();

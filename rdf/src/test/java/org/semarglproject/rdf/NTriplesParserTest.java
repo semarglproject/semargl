@@ -34,7 +34,7 @@ public final class NTriplesParserTest {
     public void cleanTargetDir() {
         NTriplesTestBundle.prepareTestDir();
         semarglTurtleSink = new TurtleSerializerSink();
-        streamProcessor = new StreamProcessor(NTriplesParser.streamingTo(semarglTurtleSink));
+        streamProcessor = new StreamProcessor(NTriplesParser.connect(semarglTurtleSink));
     }
 
     @DataProvider

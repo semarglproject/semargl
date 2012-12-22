@@ -38,7 +38,7 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
     private NTriplesParser() {
     }
 
-    public static CharSink streamingTo(TripleSink sink) {
+    public static CharSink connect(TripleSink sink) {
         NTriplesParser parser = new NTriplesParser();
         parser.sink = sink;
         return parser;

@@ -46,7 +46,7 @@ public class SesameSink implements TripleSink {
         this.handler = handler;
     }
 
-    public static TripleSink to(RDFHandler handler) {
+    public static TripleSink connect(RDFHandler handler) {
         return new SesameSink(handler);
     }
 

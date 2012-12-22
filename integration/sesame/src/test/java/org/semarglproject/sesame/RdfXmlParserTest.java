@@ -49,7 +49,7 @@ public final class RdfXmlParserTest {
     public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
         model = new StatementCollector();
-        streamProcessor = new StreamProcessor(RdfXmlParser.streamingTo(SesameSink.to(model)));
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(SesameSink.connect(model)));
     }
 
     @BeforeMethod

@@ -52,7 +52,7 @@ public final class RdfaParserTest {
 //        RdfaTestBundle.downloadAllTests(2);
         semarglTurtleSink = new TurtleSerializerSink();
 
-        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(semarglTurtleSink));
+        streamProcessor = new StreamProcessor(RdfaParser.connect(semarglTurtleSink));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

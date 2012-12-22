@@ -72,7 +72,7 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = new StatementCollector();
         
-        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(SesameSink.to(model)));
+        streamProcessor = new StreamProcessor(RdfaParser.connect(SesameSink.connect(model)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

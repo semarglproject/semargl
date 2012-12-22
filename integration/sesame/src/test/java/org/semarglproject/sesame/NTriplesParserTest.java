@@ -45,7 +45,7 @@ public final class NTriplesParserTest {
     public void init() {
         NTriplesTestBundle.prepareTestDir();
         model = new StatementCollector();
-        sp = new StreamProcessor(NTriplesParser.streamingTo(SesameSink.to(model)));
+        sp = new StreamProcessor(NTriplesParser.connect(SesameSink.connect(model)));
     }
 
     @BeforeMethod

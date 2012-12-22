@@ -59,7 +59,7 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
 
-        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(JenaSink.to(model)));
+        streamProcessor = new StreamProcessor(RdfaParser.connect(JenaSink.connect(model)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 

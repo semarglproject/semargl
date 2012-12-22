@@ -67,7 +67,7 @@ final class Vocabulary {
             terms = new HashSet<String>();
         }
 
-        StreamProcessor rdfaSp = new StreamProcessor(RdfaParser.streamingTo(vocabParser));
+        StreamProcessor rdfaSp = new StreamProcessor(RdfaParser.connect(vocabParser));
         rdfaSp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, false);
         parseVocabWithDp(vocabUrl, rdfaSp);
 
@@ -76,7 +76,7 @@ final class Vocabulary {
         }
 
         // TODO: add format detection
-        StreamProcessor rdfXmlSp = new StreamProcessor(RdfXmlParser.streamingTo(vocabParser));
+        StreamProcessor rdfXmlSp = new StreamProcessor(RdfXmlParser.connect(vocabParser));
         rdfaSp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, false);
         parseVocabWithDp(vocabUrl, rdfXmlSp);
 
