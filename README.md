@@ -62,6 +62,26 @@ rdfParser.parse(input, inputUri);
 
 If you don't want to use external frameworks, you can always use internal
 serializers or implement own TripleSink to process triple streams.
+
+To use it with maven, add following to your pom.xml:
+
+```xml
+<repositories>
+    <repository>
+        <id>Semargl repo</id>
+        <url>https://github.com/levkhomich/semargl/raw/master/maven-repo</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>org.semarglproject</groupId>
+        <artifactId>semargl-some-module</artifactId>
+        <version>0.3</version>
+    </dependency>
+</dependencies>
+```
+
 Feel free to use examples provided with project.
 
 What Semargl is not
