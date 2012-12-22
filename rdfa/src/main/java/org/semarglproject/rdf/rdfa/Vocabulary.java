@@ -156,11 +156,11 @@ final class Vocabulary {
         }
 
         @Override
-        public void startStream() {
+        public void startStream() throws ParseException {
         }
 
         @Override
-        public void endStream() {
+        public void endStream() throws ParseException {
         }
 
         @Override

@@ -25,6 +25,7 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
@@ -91,7 +92,7 @@ public class SesameSink implements TripleSink {
     }
 
     @Override
-    public void startStream() {
+    public void startStream() throws ParseException {
         try {
             handler.startRDF();
         } catch(RDFHandlerException e) {
@@ -100,7 +101,7 @@ public class SesameSink implements TripleSink {
     }
 
     @Override
-    public void endStream() {
+    public void endStream() throws ParseException {
         try {
             handler.endRDF();
         } catch(RDFHandlerException e) {

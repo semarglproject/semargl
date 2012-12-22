@@ -16,6 +16,7 @@
 
 package org.semarglproject.rdf;
 
+import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
 import org.testng.annotations.BeforeClass;
@@ -32,15 +33,15 @@ import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
 
 public final class RdfXmlParserTest {
 
-    private TurtleSerializerSink semarglTurtleSink;
+    private CharOutputSink charOutputSink;
     private StreamProcessor streamProcessor;
 
     @BeforeClass
     public void cleanTargetDir() throws IOException, SAXException {
         RdfXmlTestBundle.prepareTestDir();
 
-        semarglTurtleSink = new TurtleSerializerSink();
-        streamProcessor = new StreamProcessor(RdfXmlParser.connect(semarglTurtleSink));
+        charOutputSink = new CharOutputSink();
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(TurtleSerializer.connect(charOutputSink)));
     }
 
     @DataProvider
@@ -53,7 +54,7 @@ public final class RdfXmlParserTest {
         runTestWith(testCase, new SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                semarglTurtleSink.setWriter(output);
+                charOutputSink.setOutput(output);
                 streamProcessor.process(input, inputUri);
             }
         });

@@ -16,12 +16,14 @@
 
 package org.semarglproject.sink;
 
+import org.semarglproject.rdf.ParseException;
+
 public interface DataSink {
     void setBaseUri(String baseUri);
 
-    void startStream();
+    void startStream() throws ParseException;
 
-    void endStream();
+    void endStream() throws ParseException;
 
     boolean setProperty(String key, Object value);
 }

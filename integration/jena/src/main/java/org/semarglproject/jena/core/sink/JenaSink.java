@@ -21,6 +21,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.shared.Lock;
+import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
@@ -100,12 +101,12 @@ public final class JenaSink implements TripleSink {
     }
 
     @Override
-    public void startStream() {
+    public void startStream() throws ParseException {
         newBatch();
     }
 
     @Override
-    public void endStream() {
+    public void endStream() throws ParseException {
         if (pos == 0) {
             return;
         }

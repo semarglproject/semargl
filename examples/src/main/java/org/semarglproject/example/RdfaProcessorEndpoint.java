@@ -19,9 +19,10 @@ package org.semarglproject.example;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.semarglproject.rdf.TurtleSerializer;
+import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.vocab.RDFa;
 
@@ -36,11 +37,11 @@ import java.net.URL;
 public class RdfaProcessorEndpoint extends AbstractHandler {
 
     private final StreamProcessor streamProcessor;
-    private final TurtleSerializerSink ts;
+    private final CharOutputSink charOutputSink;
 
     public RdfaProcessorEndpoint() {
-        ts = new TurtleSerializerSink();
-        streamProcessor = new StreamProcessor(RdfaParser.connect(ts));
+        charOutputSink = new CharOutputSink();
+        streamProcessor = new StreamProcessor(RdfaParser.connect(TurtleSerializer.connect(charOutputSink)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
@@ -93,7 +94,7 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
         Reader reader = new InputStreamReader(url.openStream());
 
         response.setContentType("text/turtle; charset=UTF-8");
-        ts.setWriter(response.getWriter());
+        charOutputSink.setOutput(response.getWriter());
         try {
             streamProcessor.process(reader, uri);
         } catch (ParseException e) {

@@ -16,14 +16,11 @@
 
 package org.semarglproject.rdf;
 
-import org.semarglproject.sink.Converter;
 import org.semarglproject.sink.CharSink;
+import org.semarglproject.sink.Converter;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.xml.XmlUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.BitSet;
 
 public final class NTriplesParser extends Converter<CharSink, TripleSink> implements CharSink {
@@ -48,27 +45,6 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
         throw new ParseException(msg);
     }
 
-    @Override
-    public void read(Reader r) throws ParseException {
-        BufferedReader reader = new BufferedReader(r);
-        try {
-            while ((buffer = reader.readLine()) != null) {
-                if (isEntirelyWhitespaceOrEmpty(buffer)) {
-                    continue;
-                }
-                parseLine();
-            }
-        } catch (IOException e) {
-            throw new ParseException(e);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                // nothing
-            }
-        }
-    }
-
     private static boolean isEntirelyWhitespaceOrEmpty(String s) {
         for (char c : s.toCharArray()) {
             if (!Character.isWhitespace(c)) {
@@ -84,7 +60,13 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
         }
     }
 
-    private void parseLine() throws ParseException {
+    @Override
+    public void process(String buffer) throws ParseException {
+        if (isEntirelyWhitespaceOrEmpty(buffer)) {
+            return;
+        }
+        this.buffer = buffer;
+
         pos = 0;
         limit = buffer.length();
 

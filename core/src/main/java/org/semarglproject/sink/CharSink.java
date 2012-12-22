@@ -18,8 +18,6 @@ package org.semarglproject.sink;
 
 import org.semarglproject.rdf.ParseException;
 
-import java.io.Reader;
-
 public interface CharSink extends DataSink {
-    void read(Reader reader) throws ParseException;
+    void process(String buffer) throws ParseException;
 }

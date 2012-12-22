@@ -16,16 +16,18 @@
 
 package org.semarglproject.sink;
 
+import org.semarglproject.rdf.ParseException;
+
 public abstract class Converter<T extends DataSink, S extends DataSink> implements DataSink {
     protected S sink;
 
     @Override
-    public void startStream() {
+    public void startStream() throws ParseException {
         sink.startStream();
     }
 
     @Override
-    public void endStream() {
+    public void endStream() throws ParseException {
         sink.endStream();
     }
 

@@ -59,7 +59,7 @@ abstract class AbstractSource<S extends DataSink> {
         return streaming;
     }
 
-    protected void startStream() {
+    protected void startStream() throws ParseException {
         sink.startStream();
         streaming = false;
     }

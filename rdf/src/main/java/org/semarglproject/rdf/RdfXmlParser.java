@@ -517,7 +517,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     }
 
     @Override
-    public void startStream() {
+    public void startStream() throws ParseException {
         sink.setBaseUri(baseUri);
         super.startStream();
     }

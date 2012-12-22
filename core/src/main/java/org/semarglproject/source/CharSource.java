@@ -19,9 +19,11 @@ package org.semarglproject.source;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.CharSink;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 
 final class CharSource extends AbstractSource<CharSink> {
@@ -51,16 +53,22 @@ final class CharSource extends AbstractSource<CharSink> {
     }
 
     private void processInternal(Reader source, String baseUri) throws ParseException {
+        BufferedReader reader = new BufferedReader(source);
         try {
             setBaseUri(baseUri);
             startStream();
-            sink.read(source);
-            endStream();
-        } catch (ParseException e) {
+
+            String buffer;
+            while ((buffer = reader.readLine()) != null) {
+                sink.process(buffer);
+            }
+        } catch (IOException e) {
+            throw new ParseException(e);
+        } finally {
+            AbstractSource.closeQuietly(reader);
             if (!isStreaming()) {
                 endStream();
             }
-            throw e;
         }
     }
 

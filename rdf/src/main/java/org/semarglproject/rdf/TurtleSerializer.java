@@ -16,22 +16,22 @@
 
 package org.semarglproject.rdf;
 
+import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
 // TODO: improve readability
-public final class TurtleSerializerSink implements TripleSink {
+public final class TurtleSerializer implements TripleSink {
 
     private static final short BATCH_SIZE = 10;
 
-    private Writer writer;
+    private CharSink sink;
+
     private String prevSubj;
     private String prevPred;
     private StringBuilder builder;
@@ -39,6 +39,14 @@ public final class TurtleSerializerSink implements TripleSink {
     private Queue<String> bnodeStack = new LinkedList<String>();
     private Set<String> namedBnodes = new HashSet<String>();
     private String baseUri;
+
+    private TurtleSerializer(CharSink sink) {
+        this.sink = sink;
+    }
+
+    public static TripleSink connect(CharSink sink) {
+        return new TurtleSerializer(sink);
+    }
 
     private void startTriple(String subj, String pred) {
         String predicateStr;
@@ -106,8 +114,9 @@ public final class TurtleSerializerSink implements TripleSink {
     private void endTriple() {
         if (step == BATCH_SIZE) {
             try {
-                writer.write(builder.toString());
-            } catch (IOException e) {
+                sink.process(builder.toString());
+            } catch (ParseException e) {
+
             }
             builder = null;
             step = 0;
@@ -167,10 +176,7 @@ public final class TurtleSerializerSink implements TripleSink {
     }
 
     @Override
-    public void startStream() {
-        if (writer == null) {
-            throw new IllegalStateException("No writer specified");
-        }
+    public void startStream() throws ParseException {
         prevSubj = null;
         prevPred = null;
         builder = new StringBuilder();
@@ -184,25 +190,25 @@ public final class TurtleSerializerSink implements TripleSink {
     }
 
     @Override
-    public void endStream() {
-        baseUri = null;
-        try {
-            if (builder != null) {
-                writer.write(builder.toString());
-            }
-            if (!bnodeStack.isEmpty()) {
-                while (!bnodeStack.isEmpty()) {
-                    writer.write("]");
-                    bnodeStack.poll();
-                }
-                writer.write(" .\n");
-            } else if (prevPred != null) {
-                writer.write(" .");
-            }
-            writer.write('\n');
-            writer.flush();
-        } catch (IOException e) {
+    public void endStream() throws ParseException {
+        if (builder == null) {
+            builder = new StringBuilder();
         }
+        if (!bnodeStack.isEmpty()) {
+            while (!bnodeStack.isEmpty()) {
+                builder.append("]");
+                bnodeStack.poll();
+            }
+            builder.append(" .\n");
+        } else if (prevPred != null) {
+            builder.append(" .");
+        }
+        builder.append('\n');
+        if (builder != null) {
+            sink.process(builder.toString());
+        }
+        builder = null;
+        baseUri = null;
     }
 
     @Override
@@ -212,11 +218,6 @@ public final class TurtleSerializerSink implements TripleSink {
 
     @Override
     public void setBaseUri(String baseUri) {
-        this.baseUri = //baseUri;
-            baseUri.substring(0, baseUri.length() - 1);
-    }
-
-    public void setWriter(Writer writer) {
-        this.writer = writer;
+        this.baseUri = baseUri.substring(0, baseUri.length() - 1);
     }
 }

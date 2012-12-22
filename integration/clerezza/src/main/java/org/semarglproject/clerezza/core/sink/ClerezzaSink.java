@@ -25,6 +25,7 @@ import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.PlainLiteralImpl;
 import org.apache.clerezza.rdf.core.impl.TripleImpl;
 import org.apache.clerezza.rdf.core.impl.TypedLiteralImpl;
+import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
@@ -85,11 +86,11 @@ public class ClerezzaSink implements TripleSink {
     }
 
     @Override
-    public void startStream() {
+    public void startStream() throws ParseException {
     }
 
     @Override
-    public void endStream() {
+    public void endStream() throws ParseException {
     }
 
     @Override
