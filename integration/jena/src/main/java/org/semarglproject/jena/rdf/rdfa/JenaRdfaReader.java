@@ -21,10 +21,9 @@ import com.hp.hpl.jena.rdf.model.RDFErrorHandler;
 import com.hp.hpl.jena.rdf.model.RDFReader;
 import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
-import org.semarglproject.processor.SaxSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,10 +33,10 @@ import java.net.URL;
 
 public class JenaRdfaReader implements RDFReader {
 
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
 
     public JenaRdfaReader() {
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(JenaSink.to(null)));
+        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(JenaSink.to(null)));
     }
 
     public static void inject() {
@@ -46,9 +45,9 @@ public class JenaRdfaReader implements RDFReader {
 
     @Override
     public void read(Model model, Reader reader, String base) {
-        sp.setProperty(JenaSink.OUTPUT_MODEL_PROPERTY, model);
+        streamProcessor.setProperty(JenaSink.OUTPUT_MODEL_PROPERTY, model);
         try {
-            sp.process(reader, base);
+            streamProcessor.process(reader, base);
         } catch (ParseException e) {
             // do nothing
         }
@@ -83,7 +82,7 @@ public class JenaRdfaReader implements RDFReader {
 
     @Override
     public Object setProperty(String propName, Object propValue) {
-        return sp.setProperty(propName, propValue);
+        return streamProcessor.setProperty(propName, propValue);
     }
 
     @Override

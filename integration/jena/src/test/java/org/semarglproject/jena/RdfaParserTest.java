@@ -19,12 +19,11 @@ package org.semarglproject.jena;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
-import org.semarglproject.processor.SaxSource;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -42,14 +41,13 @@ import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 public final class RdfaParserTest {
 
     private Model model;
-    private RdfaParser rdfaParser;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
     private SaveToFileCallback jenaCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
-            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
+            streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             try {
-                sp.process(input, inputUri);
+                streamProcessor.process(input, inputUri);
             } finally {
                 model.write(output, "TURTLE");
             }
@@ -61,8 +59,8 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
 
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(JenaSink.to(model)));
-        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
+        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(JenaSink.to(model)));
+        streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     @BeforeMethod

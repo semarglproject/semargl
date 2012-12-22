@@ -23,11 +23,10 @@ import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.NTriplesParser;
 import org.semarglproject.rdf.NTriplesTestBundle;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.processor.CharSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -41,7 +40,7 @@ import java.io.Writer;
 public final class NTriplesParserTest {
 
     private MGraph graph;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor sp;
 
     @BeforeClass
     public void init() {
@@ -53,7 +52,7 @@ public final class NTriplesParserTest {
             tcManager.deleteTripleCollection(graphUri);
         }
         graph = tcManager.createMGraph(graphUri);
-        sp = CharSource.streamingTo(NTriplesParser.streamingTo(ClerezzaSink.to(graph)));
+        sp = new StreamProcessor(NTriplesParser.streamingTo(ClerezzaSink.to(graph)));
     }
 
     @BeforeMethod

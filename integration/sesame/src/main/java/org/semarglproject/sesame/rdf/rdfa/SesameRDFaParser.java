@@ -25,8 +25,7 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
-import org.semarglproject.processor.SaxSource;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.rdfa.RdfaParser;
@@ -51,7 +50,7 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
     private boolean preserveBNodeIDs;
     private short rdfaCompatibility;
 
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
 
     private ParseErrorListener parseErrorListener;
 
@@ -61,10 +60,10 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
         processorGraphEnabled = false;
         rdfaCompatibility = RDFa.VERSION_11;
         parseErrorListener = null;
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(SesameSink.to(null)));
-        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
-        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
-        sp.setProperty(RdfaParser.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
+        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(SesameSink.to(null)));
+        streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
+        streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
+        streamProcessor.setProperty(RdfaParser.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
     }
 
     @Override
@@ -80,7 +79,7 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
     @Override
     public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
         try {
-            sp.process(reader, baseURI);
+            streamProcessor.process(reader, baseURI);
         } catch (ParseException e) {
             throw new RDFParseException(e);
         }
@@ -88,12 +87,12 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     @Override
     public void setValueFactory(ValueFactory valueFactory) {
-        sp.setProperty(SesameSink.VALUE_FACTORY_PROPERTY, valueFactory);
+        streamProcessor.setProperty(SesameSink.VALUE_FACTORY_PROPERTY, valueFactory);
     }
 
     @Override
     public void setRDFHandler(RDFHandler handler) {
-        sp.setProperty(SesameSink.RDF_HANDLER_PROPERTY, handler);
+        streamProcessor.setProperty(SesameSink.RDF_HANDLER_PROPERTY, handler);
     }
 
     @Override
@@ -149,17 +148,17 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     public void setProcessorGraphEnabled(boolean processorGraphEnabled) {
         this.processorGraphEnabled = processorGraphEnabled;
-        sp.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
+        streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
     }
 
     public void setVocabExpansionEnabled(boolean vocabExpansionEnabled) {
         this.vocabExpansionEnabled = vocabExpansionEnabled;
-        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
+        streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
     }
 
     public void setRdfaCompatibility(short rdfaCompatibility) {
         this.rdfaCompatibility = rdfaCompatibility;
-        sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaCompatibility);
+        streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaCompatibility);
     }
 
     @Override

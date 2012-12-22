@@ -39,9 +39,9 @@ No jokes!
 // just init triple store you want
 MGraph graph = ... // Clerezza calls
 // create processing pipe
-StreamProcessor<Reader> sp = CharSource.streamingTo(NTriplesParser.streamingTo(ClerezzaSink.to(graph));
+StreamProcessor sp = new StreamProcessor(NTriplesParser.streamingTo(ClerezzaSink.to(graph));
 // and run it!
-sp.process(new FileReader(file), docUri);
+sp.process(file, docUri);
 ```
 
 or use Jena API

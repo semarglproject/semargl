@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.semarglproject.processor;
+package org.semarglproject.source;
 
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.SaxSink;
@@ -23,21 +23,37 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 
-public final class SaxSource extends DataProcessor<Reader, SaxSink> {
-
-    public static final String XML_READER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
+final class SaxSource extends AbstractSource<SaxSink> {
 
     private XMLReader xmlReader = null;
 
-    private SaxSource(SaxSink sink) {
+    SaxSource(SaxSink sink) {
         super(sink);
     }
 
     @Override
-    public void process(Reader source) throws ParseException {
+    public void process(File file, String mimeType, String baseUri) throws ParseException {
+        setBaseUri(baseUri);
+    }
+
+    @Override
+    public void process(Reader reader, String mimeType, String baseUri) throws ParseException {
+        try {
+            setBaseUri(baseUri);
+            processInternal(reader);
+        } catch (ParseException e) {
+            if (!isStreaming()) {
+                endStream();
+            }
+            throw e;
+        }
+    }
+
+    private void processInternal(Reader source) throws ParseException {
         if (xmlReader == null) {
             try {
                 xmlReader = XMLReaderFactory.createXMLReader();
@@ -52,7 +68,7 @@ public final class SaxSource extends DataProcessor<Reader, SaxSink> {
         } catch (SAXException e) {
             // nothing
         }
-        super.startStream();
+        startStream();
         try {
             xmlReader.parse(new InputSource(source));
         } catch (SAXException e) {
@@ -66,23 +82,19 @@ public final class SaxSource extends DataProcessor<Reader, SaxSink> {
         } catch (IOException e) {
             throw new ParseException(e);
         } finally {
-            super.endStream();
+            endStream();
         }
-
-    }
-
-    public static StreamProcessor<Reader> streamingTo(SaxSink sink) {
-        return new SaxSource(sink);
     }
 
     @Override
     public boolean setProperty(String key, Object value) {
         boolean sinkResult = super.setProperty(key, value);
-        if (XML_READER_PROPERTY.equals(key) && value instanceof XMLReader) {
+        if (StreamProcessor.XML_READER_PROPERTY.equals(key) && value instanceof XMLReader) {
             xmlReader = (XMLReader) value;
         } else {
             return sinkResult;
         }
         return true;
     }
+
 }

@@ -22,8 +22,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.processor.CharSource;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.NTriplesParser;
 import org.semarglproject.rdf.NTriplesTestBundle;
 import org.semarglproject.rdf.ParseException;
@@ -40,13 +39,13 @@ import java.io.Writer;
 public final class NTriplesParserTest {
 
     private StatementCollector model;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor sp;
 
     @BeforeClass
     public void init() {
         NTriplesTestBundle.prepareTestDir();
         model = new StatementCollector();
-        sp = CharSource.streamingTo(NTriplesParser.streamingTo(SesameSink.to(model)));
+        sp = new StreamProcessor(NTriplesParser.streamingTo(SesameSink.to(model)));
     }
 
     @BeforeMethod

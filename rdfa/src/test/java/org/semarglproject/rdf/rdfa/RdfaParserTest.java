@@ -16,12 +16,11 @@
 
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TurtleSerializerSink;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
-import org.semarglproject.processor.SaxSource;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -37,13 +36,13 @@ import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 public final class RdfaParserTest {
 
     private TurtleSerializerSink semarglTurtleSink;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
     private SaveToFileCallback semarglTurtleCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
             semarglTurtleSink.setWriter(output);
-            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
-            sp.process(input, inputUri);
+            streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
+            streamProcessor.process(input, inputUri);
         }
     };
 
@@ -53,8 +52,8 @@ public final class RdfaParserTest {
 //        RdfaTestBundle.downloadAllTests(2);
         semarglTurtleSink = new TurtleSerializerSink();
 
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(semarglTurtleSink));
-        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
+        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(semarglTurtleSink));
+        streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     @DataProvider

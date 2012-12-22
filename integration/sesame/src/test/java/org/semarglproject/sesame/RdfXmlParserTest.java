@@ -22,8 +22,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.processor.SaxSource;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.RdfXmlTestBundle;
@@ -44,13 +43,13 @@ import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
 public final class RdfXmlParserTest {
 
     private StatementCollector model;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
 
     @BeforeClass
     public void init() throws SAXException {
         RdfXmlTestBundle.prepareTestDir();
         model = new StatementCollector();
-        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(SesameSink.to(model)));
+        streamProcessor = new StreamProcessor(RdfXmlParser.streamingTo(SesameSink.to(model)));
     }
 
     @BeforeMethod
@@ -69,7 +68,7 @@ public final class RdfXmlParserTest {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    sp.process(input, inputUri);
+                    streamProcessor.process(input, inputUri);
                 } finally {
                     RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                     try {

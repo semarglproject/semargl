@@ -23,12 +23,11 @@ import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.rdf.RdfXmlTestBundle;
 import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
-import org.semarglproject.processor.SaxSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -45,7 +44,7 @@ import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
 public final class RdfXmlParserTest {
 
     private MGraph graph;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
 
     @BeforeClass
     public void init() throws SAXException {
@@ -58,7 +57,7 @@ public final class RdfXmlParserTest {
         }
         graph = MANAGER.createMGraph(graphUri);
 
-        sp = SaxSource.streamingTo(RdfXmlParser.streamingTo(ClerezzaSink.to(graph)));
+        streamProcessor = new StreamProcessor(RdfXmlParser.streamingTo(ClerezzaSink.to(graph)));
     }
 
     @BeforeMethod
@@ -79,7 +78,7 @@ public final class RdfXmlParserTest {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    sp.process(input, inputUri);
+                    streamProcessor.process(input, inputUri);
                 } finally {
                     OutputStream outputStream = new WriterOutputStream(output, "UTF-8");
                     try {

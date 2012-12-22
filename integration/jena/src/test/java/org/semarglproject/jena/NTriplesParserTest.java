@@ -19,11 +19,10 @@ package org.semarglproject.jena;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.NTriplesParser;
 import org.semarglproject.rdf.NTriplesTestBundle;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.processor.CharSource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -36,13 +35,13 @@ import java.io.Writer;
 public final class NTriplesParserTest {
 
     private Model model;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor sp;
 
     @BeforeClass
     public void init() {
         NTriplesTestBundle.prepareTestDir();
         model = ModelFactory.createDefaultModel();
-        sp = CharSource.streamingTo(NTriplesParser.streamingTo(JenaSink.to(model)));
+        sp = new StreamProcessor(NTriplesParser.streamingTo(JenaSink.to(model)));
     }
 
     @BeforeMethod

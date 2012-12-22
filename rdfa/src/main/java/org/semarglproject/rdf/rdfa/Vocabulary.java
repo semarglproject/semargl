@@ -16,8 +16,7 @@
 
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.processor.SaxSource;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.ri.RIUtils;
@@ -29,7 +28,6 @@ import org.semarglproject.vocab.RDFS;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -69,7 +67,7 @@ final class Vocabulary {
             terms = new HashSet<String>();
         }
 
-        StreamProcessor<Reader> rdfaSp = SaxSource.streamingTo(RdfaParser.streamingTo(vocabParser));
+        StreamProcessor rdfaSp = new StreamProcessor(RdfaParser.streamingTo(vocabParser));
         rdfaSp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, false);
         parseVocabWithDp(vocabUrl, rdfaSp);
 
@@ -78,7 +76,7 @@ final class Vocabulary {
         }
 
         // TODO: add format detection
-        StreamProcessor<Reader> rdfXmlSp = SaxSource.streamingTo(RdfXmlParser.streamingTo(vocabParser));
+        StreamProcessor rdfXmlSp = new StreamProcessor(RdfXmlParser.streamingTo(vocabParser));
         rdfaSp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, false);
         parseVocabWithDp(vocabUrl, rdfXmlSp);
 
@@ -88,7 +86,7 @@ final class Vocabulary {
         }
     }
 
-    private void parseVocabWithDp(URL vocabUrl, StreamProcessor<Reader> sp) {
+    private void parseVocabWithDp(URL vocabUrl, StreamProcessor streamProcessor) {
         InputStream inputStream;
         try {
             inputStream = vocabUrl.openStream();
@@ -97,7 +95,7 @@ final class Vocabulary {
         }
         InputStreamReader reader = new InputStreamReader(inputStream);
         try {
-            sp.process(reader, url);
+            streamProcessor.process(reader, url);
         } catch (ParseException e) {
             // do nothing
         } finally {

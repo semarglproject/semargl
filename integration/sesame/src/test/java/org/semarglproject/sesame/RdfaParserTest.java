@@ -22,8 +22,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.processor.SaxSource;
-import org.semarglproject.processor.StreamProcessor;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
@@ -46,14 +45,13 @@ import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
 public final class RdfaParserTest {
 
     private StatementCollector model;
-    private RdfaParser rdfaParser;
-    private StreamProcessor<Reader> sp;
+    private StreamProcessor streamProcessor;
     private SaveToFileCallback sesameCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
-            sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
+            streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             try {
-                sp.process(input, inputUri);
+                streamProcessor.process(input, inputUri);
             } finally {
                 RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                 try {
@@ -74,8 +72,8 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
         model = new StatementCollector();
         
-        sp = SaxSource.streamingTo(RdfaParser.streamingTo(SesameSink.to(model)));
-        sp.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
+        streamProcessor = new StreamProcessor(RdfaParser.streamingTo(SesameSink.to(model)));
+        streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
 
     @BeforeMethod
