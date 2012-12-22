@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.semarglproject</groupId>
 		<artifactId>semargl-integration</artifactId>
-		<version>0.3</version>
+		<version>0.4-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>semargl-jena</artifactId>
