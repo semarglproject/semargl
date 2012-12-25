@@ -86,6 +86,11 @@ public final class CharOutputSink implements CharSink {
 
     @Override
     public void endStream() throws ParseException {
+        try {
+            writer.flush();
+        } catch (IOException e) {
+            throw new ParseException(e);
+        }
         if (closeOnEndStream) {
             if (writer != null) {
                 closeQuietly(writer);

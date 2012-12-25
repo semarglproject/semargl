@@ -187,10 +187,12 @@ public final class TurtleSerializer implements TripleSink {
         step = 0;
         bnodeStack.clear();
         namedBnodes.clear();
+        sink.startStream();
     }
 
     @Override
     public void endStream() throws ParseException {
+        sink.endStream();
         if (builder == null) {
             builder = new StringBuilder();
         }
