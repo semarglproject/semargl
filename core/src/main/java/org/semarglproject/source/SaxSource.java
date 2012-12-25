@@ -24,6 +24,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -36,8 +38,14 @@ final class SaxSource extends AbstractSource<SaxSink> {
     }
 
     @Override
-    public void process(File file, String mimeType, String baseUri) throws ParseException {
+    public void process(File file, String mimeType, String baseUri) throws ParseException, FileNotFoundException {
         setBaseUri(baseUri);
+        FileReader reader = new FileReader(file);
+        try {
+            processInternal(reader);
+        } finally {
+            closeQuietly(reader);
+        }
     }
 
     @Override
