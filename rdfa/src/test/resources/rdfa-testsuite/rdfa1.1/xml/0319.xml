@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<head>
+  <base href="http://example.com/"></base>
+</head>
+<body xml:base="http://example.com/" prefix="pr: relative/iri#" xmlns:xpr="relative/uri#">
+  <p property="pr:prop xpr:prop">value</p>
+</body></root>

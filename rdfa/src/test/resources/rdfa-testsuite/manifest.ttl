@@ -631,7 +631,7 @@
    test:purpose "Tests to ensure that relative URIs are resolved correctly when used in @href with XHTML base set in head";
    test:specificationReference "" .
 <test-cases/0075> dc:contributor "Manu Sporny";
-   dc:title "Reserved word 'license' in @rel with no explizit @about";
+   dc:title "Reserved word 'license' in @rel with no explicit @about";
    a test:TestCase;
    rdfatest:rdfaVersion "rdfa1.0", "rdfa1.1";
    test:classification test:required;
@@ -2090,7 +2090,7 @@ white   space
    test:purpose "The @datetime attribute must be utilized when generating output, overriding any value expressed using the @content attribute.";
    test:specificationReference "HTML+RDFa 1.1 3.1" .
 <test-cases/0279> dc:contributor "Gregg Kellogg";
-   dc:title "@datetype used with @datetime overrides default datatype";
+   dc:title "@datatype used with @datetime overrides default datatype";
    a test:TestCase;
    rdfatest:rdfaVersion "rdfa1.1";
    test:classification test:required;
@@ -2354,7 +2354,7 @@ white   space
      if it is empty.
     """;
    test:specificationReference "" .
-   
+
 <test-cases/0304> dc:contributor "Toby Inkster";
   dc:title "Embedded chunks of RDF/XML";
   a test:TestCase;
@@ -2369,7 +2369,7 @@ white   space
     http://www.w3.org/TR/SVGTiny12/metadata.html#Introduction
     says 'an RDF processor should combine them into the same graph'
   """ .
-   
+
 <test-cases/0305> dc:contributor "Shane McCarron";
   dc:title "role attribute with explicit id and term";
   a test:TestCase;
@@ -2384,7 +2384,7 @@ white   space
     http://www.w3.org/TR/role-attribute/#using-role-in-conjunction-with-rdfa
     says 'if @id is present, it is used to supply the subject...'
   """ .
-   
+
 <test-cases/0306> dc:contributor "Shane McCarron";
   dc:title "role attribute with explicit base id and term";
   a test:TestCase;
@@ -2399,7 +2399,7 @@ white   space
     http://www.w3.org/TR/role-attribute/#using-role-in-conjunction-with-rdfa
     says 'if @id is present, it is used to supply the subject...'
   """ .
-   
+
 <test-cases/0307> dc:contributor "Shane McCarron";
   dc:title "role attribute with term and no id";
   a test:TestCase;
@@ -2414,7 +2414,7 @@ white   space
     http://www.w3.org/TR/role-attribute/#using-role-in-conjunction-with-rdfa
     says 'if @id is present, it is used to supply the subject...'
   """ .
-   
+
 <test-cases/0308> dc:contributor "Shane McCarron";
   dc:title "role attribute with explicit id and IRI as object";
   a test:TestCase;
@@ -2429,7 +2429,7 @@ white   space
     http://www.w3.org/TR/role-attribute/#using-role-in-conjunction-with-rdfa
     says 'if @id is present, it is used to supply the subject...'
   """ .
-   
+
 <test-cases/0309> dc:contributor "Shane McCarron";
   dc:title "role attribute with explicit id and CURIE as object";
   a test:TestCase;
@@ -2444,7 +2444,7 @@ white   space
     http://www.w3.org/TR/role-attribute/#using-role-in-conjunction-with-rdfa
     says 'if @id is present, it is used to supply the subject...'
   """ .
-   
+
 <test-cases/0310> dc:contributor "Shane McCarron";
   dc:title "role attribute with multiple values";
   a test:TestCase;
@@ -2493,9 +2493,91 @@ white   space
    test:informationResourceInput <test-cases/0313.html>;
    test:informationResourceResults <test-cases/0313.sparql>;
    test:purpose """
-      Setting rdfagraph query parameter to 'processor' generates an rdfa:PrefixRedefinition warning when 
+      Setting rdfagraph query parameter to 'processor' generates an rdfa:PrefixRedefinition warning when
       an initial context prefix is redefined.
    """;
    test:specificationReference "" .
 
+<test-cases/0314> dc:contributor "Shane McCarron";
+  dc:title "Use of many terms from the default vocabulary";
+  a test:TestCase;
+  rdfatest:rdfaVersion "rdfa1.1-role";
+  test:classification test:required;  # ?!
+  test:expectedResults "true"^^xsd:boolean;
+  rdfatest:hostLanguage "xml", "xhtml1", "html5", "xhtml5";
+  test:informationResourceInput <test-cases/0314.html>;
+  test:informationResourceResults <test-cases/0314.sparql>;
+  test:purpose "When role is specified using default vocabulary terms the expected triples are created.";
+  test:specificationReference """
+    http://www.w3.org/TR/role-attribute/#A_role
+    says 'The default vocabulary for use is defined in XHTML-VOCAB'
+  """ .
 
+<test-cases/0315> dc:contributor "Gregg Kellogg";
+   dc:title "@property and @typeof with incomplete triples";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   test:classification test:required;
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:informationResourceInput <test-cases/0315.html>;
+   test:informationResourceResults <test-cases/0315.sparql>;
+   test:purpose "In HTML5, an element with @property and @typeof with incomplete triples sets uses typed resource.";
+   test:specificationReference "HTML+RDFa 1.1 3.1" .
+
+<test-cases/0316> dc:contributor "Stéphane Corlosquet";
+   dc:title "@property and @typeof with incomplete triples (@href variant)";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   test:classification test:required;
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:informationResourceInput <test-cases/0316.html>;
+   test:informationResourceResults <test-cases/0316.sparql>;
+   test:purpose "In HTML5, an element with @property and @typeof with incomplete triples sets uses typed resource (@href variant).";
+   test:specificationReference "HTML+RDFa 1.1 3.1" .
+
+<test-cases/0317> dc:contributor "Stéphane Corlosquet";
+   dc:title "@datatype inhibits new @property behavior";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   test:classification test:required;
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:informationResourceInput <test-cases/0317.html>;
+   test:informationResourceResults <test-cases/0317.sparql>;
+   test:purpose "Using @datatype on the same element as @property forces the object to be a literal value.";
+   test:specificationReference "RDFa Core 1.1, section 7.5 step 11" .
+
+<test-cases/0318> dc:contributor "Gregg Kellogg";
+   dc:title "Setting @vocab to empty strings removes default vocabulary";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   rdfatest:hostLanguage "xml", "xhtml1", "html4", "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0318.html>;
+   test:informationResourceResults <test-cases/0318.sparql>;
+   test:purpose "If the value (of @vocab) is empty, then the local default vocabulary must be reset to the Host Language defined default.";
+   test:specificationReference "RDFa Core 1.1, section 7.5 step 2" .
+
+<test-cases/0319> dc:contributor "Gregg Kellogg";
+   dc:title "Relative @profile";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   rdfatest:hostLanguage "xml", "xhtml1", "html4", "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0319.html>;
+   test:informationResourceResults <test-cases/0319.sparql>;
+   test:purpose """
+     Relative IRI's used with @prefix do not resolve against the document base; they are not processed in any way.
+     However, the returned document does have a base, so when queried, it will seem to have
+     the same base as the original document.
+    """;
+   test:specificationReference "RDFa Core 1.1, section 7.5 step 3" .
+<test-cases/0320> dc:contributor "Gregg Kellogg";
+   dc:title "@property binds to @href";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   rdfatest:hostLanguage "xml", "xhtml1", "html4", "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0320.html>;
+   test:informationResourceResults <test-cases/0320.sparql>;
+   test:purpose "Given @property with @href and @src, @href is used as object and sets new subject.";
+   test:specificationReference "RDFa Core 1.1, section 7.5 step 5" .
