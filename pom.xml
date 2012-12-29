@@ -104,7 +104,8 @@
                     <version>2.4</version>
                     <configuration>
                         <mavenExecutorId>forked-path</mavenExecutorId>
-                        <useReleaseProfile>release</useReleaseProfile>
+                        <useReleaseProfile>false</useReleaseProfile>
+                        <arguments>-Prelease</arguments>
                     </configuration>
                 </plugin>
 
