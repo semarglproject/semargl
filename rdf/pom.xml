@@ -57,13 +57,13 @@
 
         <!--Testing-->
         <dependency>
-            <groupId>com.hp.hpl.jena</groupId>
-            <artifactId>jena</artifactId>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hp.hpl.jena</groupId>
-            <artifactId>arq</artifactId>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-arq</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

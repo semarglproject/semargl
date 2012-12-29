@@ -58,9 +58,9 @@
 		<version.clerezza.jena.serializer>0.9-incubating</version.clerezza.jena.serializer>
 		<version.clerezza.jena.parser>0.10-incubating</version.clerezza.jena.parser>
 		<version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
-		<version.jena>2.6.4</version.jena>
-		<version.jena.arq>2.8.8</version.jena.arq>
-		<version.sesame>2.6.10</version.sesame>
+		<version.jena>2.7.4</version.jena>
+		<version.jena.arq>2.9.4</version.jena.arq>
+		<version.sesame>2.7.0-beta1</version.sesame>
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
@@ -92,6 +92,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>${version.source.plugin}</version>
             </plugin>
 
 		</plugins>
@@ -101,7 +102,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.3.2</version>
                     <configuration>
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <useReleaseProfile>false</useReleaseProfile>
@@ -137,6 +138,7 @@
                             <exclude>**/pom.xml</exclude>
                             <exclude>**/testng.xml</exclude>
 							<exclude>**/src/*/resources/**</exclude>
+                            <exclude>**/maven-repo/**</exclude>
 						</excludes>
 						<useDefaultExcludes>true</useDefaultExcludes>
 						<useDefaultMapping>true</useDefaultMapping>
@@ -247,13 +249,13 @@
 
 			<!-- Apache Jena -->
 			<dependency>
-				<groupId>com.hp.hpl.jena</groupId>
-				<artifactId>jena</artifactId>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>jena-core</artifactId>
 				<version>${version.jena}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.hp.hpl.jena</groupId>
-				<artifactId>arq</artifactId>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>jena-arq</artifactId>
 				<version>${version.jena.arq}</version>
 			</dependency>
 
@@ -282,14 +284,6 @@
             </dependency>
 		</dependencies>
 	</dependencyManagement>
-
-    <repositories>
-        <repository>
-            <id>aduna</id>
-            <name>Aduna Software</name>
-            <url>http://repo.aduna-software.org/maven2/releases/</url>
-        </repository>
-    </repositories>
 
     <distributionManagement>
         <snapshotRepository>
