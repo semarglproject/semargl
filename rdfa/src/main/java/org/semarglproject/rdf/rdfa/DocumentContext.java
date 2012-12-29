@@ -44,6 +44,7 @@ final class DocumentContext {
     private Map<String, String> bnodeMapping = new HashMap<String, String>();
     private int nextBnodeId;
     String base;
+    String originUri;
 
     DocumentContext(String base, short defaultRdfaVersion, RdfaParser parser) {
         this.base = base;
@@ -128,9 +129,18 @@ final class DocumentContext {
         rdfaVersion = defaultRdfaVersion;
         documentFormat = FORMAT_UNKNOWN;
         bnodeMapping = new HashMap<String, String>();
+        base = null;
+        originUri = null;
     }
 
     public Vocabulary loadVocabulary(String vocabUrl) {
         return parser.loadVocabulary(vocabUrl);
+    }
+
+    public void setBaseUri(String baseUri) {
+        if (base == null) {
+            originUri = baseUri;
+        }
+        this.base = baseUri;
     }
 }

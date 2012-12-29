@@ -21,6 +21,7 @@ import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
+import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.Converter;
 import org.semarglproject.sink.SaxSink;
 import org.semarglproject.sink.TripleSink;
@@ -120,8 +121,6 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
 
     @Override
     public void startDocument() {
-        dh.clear(defaultRdfaVersion);
-
         EvalContext initialContext = EvalContext.createInitialContext(dh);
         initialContext.iriMappings.put("", XHTML_VOCAB);
         contextStack.push(initialContext);
@@ -136,6 +135,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
 
     @Override
     public void endDocument() throws SAXException {
+        dh.clear(defaultRdfaVersion);
         contextStack.clear();
     }
 
@@ -803,11 +803,11 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
         if (prefix.length() == 0 && XHTML_DEFAULT_XMLNS.equalsIgnoreCase(uri)) {
             overwriteMappings.put(prefix, XHTML_VOCAB);
         } else {
-            // TODO: processor graph
-//            if (INITIAL_CONTEXT.containsKey(prefix) && !INITIAL_CONTEXT.get(prefix).equals(uri)) {
-//                warning(RDFa.PREFIX_REDEFINITION);
-//            }
-            overwriteMappings.put(prefix, uri);
+            try {
+                overwriteMappings.put(prefix, RIUtils.resolveIri(dh.originUri, uri));
+            } catch (MalformedIriException e) {
+                // do nothing
+            }
         }
     }
 
@@ -845,7 +845,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink> implements 
 
     @Override
     public void setBaseUri(String baseUri) {
-        dh.base = baseUri;
+        dh.setBaseUri(baseUri);
     }
 
     public Vocabulary loadVocabulary(String vocabUrl) {
