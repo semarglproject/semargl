@@ -21,7 +21,6 @@ import org.semarglproject.sink.DataSink;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,7 +32,7 @@ abstract class AbstractSource<S extends DataSink> {
     protected final S sink;
     private boolean streaming;
 
-    public abstract void process(File file, String mimeType, String baseUri) throws ParseException, FileNotFoundException;
+    public abstract void process(File file, String mimeType, String baseUri) throws ParseException;
 
     public abstract void process(Reader reader, String mimeType, String baseUri) throws ParseException;
 

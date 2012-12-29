@@ -33,8 +33,13 @@ final class CharSource extends AbstractSource<CharSink> {
     }
 
     @Override
-    public void process(File file, String mimeType, String baseUri) throws ParseException, FileNotFoundException {
-        FileReader reader = new FileReader(file);
+    public void process(File file, String mimeType, String baseUri) throws ParseException {
+        FileReader reader;
+        try {
+            reader = new FileReader(file);
+        } catch (FileNotFoundException e) {
+            throw new ParseException(e);
+        }
         try {
             processInternal(reader, baseUri);
         } finally {

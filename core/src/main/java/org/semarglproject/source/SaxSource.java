@@ -38,9 +38,14 @@ final class SaxSource extends AbstractSource<SaxSink> {
     }
 
     @Override
-    public void process(File file, String mimeType, String baseUri) throws ParseException, FileNotFoundException {
+    public void process(File file, String mimeType, String baseUri) throws ParseException {
         setBaseUri(baseUri);
-        FileReader reader = new FileReader(file);
+        FileReader reader;
+        try {
+            reader = new FileReader(file);
+        } catch (FileNotFoundException e) {
+            throw new ParseException(e);
+        }
         try {
             processInternal(reader);
         } finally {
