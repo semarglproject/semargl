@@ -1,17 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.semarglproject</groupId>
-		<artifactId>semargl-parent</artifactId>
-		<version>0.4-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.semarglproject</groupId>
+        <artifactId>semargl-parent</artifactId>
+        <version>0.4-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>semargl-rdfa</artifactId>
-	<packaging>jar</packaging>
+    <artifactId>semargl-rdfa</artifactId>
+    <packaging>jar</packaging>
 
-	<name>Semargl: RDFa</name>
+    <name>Semargl: RDFa</name>
 
     <build>
         <plugins>
@@ -47,12 +47,12 @@
         </plugins>
     </build>
 
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>semargl-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>semargl-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>semargl-rdf</artifactId>
@@ -75,10 +75,10 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
