@@ -45,6 +45,11 @@
         <module name="CovariantEquals"/>
         <module name="ArrayTypeStyle"/>
 
+        <!-- Metrics -->
+        <module name="CyclomaticComplexity">
+            <property name="max" value="22"/>
+        </module>
+
     </module>
 
 </module>

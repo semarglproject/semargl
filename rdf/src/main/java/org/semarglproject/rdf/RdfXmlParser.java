@@ -128,22 +128,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
                     sink.addNonLiteral(subjRes, RDF.TYPE, iri);
                 }
 
-                for (int i = 0; i < attrs.getLength(); i++) {
-                    String tag = attrs.getURI(i) + attrs.getLocalName(i);
-                    if (tag.equals(RDF.NODEID) || tag.equals(RDF.ABOUT) || tag.equals(RDF.ID)
-                            || attrs.getQName(i).startsWith(XMLConstants.XML_NS_PREFIX)) {
-                        continue;
-                    }
-                    String value = attrs.getValue(i);
-                    if (tag.equals(RDF.TYPE)) {
-                        sink.addNonLiteral(subjRes, RDF.TYPE, value);
-                    } else {
-                        if (violatesSchema(tag) || tag.equals(RDF.LI)) {
-                            error(qname + IS_NOT_ALLOWED_HERE);
-                        }
-                        sink.addPlainLiteral(subjRes, tag, value, langStack.peek());
-                    }
-                }
+                processResourceAttrs(qname, attrs);
 
                 subjStack.push(subjRes);
                 subjLiIndexStack.push(1);
@@ -156,12 +141,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
             case INSIDE_OF_RESOURCE: {
                 int liIndex = subjLiIndexStack.pop();
 
-                if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
-                    error(qname + IS_NOT_ALLOWED_HERE);
-                }
-                if (!RIUtils.isIri(iri)) {
-                    error("Invalid property IRI");
-                }
+                checkPropertyForErrors(qname, iri, attrs);
 
                 predIri = iri;
                 if (predIri.equals(RDF.LI)) {
@@ -174,27 +154,61 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
                     reifyIri = resolveIRINoResolve(baseStack.peek(), nodeId);
                 }
 
-                if (attrs.getValue(RDF.NS, "resource") != null && attrs.getValue(RDF.NS, "nodeID") != null) {
-                    error("Both rdf:resource and rdf:nodeID are present");
-                }
-                if (attrs.getValue(RDF.NS, "parseType") != null && !isAttrsValidForParseType(attrs)) {
-                    error("rdf:parseType conflicts with other attributes");
-                }
-
                 captureLiteral = true;
                 mode = INSIDE_OF_PROPERTY;
-                for (int i = 0; i < attrs.getLength(); i++) {
-                    String attr = attrs.getURI(i) + attrs.getLocalName(i);
-                    if (attrs.getQName(i).startsWith(XMLConstants.XML_NS_PREFIX) || attr.equals(RDF.ID)) {
-                        continue;
-                    }
-                    processPropertyTagAttr(nsUri, attr, attrs.getValue(i));
-                }
+                processPropertyAttrs(nsUri, attrs);
                 if (captureLiteral) {
                     parse = new StringBuilder();
                 }
                 break;
             }
+            default:
+                throw new IllegalStateException("Unknown mode = " + mode);
+        }
+    }
+
+    private void checkPropertyForErrors(String qname, String iri, Attributes attrs) throws SAXException {
+        if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
+            error(qname + IS_NOT_ALLOWED_HERE);
+        }
+        if (!RIUtils.isIri(iri)) {
+            error("Invalid property IRI");
+        }
+
+        if (attrs.getValue(RDF.NS, "resource") != null && attrs.getValue(RDF.NS, "nodeID") != null) {
+            error("Both rdf:resource and rdf:nodeID are present");
+        }
+        if (attrs.getValue(RDF.NS, "parseType") != null && !isAttrsValidForParseType(attrs)) {
+            error("rdf:parseType conflicts with other attributes");
+        }
+    }
+
+    private void processResourceAttrs(String qname, Attributes attrs) throws SAXException {
+        for (int i = 0; i < attrs.getLength(); i++) {
+            String tag = attrs.getURI(i) + attrs.getLocalName(i);
+            if (tag.equals(RDF.NODEID) || tag.equals(RDF.ABOUT) || tag.equals(RDF.ID)
+                    || attrs.getQName(i).startsWith(XMLConstants.XML_NS_PREFIX)) {
+                continue;
+            }
+            String value = attrs.getValue(i);
+            if (tag.equals(RDF.TYPE)) {
+                sink.addNonLiteral(subjRes, RDF.TYPE, value);
+            } else {
+                if (violatesSchema(tag) || tag.equals(RDF.LI)) {
+                    error(qname + IS_NOT_ALLOWED_HERE);
+                }
+                sink.addPlainLiteral(subjRes, tag, value, langStack.peek());
+            }
+        }
+    }
+
+    private void processPropertyAttrs(String nsUri, Attributes attrs) throws SAXException {
+        for (int i = 0; i < attrs.getLength(); i++) {
+            String attr = attrs.getURI(i) + attrs.getLocalName(i);
+            if (attrs.getQName(i).startsWith(XMLConstants.XML_NS_PREFIX) || attr.equals(RDF.ID)) {
+                continue;
+            }
+            processPropertyTagAttr(nsUri, attr, attrs.getValue(i));
         }
     }
 
@@ -334,6 +348,8 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
                 mode = INSIDE_OF_RESOURCE;
                 break;
             }
+            default:
+                throw new IllegalStateException("Unknown mode = " + mode);
         }
         langStack.pop();
         baseStack.pop();

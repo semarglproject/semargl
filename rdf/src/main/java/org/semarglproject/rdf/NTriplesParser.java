@@ -73,7 +73,7 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
         String subj = null;
         String pred = null;
 
-        outer:
+    outer:
         for (; pos < limit; pos++) {
             skipWhitespace();
 
@@ -111,29 +111,9 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
                     if (subj == null || pred == null) {
                         error("Literal before subject or predicate");
                     }
-                    if (pos + 2 >= limit - 1) {
-                        sink.addPlainLiteral(subj, pred, value, null);
-                        break outer;
-                    }
-                    if (buffer.charAt(pos) == '^' && buffer.charAt(pos + 1) == '^'
-                            && buffer.charAt(pos + 2) == '<') {
-                        pos += 3;
-                        String type = getToken(MODE_SAVE_UNTIL, XmlUtils.GT);
-                        sink.addTypedLiteral(subj, pred, value, type);
-                        break outer;
-                    }
-                    if (buffer.charAt(pos) == '@') {
-                        pos++;
-                        String lang = getToken(MODE_SAVE_UNTIL, XmlUtils.WHITESPACE);
-                        sink.addPlainLiteral(subj, pred, value, lang);
-                        break outer;
-                    }
-                    sink.addPlainLiteral(subj, pred, value, null);
+                    parseLiteral(subj, pred, value);
                     break outer;
                 case '#':
-                    // if (subj != null) {
-                    // error("Error parsing triple");
-                    // }
                     return;
                 default:
                     error("Error parsing triple");
@@ -145,10 +125,28 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
         }
     }
 
+    private void parseLiteral(String subj, String pred, String value) {
+        if (pos + 2 >= limit - 1) {
+            sink.addPlainLiteral(subj, pred, value, null);
+        } else if (buffer.charAt(pos) == '^' && buffer.charAt(pos + 1) == '^'
+                && buffer.charAt(pos + 2) == '<') {
+            pos += 3;
+            String type = getToken(MODE_SAVE_UNTIL, XmlUtils.GT);
+            sink.addTypedLiteral(subj, pred, value, type);
+        } else if (buffer.charAt(pos) == '@') {
+            pos++;
+            String lang = getToken(MODE_SAVE_UNTIL, XmlUtils.WHITESPACE);
+            sink.addPlainLiteral(subj, pred, value, lang);
+        } else {
+            sink.addPlainLiteral(subj, pred, value, null);
+        }
+    }
+
     private String getToken(short mode, BitSet checker) {
         int savedLength = 0;
         int startPos = pos;
-        loop:
+
+    loop:
         for (; pos < limit; pos++) {
             switch (mode) {
                 case MODE_SAVE_WHILE:
@@ -171,6 +169,8 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
                         break loop;
                     }
                     break;
+                default:
+                    throw new IllegalStateException("Unknown mode = " + mode);
             }
         }
         return buffer.substring(startPos, startPos + savedLength);

@@ -16,11 +16,11 @@
 
 package org.semarglproject.xml;
 
+import org.xml.sax.Attributes;
+
 import java.util.BitSet;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.xml.sax.Attributes;
 
 public final class XmlUtils {
 
@@ -88,34 +88,8 @@ public final class XmlUtils {
         }
     }
 
-    // public static boolean isBlank(String str) {
-    // for (int i = 0; i < str.length(); i++) {
-    // if (!WHITESPACE.get(str.charAt(i))) {
-    // return false;
-    // }
-    // }
-    // return true;
-    // }
-    //
-    // public static boolean isBlank(char[] str, int start, int length) {
-    // for (int i = start; i < start + length; i++) {
-    // if (!WHITESPACE.get(str[i])) {
-    // return false;
-    // }
-    // }
-    // return true;
-    // }
-    //
-    // public static boolean isWhitespace(char ch) {
-    // return WHITESPACE.get(ch);
-    // }
-    //
-    // public static boolean isIdentifierChar(char ch) {
-    // return ID.get(ch);
-    // }
-
-    public static String serializeOpenTag(String nsUri, String qname,
-                                          Map<String, String> nsMappings, Attributes attrs, boolean optimizeNs) {
+    public static String serializeOpenTag(String nsUri, String qname, Map<String, String> nsMappings,
+                                          Attributes attrs, boolean optimizeNs) {
         String result = "<" + qname;
         if (nsUri != null && nsUri.length() > 0) {
             int idx = Math.max(qname.indexOf(':'), 0);
@@ -125,23 +99,8 @@ public final class XmlUtils {
             result += " " + attrs.getQName(i) + "=\"" + attrs.getValue(i) + "\"";
         }
         for (String key : nsMappings.keySet()) {
-            if (optimizeNs) {
-                boolean found = key.isEmpty() && qname.indexOf(':') == -1 || key.length() > 0
-                        && qname.startsWith(key + ":");
-                for (int i = 0; i < attrs.getLength(); i++) {
-                    String aqn = attrs.getQName(i);
-                    if (aqn.startsWith("xml")) {
-                        continue;
-                    }
-                    if (key.isEmpty() && aqn.indexOf(':') == -1 || key.length() > 0
-                            && aqn.startsWith(key + ":")) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    continue;
-                }
+            if (optimizeNs && isPrefixIgnorable(key, qname, attrs)) {
+                continue;
             }
 
             if (key.isEmpty()) {
@@ -153,6 +112,23 @@ public final class XmlUtils {
         }
         result += ">";
         return result;
+    }
+
+    private static boolean isPrefixIgnorable(String key, String qname, Attributes attrs) {
+        boolean usagesFound = key.isEmpty() && qname.indexOf(':') == -1 || key.length() > 0
+                && qname.startsWith(key + ":");
+        for (int i = 0; i < attrs.getLength(); i++) {
+            String aqn = attrs.getQName(i);
+            if (aqn.startsWith("xml")) {
+                continue;
+            }
+            if (key.isEmpty() && aqn.indexOf(':') == -1 || key.length() > 0
+                    && aqn.startsWith(key + ":")) {
+                usagesFound = true;
+                break;
+            }
+        }
+        return !usagesFound;
     }
 
 }
