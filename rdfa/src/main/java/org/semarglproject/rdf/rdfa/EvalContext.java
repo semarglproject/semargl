@@ -142,22 +142,9 @@ final class EvalContext {
         // RDFa Core 1.0 processing sequence step 2
         EvalContext current = new EvalContext(this.lang, this.vocab, this.profile, documentContext);
         current.listMapping = this.listMapping;
-        if (overwriteMappings.isEmpty()) {
-            current.iriMappings = this.iriMappings;
-        } else {
-            current.iriMappings = new TreeMap<String, String>(iriMappings);
-            current.iriMappings.putAll(overwriteMappings);
-        }
+        current.initPrefixMappings(iriMappings, overwriteMappings);
 
         if (documentContext.rdfaVersion > RDFa.VERSION_10) {
-            for (String prefix : overwriteMappings.keySet()) {
-                String standardMapping = RDFA11_INITIAL_CONTEXT.get(prefix);
-                String newMapping = overwriteMappings.get(prefix);
-                if (standardMapping != null && !standardMapping.equals(newMapping)) {
-                    documentContext.parser.warning(RDFa.PREFIX_REDEFINITION, "Standard prefix "
-                            + prefix + ": redefined to <" + newMapping + '>');
-                }
-            }
             if (profile != null) {
                 String newProfile = profile + "#";
                 if (current.profile == null) {
@@ -183,6 +170,26 @@ final class EvalContext {
             current.lang = null;
         }
         return current;
+    }
+
+    private void initPrefixMappings(Map<String, String> parentMappings, Map<String, String> overwriteMappings) {
+        if (overwriteMappings.isEmpty()) {
+            iriMappings = parentMappings;
+        } else {
+            iriMappings = new TreeMap<String, String>(parentMappings);
+            iriMappings.putAll(overwriteMappings);
+        }
+
+        if (documentContext.rdfaVersion > RDFa.VERSION_10) {
+            for (String prefix : overwriteMappings.keySet()) {
+                String standardMapping = RDFA11_INITIAL_CONTEXT.get(prefix);
+                String newMapping = overwriteMappings.get(prefix);
+                if (standardMapping != null && !standardMapping.equals(newMapping)) {
+                    documentContext.parser.warning(RDFa.PREFIX_REDEFINITION, "Standard prefix "
+                            + prefix + ": redefined to <" + newMapping + '>');
+                }
+            }
+        }
     }
 
     public List<Object> getMappingForIri(String iri) {
@@ -304,8 +311,16 @@ final class EvalContext {
             return documentContext.resolveIri(curie);
         }
 
-        String localName = curie.substring(delimPos + 1);
+        String result = resolvePrefix(curie, delimPos, safeSyntax);
+        if (RIUtils.isIri(result)) {
+            return result;
+        }
+        throw new MalformedIriException("Malformed IRI: " + curie);
+    }
+
+    private String resolvePrefix(String curie, int delimPos, boolean safeSyntax) throws MalformedCurieException {
         String prefix = curie.substring(0, delimPos);
+        String localName = curie.substring(delimPos + 1);
 
         if (prefix.equals("_")) {
             throw new MalformedCurieException("CURIE with invalid prefix (" + curie + ") found");
@@ -326,11 +341,7 @@ final class EvalContext {
             }
             throw new MalformedCurieException("CURIE with unresolvable prefix found (" + curie + ")");
         }
-        String result = iriMappings.get(prefix) + localName;
-        if (RIUtils.isIri(result)) {
-            return result;
-        }
-        throw new MalformedIriException("Malformed IRI: " + curie);
+        return iriMappings.get(prefix) + localName;
     }
 
     private static String resolveXhtmlTerm(String predicate) {
