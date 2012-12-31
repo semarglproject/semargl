@@ -28,6 +28,9 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
     private static final short MODE_SAVE_UNTIL = 1;
     private static final short MODE_SAVE_WHILE = 2;
 
+    private String subj = null;
+    private String pred = null;
+
     private String buffer = null;
     private int pos = -1;
     private int limit = -1;
@@ -70,11 +73,12 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
         pos = 0;
         limit = buffer.length();
 
-        String subj = null;
-        String pred = null;
+        subj = null;
+        pred = null;
 
+        boolean nextLine = false;
     outer:
-        for (; pos < limit; pos++) {
+        for (; pos < limit && !nextLine; pos++) {
             skipWhitespace();
 
             String value;
@@ -82,25 +86,11 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
                 case '<':
                     pos++;
                     value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.GT));
-                    if (subj == null) {
-                        subj = value;
-                    } else if (pred == null) {
-                        pred = value;
-                    } else {
-                        sink.addNonLiteral(subj, pred, value);
-                        break outer;
-                    }
+                    nextLine = processNonLiteral(value);
                     break;
                 case '_':
                     value = unescape(getToken(MODE_SAVE_WHILE, XmlUtils.ID));
-                    if (subj == null) {
-                        subj = value;
-                    } else if (pred == null) {
-                        error("Predicate specified by bnode");
-                    } else {
-                        sink.addNonLiteral(subj, pred, value);
-                        break outer;
-                    }
+                    nextLine = processNonLiteral(value);
                     break;
                 case '"':
                     pos++;
@@ -112,17 +102,31 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
                         error("Literal before subject or predicate");
                     }
                     parseLiteral(subj, pred, value);
-                    break outer;
+                    nextLine = true;
+                    break;
                 case '#':
                     return;
                 default:
-                    error("Error parsing triple");
+                    error("Unknown token '" + buffer.charAt(pos) + "' in line '" + buffer + "'");
             }
         }
         skipWhitespace();
         if (pos != limit && buffer.charAt(pos) != '#' && buffer.charAt(pos) != '.') {
             error("Error parsing triple");
         }
+    }
+
+    private boolean processNonLiteral(String value) {
+        boolean nextLine = false;
+        if (subj == null) {
+            subj = value;
+        } else if (pred == null) {
+            pred = value;
+        } else {
+            sink.addNonLiteral(subj, pred, value);
+            nextLine = true;
+        }
+        return nextLine;
     }
 
     private void parseLiteral(String subj, String pred, String value) {
