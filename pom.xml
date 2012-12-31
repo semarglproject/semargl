@@ -130,13 +130,13 @@
                         <strictCheck>false</strictCheck>
                         <excludes>
                             <exclude>**/.*/**</exclude>
+                            <exclude>**/checkstyle/**/*</exclude>
                             <exclude>**/resources/**/*</exclude>
                             <exclude>**/maven-repo/**/*</exclude>
                             <exclude>**/LICENSE*</exclude>
                             <exclude>**/NOTICE</exclude>
                             <exclude>**/RELEASE_NOTES.md</exclude>
                             <exclude>**/README.md</exclude>
-                            <exclude>**/checkstyle*.xml</exclude>
                             <exclude>**/pom.xml</exclude>
                             <exclude>**/testng.xml</exclude>
                         </excludes>

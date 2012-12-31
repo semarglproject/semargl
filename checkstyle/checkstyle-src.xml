@@ -15,6 +15,10 @@
         <property name="message" value="Line has trailing spaces."/>
     </module>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="checkstyle/suppressions-src.xml"/>
+    </module>
+
     <module name="TreeWalker">
 
         <property name="cacheFile" value="${checkstyle.cache.file}"/>
@@ -84,7 +88,7 @@
 
         <!-- QMetrics -->
         <module name="CyclomaticComplexity">
-            <property name="max" value="22"/>
+            <property name="max" value="10"/>
         </module>
         <module name="ParameterNumber">
             <property name="max" value="7"/>
