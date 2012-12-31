@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE module PUBLIC
+"-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+"http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="RegexpSingleline">
+        <!-- No trailing spaces -->
+        <property name="format" value="(?&lt;!\*)\s+$"/>
+        <property name="message" value="Line has trailing spaces."/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <property name="cacheFile" value="${checkstyle.cache.file}"/>
+
+        <!-- Checks for imports -->
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Checks for blocks -->
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="AvoidNestedBlocks">
+            <property name="allowInSwitchCase" value="true"/>
+        </module>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+
+        <!-- Class Design -->
+        <module name="InterfaceIsType"/>
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+
+        <!-- Checks for common coding problems -->
+        <module name="DoubleCheckedLocking"/>
+        <module name="EmptyStatement"/>
+        <module name="EmptyForInitializerPad"/>
+        <module name="EqualsHashCode"/>
+        <module name="IllegalInstantiation"/>
+        <module name="CovariantEquals"/>
+        <module name="InnerAssignment"/>
+        <module name="NoClone"/>
+        <module name="UpperEll"/>
+        <module name="PackageAnnotation"/>
+        <!-- Switch -->
+        <module name="MissingSwitchDefault"/>
+        <module name="DefaultComesLast"/>
+
+        <!-- Exceptions -->
+        <module name="RedundantThrows">
+            <property name="allowUnchecked" value="true"/>
+        </module>
+        <module name="IllegalCatch"/>
+        <module name="ThrowsCount">
+            <property name="max" value="2"/>
+        </module>
+
+        <!-- Formatting -->
+        <module name="GenericWhitespace"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="IndentationCheck"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="ArrayTypeStyle"/>
+        <module name="InnerTypeLast"/>
+        <module name="DeclarationOrder"/>
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+        <module name="UnnecessaryParentheses"/>
+        <module name="OneStatementPerLine"/>
+        <module name="OperatorWrap"/>
+        <module name="TrailingComment"/>
+        <module name="TypecastParenPad"/>
+        <module name="LineLength">
+            <property name="max" value="120"/>
+        </module>
+
+        <!-- QMetrics -->
+        <module name="CyclomaticComplexity">
+            <property name="max" value="22"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+        <module name="OuterTypeNumber">
+            <property name="max" value="1"/>
+        </module>
+
+        <!-- Other -->
+        <module name="UncommentedMain"/>
+
+    </module>
+
+</module>

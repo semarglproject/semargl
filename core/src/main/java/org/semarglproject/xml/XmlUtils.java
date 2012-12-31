@@ -24,8 +24,16 @@ import java.util.regex.Pattern;
 
 public final class XmlUtils {
 
-    private XmlUtils() {
-    }
+    public static final BitSet ID_START = new BitSet();
+    public static final BitSet ID = new BitSet();
+    public static final BitSet WHITESPACE = new BitSet();
+    public static final BitSet QUOTE = new BitSet();
+    public static final BitSet GT = new BitSet();
+    public static final BitSet RIGHT_SQ_BRACKET = new BitSet();
+
+    public static final String XML_LANG = "xml:lang";
+    public static final String XML_BASE = "xml:base";
+    public static final String LANG = "lang";
 
     private static final String NC_NAME_START_CHAR = "A-Za-z_\u00C0-\u00D6\u00D8-\u00F6"
             + "\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F"
@@ -35,29 +43,15 @@ public final class XmlUtils {
     private static final Pattern XML_NAME_PATTERN = Pattern.compile("[" + NC_NAME_START_CHAR + "]"
             + "[" + NC_NAME_START_CHAR + NC_NAME_CHAR + "]*");
 
-    public static boolean isValidNCName(String value) {
-        return XML_NAME_PATTERN.matcher(value).matches();
-    }
-
     private static final String ID_START_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
-    private static final String ID_OTHER_STR = "-0123456789:"; // #.
+    private static final String ID_OTHER_STR = "-0123456789:";
     private static final String WHITESPACE_STR = " \t\r\n\f\u000B\u001C\u001D\u001E\u00A0\u2007\u202F";
 
-    public static final String XML_LANG = "xml:lang";
-    public static final String XML_BASE = "xml:base";
-    public static final String LANG = "lang";
-
-    public static final BitSet ID_START = new BitSet();
     private static final BitSet ID_START_OR_GT = new BitSet();
     private static final BitSet ID_START_OR_EQUAL = new BitSet();
-    public static final BitSet ID = new BitSet();
     private static final BitSet ID_OR_QUOTE_OR_APOS = new BitSet();
-    public static final BitSet WHITESPACE = new BitSet();
-    public static final BitSet QUOTE = new BitSet();
     private static final BitSet APOS = new BitSet();
     private static final BitSet LT = new BitSet();
-    public static final BitSet GT = new BitSet();
-    public static final BitSet RIGHT_SQ_BRACKET = new BitSet();
 
     static {
         LT.set('<');
@@ -86,6 +80,13 @@ public final class XmlUtils {
             char c = WHITESPACE_STR.charAt(i);
             WHITESPACE.set(c);
         }
+    }
+
+    private XmlUtils() {
+    }
+
+    public static boolean isValidNCName(String value) {
+        return XML_NAME_PATTERN.matcher(value).matches();
     }
 
     public static String serializeOpenTag(String nsUri, String qname, Map<String, String> nsMappings,

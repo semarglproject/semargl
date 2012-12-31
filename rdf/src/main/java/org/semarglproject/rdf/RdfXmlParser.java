@@ -58,10 +58,19 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     private final Set<String> processedIDs = new HashSet<String>();
 
     private int bnodeId = 0;
-    private String subjRes = null;     // IRI or bnode
-    private String seqTailRes = null;  // tail node of parseType="Collection"
-    private String predIri = null;     // predicate IRI
-    private String datatypeIri = null; // typed literal datatype IRI
+
+    // IRI or bnode
+    private String subjRes = null;
+
+    // tail node of parseType="Collection"
+    private String seqTailRes = null;
+
+    // predicate IRI
+    private String predIri = null;
+
+    // typed literal datatype IRI
+    private String datatypeIri = null;
+
     private String reifyIri = null;
     private boolean captureLiteral = false;
 

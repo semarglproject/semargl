@@ -32,7 +32,7 @@ import org.semarglproject.vocab.RDF;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClerezzaSink implements TripleSink {
+public final class ClerezzaSink implements TripleSink {
 
     public static final String OUTPUT_GRAPH_PROPERTY = "http://semarglproject.org/clerezza/properties/output-graph";
 

@@ -116,7 +116,7 @@ public final class TurtleSerializer implements TripleSink {
             try {
                 sink.process(builder.toString());
             } catch (ParseException e) {
-
+                // do nothing
             }
             builder = null;
             step = 0;

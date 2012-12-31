@@ -30,9 +30,9 @@ import java.util.Map;
 
 public final class JenaSink implements TripleSink {
 
-    private static final int DEFAULT_BATCH_SIZE = 512;
-
     public static final String OUTPUT_MODEL_PROPERTY = "http://semarglproject.org/jena/properties/output-model";
+
+    private static final int DEFAULT_BATCH_SIZE = 512;
 
     private Model model;
     private final int batchSize;

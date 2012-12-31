@@ -41,26 +41,26 @@ final class EvalContext {
     private static final String POWDER_DESCRIBED_BY = "http://www.w3.org/2007/05/powder-s#describedby";
 
     private static final String[] XHTML_VOCAB_PROPS = {
-            // XHTML Metainformation Vocabulary
-            "alternate", "appendix", "bookmark", "cite", "chapter", "contents",
-            "copyright", "first", "glossary", "help", "icon", "index", "itsRules",
-            "last", "license", "meta", "next", "p3pv1", "prev", "previous", "role",
-            "section", "stylesheet", "subsection", "start","top", "up",
+        // XHTML Metainformation Vocabulary
+        "alternate", "appendix", "bookmark", "cite", "chapter", "contents",
+        "copyright", "first", "glossary", "help", "icon", "index", "itsRules",
+        "last", "license", "meta", "next", "p3pv1", "prev", "previous", "role",
+        "section", "stylesheet", "subsection", "start","top", "up",
 
-            // Items from the XHTML Role Module
-            "banner", "complementary", "contentinfo", "definition", "main",
-            "navigation", "note", "search",
+        // Items from the XHTML Role Module
+        "banner", "complementary", "contentinfo", "definition", "main",
+        "navigation", "note", "search",
 
-            // Items from the Accessible Rich Internet Applications Vocabulary
-            "alert", "alertdialog", "application", "article", "button", "checkbox",
-            "columnheader", "combobox", "dialog", "directory", "document", "form",
-            "grid", "gridcell", "group", "heading", "img", "link", "list", "listbox",
-            "listitem", "log", "marquee", "math", "menu", "menubar", "menuitem",
-            "menuitemcheckbox", "menuitemradio", "option", "presentation",
-            "progressbar", "radio", "radiogroup", "region", "row", "rowgroup",
-            "rowheader", "scrollbar", "separator", "slider", "spinbutton", "status",
-            "tab", "tablist", "tabpanel", "textbox", "timer", "toolbar", "tooltip",
-            "tree", "treegrid", "treeitem"
+        // Items from the Accessible Rich Internet Applications Vocabulary
+        "alert", "alertdialog", "application", "article", "button", "checkbox",
+        "columnheader", "combobox", "dialog", "directory", "document", "form",
+        "grid", "gridcell", "group", "heading", "img", "link", "list", "listbox",
+        "listitem", "log", "marquee", "math", "menu", "menubar", "menuitem",
+        "menuitemcheckbox", "menuitemradio", "option", "presentation",
+        "progressbar", "radio", "radiogroup", "region", "row", "rowgroup",
+        "rowheader", "scrollbar", "separator", "slider", "spinbutton", "status",
+        "tab", "tablist", "tabpanel", "textbox", "timer", "toolbar", "tooltip",
+        "tree", "treegrid", "treeitem"
     };
 
     static {
@@ -97,8 +97,6 @@ final class EvalContext {
         RDFA11_INITIAL_CONTEXT.put("schema", "http://schema.org/");
     }
 
-    private final DocumentContext documentContext;
-
     public Map<String, String> iriMappings;
     public String subject;
     public String object;
@@ -110,17 +108,9 @@ final class EvalContext {
     public boolean parsingLiteral;
     public Map<String, List<Object>> listMapping;
 
+    private final DocumentContext documentContext;
     private Vocabulary vocab;
     private String profile;
-
-    public static EvalContext createInitialContext(DocumentContext documentContext) {
-        // RDFa Core 1.0 processing sequence step 1
-        EvalContext initialContext = new EvalContext(null, null, null, documentContext);
-        initialContext.subject = documentContext.base;
-        initialContext.listMapping = new HashMap<String, List<Object>>();
-        initialContext.iriMappings = new TreeMap<String, String>();
-        return initialContext;
-    }
 
     private EvalContext(String lang, Vocabulary vocab, String profile, DocumentContext documentContext) {
         this.subject = null;
@@ -136,6 +126,15 @@ final class EvalContext {
         this.parsingLiteral = false;
         this.listMapping = null;
         this.documentContext = documentContext;
+    }
+
+    public static EvalContext createInitialContext(DocumentContext documentContext) {
+        // RDFa Core 1.0 processing sequence step 1
+        EvalContext initialContext = new EvalContext(null, null, null, documentContext);
+        initialContext.subject = documentContext.base;
+        initialContext.listMapping = new HashMap<String, List<Object>>();
+        initialContext.iriMappings = new TreeMap<String, String>();
+        return initialContext;
     }
 
     public EvalContext initChildContext(String profile, String vocab, String lang,

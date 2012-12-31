@@ -34,7 +34,7 @@ import org.semarglproject.vocab.RDF;
  * @author Peter Ansell p_ansell@yahoo.com
  *
  */
-public class SesameSink implements TripleSink {
+public final class SesameSink implements TripleSink {
 
     public static final String RDF_HANDLER_PROPERTY = "http://semarglproject.org/sesame/properties/rdf-handler";
     public static final String VALUE_FACTORY_PROPERTY = "http://semarglproject.org/sesame/properties/value-factory";

@@ -25,25 +25,34 @@ import java.util.regex.Pattern;
 // TODO: implement http://www.ietf.org/rfc/rfc3987.txt
 public final class RIUtils {
 
-    private RIUtils() {
-    }
-
     private static final Pattern ABS_OPAQUE_IRI_PATTERN = Pattern.compile(
-            "[a-zA-Z][a-zA-Z0-9+.-]*:" +     // scheme
-            "[^#/][^#]*",                    // opaque part
+            // scheme
+            "[a-zA-Z][a-zA-Z0-9+.-]*:"
+            // opaque part
+            + "[^#/][^#]*",
             Pattern.DOTALL);
 
     private static final Pattern ABS_HIER_IRI_PATTERN = Pattern.compile(
-            "[a-zA-Z][a-zA-Z0-9+.-]*:" +     // scheme
-            "//?(([^/?#@]*)@)?" +            // user
-            "(\\[[^@/?#]+\\]|([^@/?#:]+))" + // host
-            "(:([^/?#]*))?" +                // port
-            "([^#?]*)?" +                    // path
-            "(\\?([^#]*))?" +                // query
-            "(#[^#]*)?",                     // fragment
+            // scheme
+            "[a-zA-Z][a-zA-Z0-9+.-]*:"
+            // user
+            + "//?(([^/?#@]*)@)?"
+            // host
+            + "(\\[[^@/?#]+\\]|([^@/?#:]+))"
+            // port
+            + "(:([^/?#]*))?"
+            // path
+            + "([^#?]*)?"
+            // query
+            + "(\\?([^#]*))?"
+            // fragment
+            + "(#[^#]*)?",
             Pattern.DOTALL);
 
     private static final Pattern URN_PATTERN = Pattern.compile("urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:.+");
+
+    private RIUtils() {
+    }
 
     public static String resolveIri(String base, String iri) throws MalformedIriException {
         if (iri == null) {

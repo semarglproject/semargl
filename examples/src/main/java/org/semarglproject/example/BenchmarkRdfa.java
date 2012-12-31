@@ -23,24 +23,25 @@ import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.source.StreamProcessor;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BenchmarkRdfa {
+public final class BenchmarkRdfa {
 
     private static final File BENCHMARK_PATH = new File("../rdfa/src/test/resources/rdfa-testsuite");
-    public static final String HTTP_EXAMPLE_COM = "http://example.com";
+    private static final String HTTP_EXAMPLE_COM = "http://example.com";
+
+    private BenchmarkRdfa() {
+    }
 
     private static List<File> listFiles(File dir) {
         ArrayList<File> result = new ArrayList<File>();
@@ -77,7 +78,7 @@ public class BenchmarkRdfa {
         return manager.createMGraph(graphUri);
     }
 
-    private static long benchmarkSemarglJena(File path) throws FileNotFoundException, SAXException, ParseException {
+    private static long benchmarkSemarglJena(File path) throws SAXException, ParseException {
         System.out.println("Semargl-Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
@@ -86,13 +87,13 @@ public class BenchmarkRdfa {
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
-            streamProcessor.process(new FileReader(file), HTTP_EXAMPLE_COM);
+            streamProcessor.process(file, HTTP_EXAMPLE_COM);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;
     }
 
-    private static long benchmarkSemarglClerezza(File path) throws FileNotFoundException, SAXException, ParseException {
+    private static long benchmarkSemarglClerezza(File path) throws SAXException, ParseException {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
 
@@ -101,7 +102,7 @@ public class BenchmarkRdfa {
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
-            streamProcessor.process(new FileReader(file), HTTP_EXAMPLE_COM);
+            streamProcessor.process(file, HTTP_EXAMPLE_COM);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;

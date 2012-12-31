@@ -32,19 +32,22 @@ final class DocumentContext {
     public static final short FORMAT_XML = 3;
     public static final short FORMAT_SVG = 4;
 
+    public static final String RDFA_10_STRING = "rdfa 1.0";
+
     private static final String HTML_ROOT_ELEMENT = "html";
     private static final String HTML_BASE = "base";
     private static final String SVG_ROOT_ELEMENT = "svg";
-    public static final String RDFA_10_STRING = "rdfa 1.0";
 
     public short documentFormat;
     public short rdfaVersion;
 
     final RdfaParser parser;
-    private Map<String, String> bnodeMapping = new HashMap<String, String>();
-    private int nextBnodeId;
+
     String base;
     String originUri;
+
+    private Map<String, String> bnodeMapping = new HashMap<String, String>();
+    private int nextBnodeId;
 
     DocumentContext(String base, short defaultRdfaVersion, RdfaParser parser) {
         this.base = base;
@@ -85,7 +88,8 @@ final class DocumentContext {
         if (xmlBaseF || qName.equalsIgnoreCase(HTML_BASE) && hRef != null) {
             base = (xmlBaseF ? xmlBase : hRef).replaceAll("#.*", "");
         }
-        if (qName.equalsIgnoreCase(HTML_ROOT_ELEMENT) && version != null && version.toLowerCase().contains(RDFA_10_STRING)) {
+        if (qName.equalsIgnoreCase(HTML_ROOT_ELEMENT) && version != null
+                && version.toLowerCase().contains(RDFA_10_STRING)) {
             rdfaVersion = RDFa.VERSION_10;
         }
     }

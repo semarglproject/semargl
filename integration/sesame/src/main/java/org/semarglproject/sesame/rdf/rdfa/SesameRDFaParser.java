@@ -72,12 +72,21 @@ public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
     }
 
     @Override
-    public void parse(InputStream in, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        this.parse(new InputStreamReader(in, Charset.forName("UTF-8")), baseURI);
+    public void parse(InputStream in, String baseURI) throws RDFParseException, RDFHandlerException {
+        InputStreamReader reader = new InputStreamReader(in, Charset.forName("UTF-8"));
+        try {
+            parse(reader, baseURI);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                // do nothing
+            }
+        }
     }
 
     @Override
-    public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
+    public void parse(Reader reader, String baseURI) throws RDFParseException, RDFHandlerException {
         try {
             streamProcessor.process(reader, baseURI);
         } catch (ParseException e) {

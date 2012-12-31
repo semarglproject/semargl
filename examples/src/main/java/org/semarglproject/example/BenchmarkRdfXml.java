@@ -38,10 +38,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BenchmarkRdfXml {
+public final class BenchmarkRdfXml {
 
     private static final String BENCHMARK_DIR = "src/main/resources";
-    public static final String HTTP_EXAMPLE_COM = "http://example.com";
+    private static final String HTTP_EXAMPLE_COM = "http://example.com";
+
+    private BenchmarkRdfXml() {
+    }
 
     private static List<File> listFiles(String path) {
         ArrayList<File> result = new ArrayList<File>();
@@ -61,7 +64,7 @@ public class BenchmarkRdfXml {
         return manager.createMGraph(graphUri);
     }
 
-    private static long benchmarkSemarglJena(String path) throws FileNotFoundException, SAXException, ParseException {
+    private static long benchmarkSemarglJena(String path) throws SAXException, ParseException {
         System.out.println("Semargl-Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
@@ -70,13 +73,13 @@ public class BenchmarkRdfXml {
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
-            streamProcessor.process(new FileReader(file), HTTP_EXAMPLE_COM);
+            streamProcessor.process(file, HTTP_EXAMPLE_COM);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;
     }
 
-    private static long benchmarkSemarglClerezza(String path) throws FileNotFoundException, SAXException, ParseException {
+    private static long benchmarkSemarglClerezza(String path) throws SAXException, ParseException {
         System.out.println("Semargl-Clerezza benchmark");
         MGraph model = createClerezzaModel();
 
@@ -85,13 +88,13 @@ public class BenchmarkRdfXml {
         List<File> files = listFiles(path);
         long time = System.nanoTime();
         for (File file : files) {
-            streamProcessor.process(new FileReader(file), HTTP_EXAMPLE_COM);
+            streamProcessor.process(file, HTTP_EXAMPLE_COM);
         }
         System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;
     }
 
-    private static long benchmarkJena(String path) throws FileNotFoundException, SAXException, ParseException {
+    private static long benchmarkJena(String path) throws FileNotFoundException {
         System.out.println("Jena benchmark");
         Model model = ModelFactory.createDefaultModel();
 
@@ -104,7 +107,7 @@ public class BenchmarkRdfXml {
         return System.nanoTime() - time;
     }
 
-    private static long benchmarkClerezza(String path) throws FileNotFoundException, SAXException, ParseException {
+    private static long benchmarkClerezza(String path) throws FileNotFoundException {
         System.out.println("Clerezza benchmark");
         MGraph model = createClerezzaModel();
         Parser parser = Parser.getInstance();

@@ -23,9 +23,6 @@ public final class RDF {
     // indicates that short bnode syntax shouldn't be used for this node
     public static final String SHORTENABLE_BNODE_SUFFIX = "sbl";
 
-    private RDF() {
-    }
-
     public static final String NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
     public static final String ABOUT = NS + "about";
@@ -60,4 +57,8 @@ public final class RDF {
     public static final String ABOUT_EACH_PREFIX = NS + "aboutEachPrefix";
     @Deprecated
     public static final String BAG_ID = NS + "bagID";
+
+    private RDF() {
+    }
+
 }

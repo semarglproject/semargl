@@ -29,7 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class StreamProcessor {
+public final class StreamProcessor {
 
     public static final String XML_READER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
 

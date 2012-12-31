@@ -53,8 +53,8 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
     }
 
     @Override
-    public void handle(String s, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void handle(String s, Request baseRequest, HttpServletRequest request,
+                       HttpServletResponse response) throws IOException, ServletException {
         String uri = request.getParameter("uri");
         if (uri == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -98,9 +98,7 @@ public class RdfaProcessorEndpoint extends AbstractHandler {
         try {
             streamProcessor.process(reader, uri);
         } catch (ParseException e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            baseRequest.setHandled(false);
-            return;
+            // ignore
         }
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);

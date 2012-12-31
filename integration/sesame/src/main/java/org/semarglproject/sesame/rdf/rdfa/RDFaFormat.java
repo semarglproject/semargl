@@ -26,10 +26,11 @@ import java.util.Arrays;
  */
 public final class RDFaFormat {
 
-    private RDFaFormat() {
-    }
-
     public static final RDFFormat RDFA = new RDFFormat("RDFa", Arrays.asList(
             "application/xhtml+xml", "text/html", "image/svg+xml"),
             Charset.forName("UTF-8"), Arrays.asList("xhtml, html, svg"), true, false);
+
+    private RDFaFormat() {
+    }
+
 }

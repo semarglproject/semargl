@@ -32,6 +32,11 @@ abstract class AbstractSource<S extends DataSink> {
     protected final S sink;
     private boolean streaming;
 
+    protected AbstractSource(S sink) {
+        this.sink = sink;
+        this.streaming = false;
+    }
+
     public abstract void process(File file, String mimeType, String baseUri) throws ParseException;
 
     public abstract void process(Reader reader, String mimeType, String baseUri) throws ParseException;
@@ -44,11 +49,6 @@ abstract class AbstractSource<S extends DataSink> {
         } finally {
             closeQuietly(reader);
         }
-    }
-
-    protected AbstractSource(S sink) {
-        this.sink = sink;
-        this.streaming = false;
     }
 
     protected void setBaseUri(String baseUri) {
