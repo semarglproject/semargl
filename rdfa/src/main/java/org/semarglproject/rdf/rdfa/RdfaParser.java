@@ -163,8 +163,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
         if (contextStack.size() < 4) {
             String oldBase = dh.base;
-            dh.detectBaseAndFormat(localName, qName, attrs.getValue(XML_BASE),
-                    attrs.getValue(RDFa.HREF_ATTR), attrs.getValue(VERSION));
+            dh.detectFormat(localName, qName, attrs.getValue(VERSION));
+            dh.detectBase(qName, attrs.getValue(XML_BASE), attrs.getValue(RDFa.HREF_ATTR));
             if (!dh.base.equals(oldBase)) {
                 for (EvalContext ctx : contextStack) {
                     ctx.updateBase(oldBase, dh.base);

@@ -57,7 +57,7 @@ final class DocumentContext {
     }
 
     public String resolveBNode(String value) {
-        if (value.startsWith(RDF.BNODE_PREFIX) || value.startsWith("[" + RDF.BNODE_PREFIX)
+        if (value.startsWith(RDF.BNODE_PREFIX) || value.startsWith('[' + RDF.BNODE_PREFIX)
                 && value.charAt(value.length() - 1) == ']') {
             String name;
             if (value.charAt(0) == '[') {
@@ -73,7 +73,7 @@ final class DocumentContext {
         return null;
     }
 
-    public void detectBaseAndFormat(String localName, String qName, String xmlBase, String hRef, String version) {
+    public void detectFormat(String localName, String qName, String version) {
         if (documentFormat == FORMAT_UNKNOWN) {
             if (localName.equals(SVG_ROOT_ELEMENT)) {
                 documentFormat = FORMAT_SVG;
@@ -83,14 +83,16 @@ final class DocumentContext {
                 documentFormat = FORMAT_XML;
             }
         }
-
-        boolean xmlBaseF = isXmlDocument() && xmlBase != null;
-        if (xmlBaseF || qName.equalsIgnoreCase(HTML_BASE) && hRef != null) {
-            base = (xmlBaseF ? xmlBase : hRef).replaceAll("#.*", "");
-        }
         if (qName.equalsIgnoreCase(HTML_ROOT_ELEMENT) && version != null
                 && version.toLowerCase().contains(RDFA_10_STRING)) {
             rdfaVersion = RDFa.VERSION_10;
+        }
+    }
+
+    public void detectBase(String qName, String xmlBase, String hRef) {
+        boolean xmlBaseF = isXmlDocument() && xmlBase != null;
+        if (xmlBaseF || qName.equalsIgnoreCase(HTML_BASE) && hRef != null) {
+            base = (xmlBaseF ? xmlBase : hRef).replaceAll("#.*", "");
         }
     }
 
