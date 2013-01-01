@@ -64,14 +64,14 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
     }
 
     @Override
-    public void process(String buffer) throws ParseException {
-        if (isEntirelyWhitespaceOrEmpty(buffer)) {
+    public void process(String line) throws ParseException {
+        if (isEntirelyWhitespaceOrEmpty(line)) {
             return;
         }
-        this.buffer = buffer;
+        this.buffer = line;
 
         pos = 0;
-        limit = buffer.length();
+        limit = line.length();
 
         subj = null;
         pred = null;
@@ -82,7 +82,7 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
             skipWhitespace();
 
             String value;
-            switch (buffer.charAt(pos)) {
+            switch (line.charAt(pos)) {
                 case '<':
                     pos++;
                     value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.GT));
@@ -95,7 +95,7 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
                 case '"':
                     pos++;
                     value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.QUOTE));
-                    while (buffer.charAt(pos - 2) == '\\') {
+                    while (line.charAt(pos - 2) == '\\') {
                         value += '"' + unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.QUOTE));
                     }
                     if (subj == null || pred == null) {
@@ -107,11 +107,11 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
                 case '#':
                     return;
                 default:
-                    error("Unknown token '" + buffer.charAt(pos) + "' in line '" + buffer + "'");
+                    error("Unknown token '" + line.charAt(pos) + "' in line '" + line + "'");
             }
         }
         skipWhitespace();
-        if (pos != limit && buffer.charAt(pos) != '#' && buffer.charAt(pos) != '.') {
+        if (pos != limit && line.charAt(pos) != '#' && line.charAt(pos) != '.') {
             error("Error parsing triple");
         }
     }

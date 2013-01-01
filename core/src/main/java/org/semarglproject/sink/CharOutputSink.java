@@ -57,9 +57,9 @@ public final class CharOutputSink implements CharSink {
     }
 
     @Override
-    public void process(String buffer) throws ParseException {
+    public void process(String line) throws ParseException {
         try {
-            writer.write(buffer);
+            writer.write(line);
         } catch (IOException e) {
             throw new ParseException(e);
         }

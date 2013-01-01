@@ -18,6 +18,15 @@ package org.semarglproject.sink;
 
 import org.semarglproject.rdf.ParseException;
 
+/**
+ * Interface for handling events from {@link org.semarglproject.source.CharSource}
+ */
 public interface CharSink extends DataSink {
-    void process(String buffer) throws ParseException;
+
+    /**
+     * Callback for line-by-line text processing
+     * @param line
+     * @throws ParseException
+     */
+    void process(String line) throws ParseException;
 }

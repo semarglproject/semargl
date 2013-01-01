@@ -20,9 +20,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-// TODO: implement http://www.ietf.org/rfc/rfc2396.txt
-// TODO: implement http://www.ietf.org/rfc/rfc2732.txt
-// TODO: implement http://www.ietf.org/rfc/rfc3987.txt
+/**
+ * Utility class. Provides methods related to resource identifiers.
+ */
 public final class RIUtils {
 
     private static final Pattern ABS_OPAQUE_IRI_PATTERN = Pattern.compile(
@@ -54,6 +54,13 @@ public final class RIUtils {
     private RIUtils() {
     }
 
+    /**
+     * Resolves specified IRI. Absolute IRI are returned unmodified
+     * @param base base to resolve against
+     * @param iri IRI to be resolved
+     * @return resolved absolute IRI
+     * @throws MalformedIriException
+     */
     public static String resolveIri(String base, String iri) throws MalformedIriException {
         if (iri == null) {
             return null;
@@ -81,14 +88,29 @@ public final class RIUtils {
         }
     }
 
+    /**
+     * Checks if specified string is IRI
+     * @param value value to check
+     * @return true if value is IRI
+     */
     public static boolean isIri(String value) {
         return ABS_HIER_IRI_PATTERN.matcher(value).matches() || ABS_OPAQUE_IRI_PATTERN.matcher(value).matches();
     }
 
+    /**
+     * Checks if specified string is absolute IRI
+     * @param value value to check
+     * @return true if value is absolute IRI
+     */
     public static boolean isAbsoluteIri(String value) {
         return ABS_HIER_IRI_PATTERN.matcher(value).matches();
     }
 
+    /**
+     * Checks if specified string is URN
+     * @param value value to check
+     * @return true if value is URN
+     */
     public static boolean isUrn(String value) {
         return URN_PATTERN.matcher(value).matches();
     }

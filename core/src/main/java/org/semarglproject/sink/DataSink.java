@@ -18,12 +18,34 @@ package org.semarglproject.sink;
 
 import org.semarglproject.rdf.ParseException;
 
+/**
+ * Base sink interface.
+ */
 public interface DataSink {
+
+    /**
+     * Document base URI setter. Must be called befor start stream event.
+     * @param baseUri
+     */
     void setBaseUri(String baseUri);
 
+    /**
+     * Callback for start stream event.
+     * @throws ParseException
+     */
     void startStream() throws ParseException;
 
+    /**
+     * Callback for end stream event.
+     * @throws ParseException
+     */
     void endStream() throws ParseException;
 
+    /**
+     * Key-value based settings. Property settings are passed to child sinks.
+     * @param key property key
+     * @param value property value
+     * @return true if at least one sink understands specified property, false otherwise
+     */
     boolean setProperty(String key, Object value);
 }

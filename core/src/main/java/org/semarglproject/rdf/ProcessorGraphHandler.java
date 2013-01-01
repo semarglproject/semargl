@@ -16,8 +16,29 @@
 
 package org.semarglproject.rdf;
 
+/**
+ * Interface for handling processor graph events
+ */
 public interface ProcessorGraphHandler {
+
+    /**
+     * Callback for info events
+     * @param infoClass event class URI
+     * @param message info message
+     */
     void info(String infoClass, String message);
+
+    /**
+     * Callback for warning events
+     * @param warningClass warning class URI
+     * @param message warning message
+     */
     void warning(String warningClass, String message);
+
+    /**
+     * Callback for error events
+     * @param errorClass event class URI
+     * @param message error message
+     */
     void error(String errorClass, String message);
 }

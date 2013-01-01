@@ -29,36 +29,69 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * User API for stream processing pipelines. Automatically instantiates appropriate sources.
+ * Provides processing and property setting methods. Supported properties:
+ * <ul>
+ *     <li>{@link #XML_READER_PROPERTY}</li>
+ * </ul>
+ */
 public final class StreamProcessor {
 
+    /**
+     * Used as a key with {@link #setProperty(String, Object)} method.
+     * Allows to specify custom {@link org.xml.sax.XMLReader}.
+     */
     public static final String XML_READER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
 
     private final DataSink sink;
-    private AbstractSource streamProcessor;
+    private AbstractSource source;
 
     public StreamProcessor(DataSink sink) {
         this.sink = sink;
-        this.streamProcessor = null;
+        this.source = null;
     }
 
+    /**
+     * Processes specified document's file using file path as base URI
+     * @param file document's file
+     * @throws ParseException
+     */
     public void process(File file) throws ParseException {
         process(file, "file://" + file.getAbsolutePath());
     }
 
+    /**
+     * Processes specified document's file
+     * @param file document's file
+     * @param baseUri document's URI
+     * @throws ParseException
+     */
     public void process(File file, String baseUri) throws ParseException {
-        if (streamProcessor == null) {
-            streamProcessor = getSourceStreamForOutput(sink);
+        if (source == null) {
+            source = getSourceForSink(sink);
         }
-        streamProcessor.process(file, null, baseUri);
+        source.process(file, null, baseUri);
     }
 
+    /**
+     * Processes document pointed by specified URI
+     * @param uri document's URI
+     * @throws ParseException
+     */
     public void process(String uri) throws ParseException {
         process(uri, uri);
     }
 
+    /**
+     * Processes document pointed by specified URI. Uses specified URI as document's base.
+     * @param uri document's URI
+     * @param baseUri document's URI
+     * @throws ParseException
+     */
     public void process(String uri, String baseUri) throws ParseException {
-        if (streamProcessor == null) {
-            streamProcessor = getSourceStreamForOutput(sink);
+        if (source == null) {
+            source = getSourceForSink(sink);
         }
 
         URL url;
@@ -72,7 +105,7 @@ public final class StreamProcessor {
             String mimeType = urlConnection.getContentType();
             InputStream inputStream = urlConnection.getInputStream();
             try {
-                streamProcessor.process(inputStream, mimeType, baseUri);
+                source.process(inputStream, mimeType, baseUri);
             } finally {
                 AbstractSource.closeQuietly(inputStream);
             }
@@ -81,18 +114,30 @@ public final class StreamProcessor {
         }
     }
 
-    public void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException {
-        streamProcessor.process(inputStream, mimeType, baseUri);
+    /**
+     * Processes stream input for document
+     * @param inputStream document's input stream
+     * @param baseUri document's base URI
+     * @throws ParseException
+     */
+    public void process(InputStream inputStream, String baseUri) throws ParseException {
+        source.process(inputStream, null, baseUri);
     }
 
+    /**
+     * Processes reader input for document's
+     * @param reader document's reader
+     * @param baseUri document's base URI
+     * @throws ParseException
+     */
     public void process(Reader reader, String baseUri) throws ParseException {
-        if (streamProcessor == null) {
-            streamProcessor = getSourceStreamForOutput(sink);
+        if (source == null) {
+            source = getSourceForSink(sink);
         }
-        streamProcessor.process(reader, null, baseUri);
+        source.process(reader, null, baseUri);
     }
 
-    private AbstractSource getSourceStreamForOutput(DataSink output) {
+    private AbstractSource getSourceForSink(DataSink output) {
         if (output instanceof CharSink) {
             return new CharSource((CharSink) output);
         } else if (output instanceof SaxSink) {
@@ -101,11 +146,17 @@ public final class StreamProcessor {
         return null;
     }
 
+    /**
+     * Key-value based settings. Property settings are passed to child sinks.
+     * @param key property key
+     * @param value property value
+     * @return true if at least one sink understands specified property, false otherwise
+     */
     public boolean setProperty(String key, Object value) {
-        if (streamProcessor == null) {
-            streamProcessor = getSourceStreamForOutput(sink);
+        if (source == null) {
+            source = getSourceForSink(sink);
         }
-        return streamProcessor.setProperty(key, value);
+        return source.setProperty(key, value);
     }
 
 }
