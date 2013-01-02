@@ -24,8 +24,8 @@ import org.semarglproject.rdf.ParseException;
 public interface DataSink {
 
     /**
-     * Document base URI setter. Must be called befor start stream event.
-     * @param baseUri
+     * Sets document base URI. Must be called befor start stream event.
+     * @param baseUri base URI
      */
     void setBaseUri(String baseUri);
 

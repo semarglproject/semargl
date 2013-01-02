@@ -23,6 +23,9 @@ import org.semarglproject.xml.XmlUtils;
 
 import java.util.BitSet;
 
+/**
+ * Implementation of streaming <a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">NTriples</a> parser.
+ */
 public final class NTriplesParser extends Converter<CharSink, TripleSink> implements CharSink {
 
     private static final short MODE_SAVE_UNTIL = 1;
@@ -38,6 +41,11 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
     private NTriplesParser() {
     }
 
+    /**
+     * Creates instance of NTriplesParser connected to specified sink.
+     * @param sink sink to be connected to
+     * @return instance of NTriplesParser
+     */
     public static CharSink connect(TripleSink sink) {
         NTriplesParser parser = new NTriplesParser();
         parser.sink = sink;

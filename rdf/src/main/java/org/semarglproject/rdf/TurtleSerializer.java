@@ -25,6 +25,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+/**
+ * Implementation of {@link TripleSink} which serializes triples to {@link CharSink} using
+ * <a href="http://www.w3.org/TR/2012/WD-turtle-20120710/">Turtle</a> syntax. *
+ */
 public final class TurtleSerializer implements TripleSink {
 
     private static final String DOT_EOL = " .\n";
@@ -59,6 +63,11 @@ public final class TurtleSerializer implements TripleSink {
         this.sink = sink;
     }
 
+    /**
+     * Creates instance of TurtleSerializer connected to specified sink.
+     * @param sink sink to be connected to
+     * @return instance of TurtleSerializer
+     */
     public static TripleSink connect(CharSink sink) {
         return new TurtleSerializer(sink);
     }

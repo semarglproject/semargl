@@ -25,7 +25,7 @@ public interface CharSink extends DataSink {
 
     /**
      * Callback for line-by-line text processing
-     * @param line
+     * @param line line for processing
      * @throws ParseException
      */
     void process(String line) throws ParseException;

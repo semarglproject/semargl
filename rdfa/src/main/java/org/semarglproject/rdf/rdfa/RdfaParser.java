@@ -42,15 +42,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of RDFa (1.0 and 1.1) parser.
- * List of supported options
- * <ul>
- *     <li>{@link #RDFA_VERSION_PROPERTY}</li>
- *     <li>{@link #PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
- *     <li>{@link #ENABLE_OUTPUT_GRAPH}</li>
- *     <li>{@link #ENABLE_PROCESSOR_GRAPH}</li>
- *     <li>{@link #ENABLE_VOCAB_EXPANSION}</li>
- * </ul>
+ * Implementation of streaming RDFa (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">1.0</a> and
+ * <a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">1.1</a>) parser. Supports HTML4, HTML5, XHTML1,
+ * XHTML5, XML and SVG inputs. Provides RDFa version and document syntax autodetection.
+ *
+ * <p>
+ *     List of supported options:
+ *     <ul>
+ *         <li>{@link #RDFA_VERSION_PROPERTY}</li>
+ *         <li>{@link #PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
+ *         <li>{@link #ENABLE_OUTPUT_GRAPH}</li>
+ *         <li>{@link #ENABLE_PROCESSOR_GRAPH}</li>
+ *         <li>{@link #ENABLE_VOCAB_EXPANSION}</li>
+ *     </ul>
+ * </p>
  */
 public final class RdfaParser extends Converter<SaxSink, TripleSink>
         implements SaxSink, TripleSink, ProcessorGraphHandler {
@@ -63,7 +68,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
             "http://semarglproject.org/rdfa/properties/version";
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
-     * Allows to specify handler for processor graph events.
+     * Allows to specify handler for <a href="http://www.w3.org/ns/rdfa.html">processor graph</a> events.
      * Subclass of {@link ProcessorGraphHandler} must be passed as value.
      */
     public static final String PROCESSOR_GRAPH_HANDLER_PROPERTY =
@@ -83,7 +88,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
             "http://semarglproject.org/rdfa/properties/enable-processor-graph";
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
-     * Enables or disables vocabulary expansion feature.
+     * Enables or disables <a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">vocabulary
+     * expansion</a> feature.
      */
     public static final String ENABLE_VOCAB_EXPANSION =
             "http://semarglproject.org/rdfa/properties/enable-vocab-expansion";
@@ -437,7 +443,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      * @param parent parent context
      * @param current current context
      * @param attrNames prioritized list of attributes
-     * @throws ParseException
+     * @throws MalformedIriException
      */
     private String coalesce(String tagName, Attributes attrs, EvalContext parent,
                             EvalContext current, String... attrNames) throws MalformedIriException {

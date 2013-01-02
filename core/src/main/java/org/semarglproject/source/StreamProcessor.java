@@ -36,7 +36,7 @@ import java.net.URLConnection;
  *     <li>{@link #XML_READER_PROPERTY}</li>
  * </ul>
  */
-public final class StreamProcessor {
+public class StreamProcessor {
 
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.

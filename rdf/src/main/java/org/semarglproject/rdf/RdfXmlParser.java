@@ -34,6 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+/**
+ * Implementation of streaming <a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">RDF/XML</a> parser.
+ */
 public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implements SaxSink {
 
     private static final String IS_NOT_ALLOWED_HERE = " is not allowed here";
@@ -80,6 +83,11 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     private RdfXmlParser() {
     }
 
+    /**
+     * Creates instance of RdfXmlParser connected to specified sink.
+     * @param sink sink to be connected to
+     * @return instance of RdfXmlParser
+     */
     public static SaxSink connect(TripleSink sink) {
         RdfXmlParser parser = new RdfXmlParser();
         parser.sink = sink;
