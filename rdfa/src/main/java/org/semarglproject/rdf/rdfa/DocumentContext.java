@@ -49,11 +49,10 @@ final class DocumentContext {
     private Map<String, String> bnodeMapping = new HashMap<String, String>();
     private int nextBnodeId;
 
-    DocumentContext(String base, short defaultRdfaVersion, RdfaParser parser) {
-        this.base = base;
+    DocumentContext(RdfaParser parser) {
         this.parser = parser;
         nextBnodeId = 0;
-        clear(defaultRdfaVersion);
+        clear(RDFa.VERSION_11);
     }
 
     public String resolveBNode(String value) {
@@ -90,7 +89,7 @@ final class DocumentContext {
     }
 
     public void detectBase(String qName, String xmlBase, String hRef) {
-        boolean xmlBaseF = isXmlDocument() && xmlBase != null;
+        boolean xmlBaseF = (documentFormat == FORMAT_XML || documentFormat == FORMAT_SVG) && xmlBase != null;
         if (xmlBaseF || qName.equalsIgnoreCase(HTML_BASE) && hRef != null) {
             base = (xmlBaseF ? xmlBase : hRef).replaceAll("#.*", "");
         }
@@ -101,14 +100,6 @@ final class DocumentContext {
             return RDF.BNODE_PREFIX + 'n' + (nextBnodeId++) + RDF.SHORTENABLE_BNODE_SUFFIX;
         }
         return RDF.BNODE_PREFIX + 'n' + nextBnodeId++;
-    }
-
-    public boolean isHtmlDocument() {
-        return documentFormat == FORMAT_HTML4 || documentFormat == FORMAT_HTML5;
-    }
-
-    public boolean isXmlDocument() {
-        return documentFormat == FORMAT_XML || documentFormat == FORMAT_SVG;
     }
 
     public void processDtd(String s, String s1, String s2) {

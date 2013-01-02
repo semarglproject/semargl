@@ -38,7 +38,8 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
     private int pos = -1;
     private int limit = -1;
 
-    private NTriplesParser() {
+    private NTriplesParser(TripleSink sink) {
+        super(sink);
     }
 
     /**
@@ -47,9 +48,7 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
      * @return instance of NTriplesParser
      */
     public static CharSink connect(TripleSink sink) {
-        NTriplesParser parser = new NTriplesParser();
-        parser.sink = sink;
-        return parser;
+        return new NTriplesParser(sink);
     }
 
     private static void error(String msg) throws ParseException {
@@ -85,7 +84,7 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
         pred = null;
 
         boolean nextLine = false;
-    outer:
+
         for (; pos < limit && !nextLine; pos++) {
             skipWhitespace();
 
@@ -249,4 +248,8 @@ public final class NTriplesParser extends Converter<CharSink, TripleSink> implem
     public void setBaseUri(String baseUri) {
     }
 
+    @Override
+    protected boolean setPropertyInternal(String key, Object value) {
+        return false;
+    }
 }

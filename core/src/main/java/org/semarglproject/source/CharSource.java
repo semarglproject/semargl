@@ -20,11 +20,11 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.CharSink;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 final class CharSource extends AbstractSource<CharSink> {
 
@@ -33,42 +33,28 @@ final class CharSource extends AbstractSource<CharSink> {
     }
 
     @Override
-    public void process(File file, String mimeType, String baseUri) throws ParseException {
-        FileReader reader;
-        try {
-            reader = new FileReader(file);
-        } catch (FileNotFoundException e) {
-            throw new ParseException(e);
-        }
-        try {
-            processInternal(reader, baseUri);
-        } finally {
-            closeQuietly(reader);
-        }
-    }
-
-    @Override
     public void process(Reader reader, String mimeType, String baseUri) throws ParseException {
-        processInternal(reader, baseUri);
-    }
-
-    private void processInternal(Reader source, String baseUri) throws ParseException {
-        BufferedReader reader = new BufferedReader(source);
+        BufferedReader bufferedReader = new BufferedReader(reader);
         try {
-            setBaseUri(baseUri);
-            startStream();
-
+            sink.setBaseUri(baseUri);
             String buffer;
-            while ((buffer = reader.readLine()) != null) {
+            while ((buffer = bufferedReader.readLine()) != null) {
                 sink.process(buffer);
             }
         } catch (IOException e) {
             throw new ParseException(e);
         } finally {
-            AbstractSource.closeQuietly(reader);
-            if (!isStreaming()) {
-                endStream();
-            }
+            BaseStreamProcessor.closeQuietly(bufferedReader);
+        }
+    }
+
+    @Override
+    public void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException {
+        Reader reader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+        try {
+            process(reader, mimeType, baseUri);
+        } finally {
+            BaseStreamProcessor.closeQuietly(reader);
         }
     }
 

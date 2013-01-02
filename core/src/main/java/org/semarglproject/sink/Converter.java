@@ -19,7 +19,12 @@ package org.semarglproject.sink;
 import org.semarglproject.rdf.ParseException;
 
 public abstract class Converter<T extends DataSink, S extends DataSink> implements DataSink {
-    protected S sink;
+
+    protected final S sink;
+
+    protected Converter(S sink) {
+        this.sink = sink;
+    }
 
     @Override
     public void startStream() throws ParseException {
@@ -32,11 +37,14 @@ public abstract class Converter<T extends DataSink, S extends DataSink> implemen
     }
 
     @Override
-    public boolean setProperty(String key, Object value) {
+    public final boolean setProperty(String key, Object value) {
+        boolean sinkResult = false;
         if (sink != null) {
-            return sink.setProperty(key, value);
+            sinkResult = sink.setProperty(key, value);
         }
-        return false;
+        return setPropertyInternal(key, value) || sinkResult;
     }
+
+    protected abstract boolean setPropertyInternal(String key, Object value);
 
 }

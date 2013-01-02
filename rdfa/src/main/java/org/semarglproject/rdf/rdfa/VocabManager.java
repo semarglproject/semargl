@@ -21,7 +21,7 @@ import java.util.Map;
 
 final class VocabManager {
 
-    private Map<String, Vocabulary> vocabCache = new HashMap<String, Vocabulary>();
+    private final Map<String, Vocabulary> vocabCache = new HashMap<String, Vocabulary>();
 
     public Vocabulary findVocab(String vocabUrl, boolean expandVocab) {
         Vocabulary vocab = vocabCache.get(vocabUrl);

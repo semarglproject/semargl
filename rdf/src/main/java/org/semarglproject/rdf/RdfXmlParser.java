@@ -80,7 +80,8 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     private int parseDepth = 0;
     private StringBuilder parse = new StringBuilder();
 
-    private RdfXmlParser() {
+    private RdfXmlParser(TripleSink sink) {
+        super(sink);
     }
 
     /**
@@ -89,9 +90,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
      * @return instance of RdfXmlParser
      */
     public static SaxSink connect(TripleSink sink) {
-        RdfXmlParser parser = new RdfXmlParser();
-        parser.sink = sink;
-        return parser;
+        return new RdfXmlParser(sink);
     }
 
     private static void error(String msg) throws SAXException {
@@ -482,6 +481,7 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     @Override
     public void startDocument() throws SAXException {
         mode = INSIDE_OF_PROPERTY;
+        sink.setBaseUri(baseUri);
         baseStack.push(baseUri);
         langStack.push(null);
         captureLiteral = false;
@@ -550,12 +550,6 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
     }
 
     @Override
-    public void startStream() throws ParseException {
-        sink.setBaseUri(baseUri);
-        super.startStream();
-    }
-
-    @Override
     public void setDocumentLocator(Locator arg0) {
     }
 
@@ -598,5 +592,10 @@ public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implement
             return (ParseException) cause;
         }
         return new ParseException(e);
+    }
+
+    @Override
+    protected boolean setPropertyInternal(String key, Object value) {
+        return false;
     }
 }

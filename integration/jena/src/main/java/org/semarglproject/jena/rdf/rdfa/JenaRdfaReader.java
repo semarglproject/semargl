@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 Lev Khomich
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.semarglproject.jena.rdf.rdfa;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -31,11 +30,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
-public class JenaRdfaReader implements RDFReader {
+public final class JenaRdfaReader implements RDFReader {
 
-    private StreamProcessor streamProcessor;
+    private final StreamProcessor streamProcessor;
 
-    public JenaRdfaReader() {
+    private JenaRdfaReader() {
         streamProcessor = new StreamProcessor(RdfaParser.connect(JenaSink.connect(null)));
     }
 
@@ -44,10 +43,10 @@ public class JenaRdfaReader implements RDFReader {
     }
 
     @Override
-    public void read(Model model, Reader reader, String base) {
+    public void read(Model model, Reader r, String base) {
         streamProcessor.setProperty(JenaSink.OUTPUT_MODEL_PROPERTY, model);
         try {
-            streamProcessor.process(reader, base);
+            streamProcessor.process(r, base);
         } catch (ParseException e) {
             // do nothing
         }

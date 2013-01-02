@@ -21,6 +21,7 @@ import org.apache.clerezza.rdf.core.Language;
 import org.apache.clerezza.rdf.core.Literal;
 import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.NonLiteral;
+import org.apache.clerezza.rdf.core.Resource;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.PlainLiteralImpl;
 import org.apache.clerezza.rdf.core.impl.TripleImpl;
@@ -32,15 +33,23 @@ import org.semarglproject.vocab.RDF;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ClerezzaSink implements TripleSink {
+/**
+ * Implementation if {@link TripleSink} which feeds triples from Semargl's pipeline to Clerezza's {@link MGraph}.
+ * <p>
+ *     List of supported options:
+ *     <ul>
+ *         <li>{@link #OUTPUT_GRAPH_PROPERTY}</li>
+ *     </ul>
+ * </p>
+ */
+public class ClerezzaSink implements TripleSink {
 
     public static final String OUTPUT_GRAPH_PROPERTY = "http://semarglproject.org/clerezza/properties/output-graph";
 
-    private MGraph graph;
+    protected MGraph graph;
     private final Map<String, BNode> bnodeMap;
 
-    private ClerezzaSink(MGraph graph) {
-        super();
+    protected ClerezzaSink(MGraph graph) {
         this.graph = graph;
         bnodeMap = new HashMap<String, BNode>();
     }
@@ -64,33 +73,25 @@ public final class ClerezzaSink implements TripleSink {
     }
 
     @Override
-    public void addNonLiteral(String subj, String pred, String obj) {
-        graph.add(new TripleImpl(convertNonLiteral(subj), new UriRef(pred), convertNonLiteral(obj)));
+    public final void addNonLiteral(String subj, String pred, String obj) {
+        addTriple(convertNonLiteral(subj), new UriRef(pred), convertNonLiteral(obj));
     }
 
     @Override
-    public void addPlainLiteral(String subj, String pred, String content, String lang) {
+    public final void addPlainLiteral(String subj, String pred, String content, String lang) {
         Literal lit;
         if (lang == null || lang.equals("")) {
             lit = new PlainLiteralImpl(content);
         } else {
             lit = new PlainLiteralImpl(content, new Language(lang));
         }
-        graph.add(new TripleImpl(convertNonLiteral(subj), new UriRef(pred), lit));
+        addTriple(convertNonLiteral(subj), new UriRef(pred), lit);
     }
 
     @Override
-    public void addTypedLiteral(String subj, String pred, String content, String type) {
-        graph.add(new TripleImpl(convertNonLiteral(subj), new UriRef(pred), new TypedLiteralImpl(
-                content, new UriRef(type))));
-    }
-
-    @Override
-    public void startStream() throws ParseException {
-    }
-
-    @Override
-    public void endStream() throws ParseException {
+    public final void addTypedLiteral(String subj, String pred, String content, String type) {
+        addTriple(convertNonLiteral(subj), new UriRef(pred),
+                new TypedLiteralImpl(content, new UriRef(type)));
     }
 
     @Override
@@ -100,6 +101,24 @@ public final class ClerezzaSink implements TripleSink {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Callback method for handling Clerezza triples.
+     * @param subj triple's subject
+     * @param pred triple's predicate
+     * @param obj triple's object
+     */
+    protected void addTriple(NonLiteral subj, UriRef pred, Resource obj) {
+        graph.add(new TripleImpl(subj, pred, obj));
+    }
+
+    @Override
+    public void startStream() throws ParseException {
+    }
+
+    @Override
+    public void endStream() throws ParseException {
     }
 
     @Override

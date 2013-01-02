@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 Lev Khomich
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.semarglproject.sesame.rdf.rdfa;
 
 import org.openrdf.model.ValueFactory;
@@ -43,14 +42,14 @@ import java.nio.charset.Charset;
  * @author Peter Ansell p_ansell@yahoo.com
  *
  */
-public class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
+public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
 
     private boolean processorGraphEnabled;
     private boolean vocabExpansionEnabled;
     private boolean preserveBNodeIDs;
     private short rdfaCompatibility;
 
-    private StreamProcessor streamProcessor;
+    private final StreamProcessor streamProcessor;
 
     private ParseErrorListener parseErrorListener;
 

@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 final class Vocabulary {
-    String url;
+    private final String url;
     private Map<String, Collection<String>> expansions = null;
     private Collection<String> terms = null;
 

@@ -66,19 +66,22 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      */
     public static final String RDFA_VERSION_PROPERTY =
             "http://semarglproject.org/rdfa/properties/version";
+
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
      * Allows to specify handler for <a href="http://www.w3.org/ns/rdfa.html">processor graph</a> events.
-     * Subclass of {@link ProcessorGraphHandler} must be passed as value.
+     * Subclass of {@link ProcessorGraphHandler} must be passed as a value.
      */
     public static final String PROCESSOR_GRAPH_HANDLER_PROPERTY =
             "http://semarglproject.org/rdfa/properties/processor-graph-handler";
+
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
      * Enables or disables generation of triples from output graph.
      */
     public static final String ENABLE_OUTPUT_GRAPH =
             "http://semarglproject.org/rdfa/properties/enable-output-graph";
+
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
      * Enables or disables generation of triples from processor graph.
@@ -86,6 +89,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      */
     public static final String ENABLE_PROCESSOR_GRAPH =
             "http://semarglproject.org/rdfa/properties/enable-processor-graph";
+
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
      * Enables or disables <a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">vocabulary
@@ -142,7 +146,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
     private boolean sinkProcessorGraph;
 
     private boolean expandVocab;
-    private DocumentContext dh;
+    private final DocumentContext dh;
     private Locator locator;
     private ProcessorGraphHandler processorGraphHandler;
 
@@ -151,9 +155,10 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
     private final Map<String, String> overwriteMappings = new HashMap<String, String>();
 
-    private RdfaParser() {
+    private RdfaParser(TripleSink sink) {
+        super(sink);
         contextStack = new LinkedList<EvalContext>();
-        dh = new DocumentContext(null, RDFa.VERSION_11, this);
+        dh = new DocumentContext(this);
         sinkProcessorGraph = true;
         sinkOutputGraph = true;
         expandVocab = false;
@@ -165,9 +170,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      * @return instance of RdfaParser
      */
     public static SaxSink connect(TripleSink sink) {
-        RdfaParser parser = new RdfaParser();
-        parser.sink = sink;
-        return parser;
+        return new RdfaParser(sink);
     }
 
     @Override
@@ -239,8 +242,9 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
                 attrs.getValue(RDFa.VOCAB_ATTR), lang, overwriteMappings);
         overwriteMappings.clear();
 
-        boolean skipTerms = dh.rdfaVersion > RDFa.VERSION_10 && dh.isHtmlDocument()
-                && attrs.getValue(RDFa.PROPERTY_ATTR) != null;
+        boolean skipTerms = dh.rdfaVersion > RDFa.VERSION_10 && attrs.getValue(RDFa.PROPERTY_ATTR) != null
+                && (dh.documentFormat == DocumentContext.FORMAT_HTML4
+                        || dh.documentFormat == DocumentContext.FORMAT_HTML5);
         List<String> rels = convertRelRevToList(attrs.getValue(RDFa.REL_ATTR), skipTerms);
         List<String> revs = convertRelRevToList(attrs.getValue(RDFa.REV_ATTR), skipTerms);
         boolean noRelsAndRevs = rels == null && revs == null;
@@ -996,8 +1000,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
     }
 
     @Override
-    public boolean setProperty(String key, Object value) {
-        boolean sinkResult = super.setProperty(key, value);
+    public boolean setPropertyInternal(String key, Object value) {
         if (ENABLE_OUTPUT_GRAPH.equals(key) && value instanceof Boolean) {
             sinkOutputGraph = (Boolean) value;
         } else if (ENABLE_PROCESSOR_GRAPH.equals(key) && value instanceof Boolean) {
@@ -1015,7 +1018,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         } else if (PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key) && value instanceof ProcessorGraphHandler) {
             processorGraphHandler = (ProcessorGraphHandler) value;
         } else {
-            return sinkResult;
+            return false;
         }
         return true;
     }

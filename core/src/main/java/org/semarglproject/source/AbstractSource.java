@@ -19,71 +19,19 @@ package org.semarglproject.source;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.DataSink;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 
 abstract class AbstractSource<S extends DataSink> {
 
     protected final S sink;
-    private boolean streaming;
 
     protected AbstractSource(S sink) {
         this.sink = sink;
-        this.streaming = false;
     }
-
-    public abstract void process(File file, String mimeType, String baseUri) throws ParseException;
 
     public abstract void process(Reader reader, String mimeType, String baseUri) throws ParseException;
 
-    public void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException {
-        InputStreamReader reader;
-        reader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-        try {
-            process(reader, mimeType, baseUri);
-        } finally {
-            closeQuietly(reader);
-        }
-    }
-
-    protected void setBaseUri(String baseUri) {
-        sink.setBaseUri(baseUri);
-    }
-
-    protected boolean isStreaming() {
-        return streaming;
-    }
-
-    protected void startStream() throws ParseException {
-        sink.startStream();
-        streaming = false;
-    }
-
-    protected void endStream() throws ParseException {
-        streaming = true;
-        sink.endStream();
-    }
-
-    public boolean setProperty(String key, Object value) {
-        if (sink != null) {
-            return sink.setProperty(key, value);
-        }
-        return false;
-    }
-
-    static void closeQuietly(Closeable closeable) {
-        try {
-            if (closeable != null) {
-                closeable.close();
-            }
-        } catch (IOException ioe) {
-            // ignore
-        }
-    }
+    public abstract void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException;
 
 }

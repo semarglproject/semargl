@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 Lev Khomich
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.semarglproject.sesame.rdf.rdfa;
 
 import org.openrdf.rio.RDFFormat;
@@ -25,7 +24,7 @@ import org.openrdf.rio.RDFParserFactory;
  * 
  * @author Peter Ansell p_ansell@yahoo.com
  */
-public class SesameRDFaParserFactory implements RDFParserFactory {
+public final class SesameRDFaParserFactory implements RDFParserFactory {
 
     @Override
     public RDFFormat getRDFFormat() {
@@ -36,6 +35,5 @@ public class SesameRDFaParserFactory implements RDFParserFactory {
     public RDFParser getParser() {
         return new SesameRDFaParser();
     }
-
 
 }

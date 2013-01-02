@@ -25,7 +25,7 @@ final class TypedLiteral implements LiteralNode {
     private final String content;
     private final String type;
 
-    TypedLiteral(String content, String dt) {
+    private TypedLiteral(String content, String dt) {
         super();
         this.content = content;
         this.type = dt;

@@ -311,16 +311,16 @@ final class EvalContext {
             return documentContext.resolveIri(curie);
         }
 
-        String result = resolvePrefix(curie, delimPos, safeSyntax);
+        String result = resolveMapping(curie, delimPos, safeSyntax);
         if (RIUtils.isIri(result)) {
             return result;
         }
         throw new MalformedIriException("Malformed IRI: " + curie);
     }
 
-    private String resolvePrefix(String curie, int delimPos, boolean safeSyntax) throws MalformedCurieException {
-        String prefix = curie.substring(0, delimPos);
+    private String resolveMapping(String curie, int delimPos, boolean safeSyntax) throws MalformedCurieException {
         String localName = curie.substring(delimPos + 1);
+        String prefix = curie.substring(0, delimPos);
 
         if (prefix.equals("_")) {
             throw new MalformedCurieException("CURIE with invalid prefix (" + curie + ") found");

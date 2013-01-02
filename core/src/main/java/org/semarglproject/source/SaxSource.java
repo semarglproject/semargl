@@ -23,11 +23,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 final class SaxSource extends AbstractSource<SaxSink> {
 
@@ -38,76 +38,49 @@ final class SaxSource extends AbstractSource<SaxSink> {
     }
 
     @Override
-    public void process(File file, String mimeType, String baseUri) throws ParseException {
-        setBaseUri(baseUri);
-        FileReader reader;
-        try {
-            reader = new FileReader(file);
-        } catch (FileNotFoundException e) {
-            throw new ParseException(e);
-        }
-        try {
-            processInternal(reader);
-        } finally {
-            closeQuietly(reader);
-        }
-    }
-
-    @Override
     public void process(Reader reader, String mimeType, String baseUri) throws ParseException {
         try {
-            setBaseUri(baseUri);
-            processInternal(reader);
-        } catch (ParseException e) {
-            if (!isStreaming()) {
-                endStream();
-            }
-            throw e;
-        }
-    }
-
-    private void processInternal(Reader source) throws ParseException {
-        if (xmlReader == null) {
-            try {
-                xmlReader = XMLReaderFactory.createXMLReader();
-                xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            } catch (SAXException e) {
-                throw new ParseException("Can not create SaxSource with default XMLReader implementation", e);
-            }
-        }
-        xmlReader.setContentHandler(sink);
-        try {
-            xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", sink);
+            initXmlReader();
         } catch (SAXException e) {
-            // nothing
+            throw new ParseException("Can not instantinate XMLReader", e);
         }
-        startStream();
         try {
-            xmlReader.parse(new InputSource(source));
+            sink.setBaseUri(baseUri);
+            xmlReader.parse(new InputSource(reader));
         } catch (SAXException e) {
             ParseException wrappedException = sink.processException(e);
             try {
                 sink.endDocument();
             } catch (SAXException e2) {
-                throw new ParseException(e2);
+                // do nothing
             }
             throw wrappedException;
         } catch (IOException e) {
             throw new ParseException(e);
-        } finally {
-            endStream();
         }
     }
 
     @Override
-    public boolean setProperty(String key, Object value) {
-        boolean sinkResult = super.setProperty(key, value);
-        if (StreamProcessor.XML_READER_PROPERTY.equals(key) && value instanceof XMLReader) {
-            xmlReader = (XMLReader) value;
-        } else {
-            return sinkResult;
+    public void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException {
+        Reader reader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+        try {
+            process(reader, mimeType, baseUri);
+        } finally {
+            BaseStreamProcessor.closeQuietly(reader);
         }
-        return true;
+    }
+
+    private void initXmlReader() throws SAXException {
+        if (xmlReader == null) {
+            xmlReader = XMLReaderFactory.createXMLReader();
+            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        }
+        xmlReader.setContentHandler(sink);
+        xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", sink);
+    }
+
+    public void setXmlReader(XMLReader xmlReader) {
+        this.xmlReader = xmlReader;
     }
 
 }

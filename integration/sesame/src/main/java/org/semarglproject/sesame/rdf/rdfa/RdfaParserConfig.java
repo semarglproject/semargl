@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 Lev Khomich
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.semarglproject.sesame.rdf.rdfa;
 
 import org.openrdf.rio.ParserConfig;
@@ -41,15 +40,15 @@ public class RdfaParserConfig extends ParserConfig {
         this.rdfaCompatibility = rdfaCompatibility;
     }
 
-    public boolean isProcessorGraphEnabled() {
+    public final boolean isProcessorGraphEnabled() {
         return processorGraphEnabled;
     }
 
-    public boolean isVocabExpansionEnabled() {
+    public final boolean isVocabExpansionEnabled() {
         return vocabExpansionEnabled;
     }
 
-    public short getRdfaCompatibility() {
+    public final short getRdfaCompatibility() {
         return rdfaCompatibility;
     }
 }

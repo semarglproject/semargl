@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 Lev Khomich
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 
 package org.semarglproject.sesame.core.sink;
 
-import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -30,19 +29,39 @@ import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
 /**
- * 
+ * Implementation if {@link TripleSink} which feeds triples from Semargl's pipeline to Sesame's {@link RDFHandler}.
+ * <p>
+ *     List of supported options:
+ *     <ul>
+ *         <li>{@link #RDF_HANDLER_PROPERTY}</li>
+ *         <li>{@link #VALUE_FACTORY_PROPERTY}</li>
+ *     </ul>
+ * </p>
+ *
  * @author Peter Ansell p_ansell@yahoo.com
+ * @author Lev Khomich levkhomich@gmail.com
  *
  */
-public final class SesameSink implements TripleSink {
+public class SesameSink implements TripleSink {
 
+    /**
+     * Used as a key with {@link #setProperty(String, Object)} method.
+     * Allows to specify Sesame's RDF handler.
+     * Subclass of {@link RDFHandler} must be passed as a value.
+     */
     public static final String RDF_HANDLER_PROPERTY = "http://semarglproject.org/sesame/properties/rdf-handler";
+
+    /**
+     * Used as a key with {@link #setProperty(String, Object)} method.
+     * Allows to specify Sesame's value factory used to generate statemets.
+     * Subclass of {@link ValueFactory} must be passed as a value.
+     */
     public static final String VALUE_FACTORY_PROPERTY = "http://semarglproject.org/sesame/properties/value-factory";
 
-    private ValueFactory valueFactory;
-    private RDFHandler handler;
+    protected RDFHandler handler;
+    protected ValueFactory valueFactory;
 
-    private SesameSink(RDFHandler handler) {
+    protected SesameSink(RDFHandler handler) {
         this.valueFactory = ValueFactoryImpl.getInstance();
         this.handler = handler;
     }
@@ -51,32 +70,20 @@ public final class SesameSink implements TripleSink {
         return new SesameSink(handler);
     }
 
-    private BNode getBNode(String bnode) {
-        return valueFactory.createBNode(bnode.substring(2));
-    }
-
     private Resource convertNonLiteral(String arg) {
         if (arg.startsWith(RDF.BNODE_PREFIX)) {
-            return getBNode(arg);
+            return valueFactory.createBNode(arg.substring(2));
         }
         return valueFactory.createURI(arg);
     }
 
-    private void addTriple(Resource subject, URI predicate, Value object){
-        try {
-            handler.handleStatement(valueFactory.createStatement(subject, predicate, object));
-        } catch(RDFHandlerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
-    public void addNonLiteral(String subj, String pred, String obj) {
+    public final void addNonLiteral(String subj, String pred, String obj) {
         addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), convertNonLiteral(obj));
     }
 
     @Override
-    public void addPlainLiteral(String subj, String pred, String content, String lang) {
+    public final void addPlainLiteral(String subj, String pred, String content, String lang) {
         if (lang == null) {
             addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), valueFactory.createLiteral(content));
         } else {
@@ -86,9 +93,18 @@ public final class SesameSink implements TripleSink {
     }
 
     @Override
-    public void addTypedLiteral(String subj, String pred, String content, String type) {
+    public final void addTypedLiteral(String subj, String pred, String content, String type) {
         Literal literal = valueFactory.createLiteral(content, valueFactory.createURI(type));
         addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), literal);
+    }
+
+    protected void addTriple(Resource subject, URI predicate, Value object) {
+        try {
+            handler.handleStatement(valueFactory.createStatement(subject, predicate, object));
+        } catch(RDFHandlerException e) {
+            // TODO: provide standard way to handle exceptions inside of triple sinks
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -96,7 +112,7 @@ public final class SesameSink implements TripleSink {
         try {
             handler.startRDF();
         } catch(RDFHandlerException e) {
-            throw new RuntimeException(e);
+            throw new ParseException(e);
         }
     }
 
@@ -105,7 +121,7 @@ public final class SesameSink implements TripleSink {
         try {
             handler.endRDF();
         } catch(RDFHandlerException e) {
-            throw new RuntimeException(e);
+            throw new ParseException(e);
         }
     }
 

@@ -17,6 +17,7 @@
 package org.semarglproject.rdf;
 
 import org.semarglproject.sink.CharSink;
+import org.semarglproject.sink.Converter;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
@@ -29,7 +30,7 @@ import java.util.Set;
  * Implementation of {@link TripleSink} which serializes triples to {@link CharSink} using
  * <a href="http://www.w3.org/TR/2012/WD-turtle-20120710/">Turtle</a> syntax. *
  */
-public final class TurtleSerializer implements TripleSink {
+public final class TurtleSerializer extends Converter<TripleSink, CharSink>  implements TripleSink {
 
     private static final String DOT_EOL = " .\n";
     private static final String COMMA_EOL = " ,\n";
@@ -49,18 +50,17 @@ public final class TurtleSerializer implements TripleSink {
 
     private static final short BATCH_SIZE = 10;
 
-    private CharSink sink;
     private StringBuilder builder;
 
     private String prevSubj;
     private String prevPred;
     private short step;
-    private Queue<String> bnodeStack = new LinkedList<String>();
-    private Set<String> namedBnodes = new HashSet<String>();
+    private final Queue<String> bnodeStack = new LinkedList<String>();
+    private final Set<String> namedBnodes = new HashSet<String>();
     private String baseUri;
 
     private TurtleSerializer(CharSink sink) {
-        this.sink = sink;
+        super(sink);
     }
 
     /**
@@ -118,12 +118,12 @@ public final class TurtleSerializer implements TripleSink {
         step = 0;
         bnodeStack.clear();
         namedBnodes.clear();
-        sink.startStream();
+        super.startStream();
     }
 
     @Override
     public void endStream() throws ParseException {
-        sink.endStream();
+        super.endStream();
         if (builder == null) {
             builder = new StringBuilder();
         }
@@ -143,7 +143,7 @@ public final class TurtleSerializer implements TripleSink {
     }
 
     @Override
-    public boolean setProperty(String key, Object value) {
+    protected boolean setPropertyInternal(String key, Object value) {
         return false;
     }
 
