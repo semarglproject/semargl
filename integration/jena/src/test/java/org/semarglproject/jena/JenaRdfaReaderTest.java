@@ -116,26 +116,46 @@ public class JenaRdfaReaderTest {
 
     @Test(dataProvider = "getRdfa11Html4TestSuite")
     public void Rdfa11Html4TestsJena(RdfaTestBundle.TestCase testCase) {
+        // vocabulary expansion is disabled by default
+        if (testCase.getInput().matches(".+024[0-5].+")) {
+            return;
+        }
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
     public void Rdfa11Xhtml1TestsJena(RdfaTestBundle.TestCase testCase) {
+        // vocabulary expansion is disabled by default
+        if (testCase.getInput().matches(".+024[0-5].+")) {
+            return;
+        }
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11Html5TestSuite")
     public void Rdfa11Html5TestsJena(RdfaTestBundle.TestCase testCase) {
+        // vocabulary expansion is disabled by default
+        if (testCase.getInput().matches(".+024[0-5].+")) {
+            return;
+        }
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11XmlTestSuite")
     public void Rdfa11XmlTestsJena(RdfaTestBundle.TestCase testCase) {
+        // vocabulary expansion is disabled by default
+        if (testCase.getInput().matches(".+024[0-5].+")) {
+            return;
+        }
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
     @Test(dataProvider = "getRdfa11SvgTestSuite")
     public void Rdfa11SvgTestsJena(RdfaTestBundle.TestCase testCase) {
+        // vocabulary expansion is disabled by default
+        if (testCase.getInput().matches(".+024[0-5].+")) {
+            return;
+        }
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 

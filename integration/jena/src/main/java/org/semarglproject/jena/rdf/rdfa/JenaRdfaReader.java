@@ -34,7 +34,7 @@ public final class JenaRdfaReader implements RDFReader {
 
     private final StreamProcessor streamProcessor;
 
-    private JenaRdfaReader() {
+    public JenaRdfaReader() {
         streamProcessor = new StreamProcessor(RdfaParser.connect(JenaSink.connect(null)));
     }
 
