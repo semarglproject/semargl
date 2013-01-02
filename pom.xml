@@ -122,12 +122,12 @@
                         <header>${basedir}/checkstyle/LICENSE_HEADER</header>
                         <properties>
                             <owner>Lev Khomich</owner>
-                            <year>2012</year>
+                            <year>2012-2013</year>
                         </properties>
                         <quiet>false</quiet>
                         <failIfMissing>true</failIfMissing>
                         <aggregate>true</aggregate>
-                        <strictCheck>false</strictCheck>
+                        <strictCheck>true</strictCheck>
                         <excludes>
                             <exclude>**/.*/**</exclude>
                             <exclude>**/checkstyle/**/*</exclude>
@@ -147,7 +147,7 @@
                     <executions>
                         <execution>
                             <id>check-headers</id>
-                            <phase>package</phase>
+                            <phase>process-sources</phase>
                             <goals>
                                 <goal>check</goal>
                             </goals>
