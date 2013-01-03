@@ -36,11 +36,12 @@ import java.util.HashSet;
 import java.util.Map;
 
 final class Vocabulary {
+
     private final String url;
     private Map<String, Collection<String>> expansions = null;
     private Collection<String> terms = null;
 
-    public Vocabulary(String url) {
+    Vocabulary(String url) {
         this.url = url;
     }
 
@@ -51,7 +52,7 @@ final class Vocabulary {
         expansions.get(pred).add(expansion);
     }
 
-    public void load() {
+    void load() {
         VocabParser vocabParser = new VocabParser();
 
         URL vocabUrl;
@@ -106,14 +107,14 @@ final class Vocabulary {
         }
     }
 
-    public Collection<String> expand(String uri) {
+    Collection<String> expand(String uri) {
         if (expansions == null || !expansions.containsKey(uri)) {
             return Collections.EMPTY_LIST;
         }
         return expansions.get(uri);
     }
 
-    public String resolveTerm(String term) {
+    String resolveTerm(String term) {
         String termUri = url + term;
         if (terms == null && RIUtils.isAbsoluteIri(termUri) || terms != null && terms.contains(termUri)) {
             return termUri;

@@ -1211,7 +1211,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         private int length = -1;
         private String string = null;
 
-        public Iterator<String> split(String string) {
+        private Iterator<String> split(String string) {
             this.string = string;
             length = string.length();
             pos = 0;

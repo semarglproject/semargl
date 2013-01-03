@@ -96,16 +96,16 @@ final class EvalContext {
         RDFA11_INITIAL_CONTEXT.put("schema", "http://schema.org/");
     }
 
-    public Map<String, String> iriMappings;
-    public String subject;
-    public String object;
-    public List<Object> incomplTriples;
-    public String lang;
-    public String objectLit;
-    public String objectLitDt;
-    public List<String> properties;
-    public boolean parsingLiteral;
-    public Map<String, List<String>> listMapping;
+    Map<String, String> iriMappings;
+    String subject;
+    String object;
+    List<Object> incomplTriples;
+    String lang;
+    String objectLit;
+    String objectLitDt;
+    List<String> properties;
+    boolean parsingLiteral;
+    Map<String, List<String>> listMapping;
 
     private final DocumentContext documentContext;
     private Vocabulary vocab;
@@ -127,7 +127,7 @@ final class EvalContext {
         this.documentContext = documentContext;
     }
 
-    public static EvalContext createInitialContext(DocumentContext documentContext) {
+    static EvalContext createInitialContext(DocumentContext documentContext) {
         // RDFa Core 1.0 processing sequence step 1
         EvalContext initialContext = new EvalContext(null, null, null, documentContext);
         initialContext.subject = documentContext.base;
@@ -136,7 +136,7 @@ final class EvalContext {
         return initialContext;
     }
 
-    public EvalContext initChildContext(String profile, String vocab, String lang,
+    EvalContext initChildContext(String profile, String vocab, String lang,
                                         Map<String, String> overwriteMappings) {
         // RDFa Core 1.0 processing sequence step 2
         EvalContext current = new EvalContext(this.lang, this.vocab, this.profile, documentContext);
@@ -191,18 +191,18 @@ final class EvalContext {
         }
     }
 
-    public List<String> getMappingForIri(String iri) {
+    List<String> getMappingForIri(String iri) {
         if (!listMapping.containsKey(iri)) {
             listMapping.put(iri, new ArrayList<String>());
         }
         return listMapping.get(iri);
     }
 
-    public void addContent(String content) {
+    void addContent(String content) {
         objectLit += content;
     }
 
-    public void updateBase(String oldBase, String base) {
+    void updateBase(String oldBase, String base) {
         if (object != null && object.equals(oldBase)) {
             object = base;
         }
@@ -218,7 +218,7 @@ final class EvalContext {
      * @return resource IRI
      * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
      */
-    public String resolvePredOrDatatype(String value) throws MalformedIriException {
+    String resolvePredOrDatatype(String value) throws MalformedIriException {
         if (value == null || value.isEmpty()) {
             throw new MalformedIriException("Empty predicate or datatype found");
         }
@@ -235,7 +235,7 @@ final class EvalContext {
      * @return resource IRI
      * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
      */
-    public String resolveAboutOrResource(String value) throws MalformedIriException {
+    String resolveAboutOrResource(String value) throws MalformedIriException {
         String result = documentContext.resolveBNode(value);
         if (result != null) {
             return result;
@@ -249,7 +249,7 @@ final class EvalContext {
      * @return role IRI
      * @throws org.semarglproject.ri.MalformedIriException if role can not be resolved
      */
-    public String resolveRole(String value) throws MalformedIriException {
+    String resolveRole(String value) throws MalformedIriException {
         if (TERM_PATTERN.matcher(value).matches()) {
             return XHTML_VOCAB + value;
         }
@@ -286,7 +286,7 @@ final class EvalContext {
         }
     }
 
-    public Iterable<String> expand(String pred) {
+    Iterable<String> expand(String pred) {
         if (vocab == null) {
             return Collections.EMPTY_LIST;
         }

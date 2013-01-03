@@ -25,20 +25,20 @@ import java.util.Map;
 
 final class DocumentContext {
 
-    public static final short FORMAT_UNKNOWN = 0;
-    public static final short FORMAT_HTML4 = 1;
-    public static final short FORMAT_HTML5 = 2;
-    public static final short FORMAT_XML = 3;
-    public static final short FORMAT_SVG = 4;
+    static final short FORMAT_UNKNOWN = 0;
+    static final short FORMAT_HTML4 = 1;
+    static final short FORMAT_HTML5 = 2;
+    static final short FORMAT_XML = 3;
+    static final short FORMAT_SVG = 4;
 
-    public static final String RDFA_10_STRING = "rdfa 1.0";
+    private static final String RDFA_10_STRING = "rdfa 1.0";
 
     private static final String HTML_ROOT_ELEMENT = "html";
     private static final String HTML_BASE = "base";
     private static final String SVG_ROOT_ELEMENT = "svg";
 
-    public short documentFormat;
-    public short rdfaVersion;
+    short documentFormat;
+    short rdfaVersion;
 
     final RdfaParser parser;
 
@@ -54,7 +54,7 @@ final class DocumentContext {
         clear(RDFa.VERSION_11);
     }
 
-    public String resolveBNode(String value) {
+    String resolveBNode(String value) {
         if (value.startsWith(RDF.BNODE_PREFIX) || value.startsWith('[' + RDF.BNODE_PREFIX)
                 && value.charAt(value.length() - 1) == ']') {
             String name;
@@ -71,7 +71,7 @@ final class DocumentContext {
         return null;
     }
 
-    public void detectFormat(String localName, String qName, String version) {
+    void detectFormat(String localName, String qName, String version) {
         if (documentFormat == FORMAT_UNKNOWN) {
             if (localName.equals(SVG_ROOT_ELEMENT)) {
                 documentFormat = FORMAT_SVG;
@@ -87,21 +87,21 @@ final class DocumentContext {
         }
     }
 
-    public void detectBase(String qName, String xmlBase, String hRef) {
+    void detectBase(String qName, String xmlBase, String hRef) {
         boolean xmlBaseF = (documentFormat == FORMAT_XML || documentFormat == FORMAT_SVG) && xmlBase != null;
         if (xmlBaseF || qName.equalsIgnoreCase(HTML_BASE) && hRef != null) {
             base = (xmlBaseF ? xmlBase : hRef).replaceAll("#.*", "");
         }
     }
 
-    public String createBnode(boolean shortenable) {
+    String createBnode(boolean shortenable) {
         if (shortenable) {
             return RDF.BNODE_PREFIX + 'n' + (nextBnodeId++) + RDF.SHORTENABLE_BNODE_SUFFIX;
         }
         return RDF.BNODE_PREFIX + 'n' + nextBnodeId++;
     }
 
-    public void processDtd(String name, String publicId, String systemId) {
+    void processDtd(String name, String publicId, String systemId) {
         if (publicId == null) {
             if (HTML_ROOT_ELEMENT.equalsIgnoreCase(name)) {
                 documentFormat = FORMAT_HTML5;
@@ -117,11 +117,11 @@ final class DocumentContext {
         }
     }
 
-    public String resolveIri(String iri) throws MalformedIriException {
+    String resolveIri(String iri) throws MalformedIriException {
         return RIUtils.resolveIri(base, iri);
     }
 
-    public void clear(short defaultRdfaVersion) {
+    void clear(short defaultRdfaVersion) {
         rdfaVersion = defaultRdfaVersion;
         documentFormat = FORMAT_UNKNOWN;
         bnodeMapping = new HashMap<String, String>();
@@ -129,11 +129,11 @@ final class DocumentContext {
         originUri = null;
     }
 
-    public Vocabulary loadVocabulary(String vocabUrl) {
+    Vocabulary loadVocabulary(String vocabUrl) {
         return parser.loadVocabulary(vocabUrl);
     }
 
-    public void setBaseUri(String baseUri) {
+    void setBaseUri(String baseUri) {
         if (base == null) {
             originUri = baseUri;
         }

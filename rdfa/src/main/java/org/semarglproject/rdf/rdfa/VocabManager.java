@@ -22,7 +22,7 @@ final class VocabManager {
 
     private final Map<String, Vocabulary> vocabCache = new HashMap<String, Vocabulary>();
 
-    public Vocabulary findVocab(String vocabUrl, boolean expandVocab) {
+    Vocabulary findVocab(String vocabUrl, boolean expandVocab) {
         Vocabulary vocab = vocabCache.get(vocabUrl);
         if (vocab != null) {
             return vocab;
