@@ -103,9 +103,9 @@ final class EvalContext {
     public String lang;
     public String objectLit;
     public String objectLitDt;
-    public String properties;
+    public List<String> properties;
     public boolean parsingLiteral;
-    public Map<String, List<Object>> listMapping;
+    public Map<String, List<String>> listMapping;
 
     private final DocumentContext documentContext;
     private Vocabulary vocab;
@@ -131,7 +131,7 @@ final class EvalContext {
         // RDFa Core 1.0 processing sequence step 1
         EvalContext initialContext = new EvalContext(null, null, null, documentContext);
         initialContext.subject = documentContext.base;
-        initialContext.listMapping = new HashMap<String, List<Object>>();
+        initialContext.listMapping = new HashMap<String, List<String>>();
         initialContext.iriMappings = new TreeMap<String, String>();
         return initialContext;
     }
@@ -191,9 +191,9 @@ final class EvalContext {
         }
     }
 
-    public List<Object> getMappingForIri(String iri) {
+    public List<String> getMappingForIri(String iri) {
         if (!listMapping.containsKey(iri)) {
-            listMapping.put(iri, new ArrayList<Object>());
+            listMapping.put(iri, new ArrayList<String>());
         }
         return listMapping.get(iri);
     }

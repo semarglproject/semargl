@@ -26,19 +26,22 @@ import org.semarglproject.sink.SaxSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
+import org.semarglproject.vocab.XSD;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Implementation of streaming RDFa (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">1.0</a> and
@@ -106,17 +109,18 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         }
     };
 
-    // prefixes for incompleted triples should be of same length
-    private static final String FORWARD = "fwd";
-    private static final String REVERSE = "rev";
-    private static final int PREFIX_LENGTH = FORWARD.length();
+    // flag used in incomplTriple list to indicate that following element should be
+    // treated as having @rev relation instead of @rel
+    private static final String REVERSED_TRIPLE_FLAG = null;
+    // flag used in listMapping list to indicate that following two elements represent literal object
+    // that allows to save some GC time and avoid creating literal objects hierarchy with following instanceof checks
+    private static final String LITERAL_OBJECT_FLAG = null;
 
     private static final String BODY = "body";
     private static final String HEAD = "head";
     private static final String VERSION = "version";
     private static final String METADATA = "metadata";
 
-    private static final String SEPARATOR = "\\s+";
     private static final String PLAIN_LITERAL = "";
     private static final String XHTML_DEFAULT_XMLNS = "http://www.w3.org/1999/xhtml";
 
@@ -124,6 +128,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
     // html5 support
     private static final String DATETIME_ATTR = "datetime";
+    private static final String TIME_QNAME = "time";
     private static final String VALUE_ATTR = "value";
     private static final String DATA_ATTR = "data";
     private static final String XML_BASE = "xml:base";
@@ -136,8 +141,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
     private Deque<EvalContext> contextStack = null;
 
-    private String xmlString = null;
-    private String xmlStringPred = null;
+    private StringBuilder xmlString = null;
+    private List<String> xmlStringPred = null;
     private String xmlStringSubj = null;
 
     private short defaultRdfaVersion = RDFa.VERSION_11;
@@ -146,8 +151,9 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
     private boolean expandVocab;
     private final DocumentContext dh;
-    private Locator locator;
-    private ProcessorGraphHandler processorGraphHandler;
+    private final Splitter splitter;
+    private Locator locator = null;
+    private ProcessorGraphHandler processorGraphHandler = null;
 
     private boolean rdfXmlInline = false;
     private SaxSink rdfXmlParser = null;
@@ -158,6 +164,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         super(sink);
         contextStack = new LinkedList<EvalContext>();
         dh = new DocumentContext(this);
+        splitter = new Splitter();
         sinkProcessorGraph = true;
         sinkOutputGraph = true;
         expandVocab = false;
@@ -220,16 +227,18 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
         EvalContext parent = contextStack.peek();
         if (parent.parsingLiteral) {
-            xmlString += XmlUtils.serializeOpenTag(nsUri, qName, parent.iriMappings, attrs, false);
+            xmlString.append(XmlUtils.serializeOpenTag(nsUri, qName, parent.iriMappings, attrs, false));
         }
 
         if (dh.rdfaVersion > RDFa.VERSION_10 && attrs.getValue(RDFa.PREFIX_ATTR) != null) {
-            String[] pxs = attrs.getValue(RDFa.PREFIX_ATTR).trim().split(SEPARATOR);
-            for (int i = 0; i < pxs.length - 1; i += 2) {
-                if (!pxs[i].endsWith(":") || pxs[i].length() == 1) {
+            for (Iterator<String> iterator = splitter.split(attrs.getValue(RDFa.PREFIX_ATTR)); iterator.hasNext(); ) {
+                String prefix = iterator.next();
+                int prefixLength = prefix.length();
+                if (prefixLength < 2 || prefix.charAt(prefixLength - 1) != ':' || !iterator.hasNext()) {
                     continue;
                 }
-                startPrefixMapping(pxs[i].substring(0, pxs[i].length() - 1).toLowerCase(), pxs[i + 1]);
+                String uri = iterator.next();
+                startPrefixMapping(prefix.substring(0, prefixLength - 1), uri);
             }
         }
 
@@ -252,10 +261,10 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
         // don't fill parent list if subject was changed at this
         // or previous step by current.parentObject
-        if (dh.rdfaVersion > RDFa.VERSION_10 && current.subject != null
-                && (current.subject != parent.object || parent.object != parent.subject)) {
+        if (dh.rdfaVersion > RDFa.VERSION_10 && current.subject != null && (!current.subject.equals(parent.object)
+                    || parent.subject != null && !parent.subject.equals(parent.object))) {
             // RDFa Core 1.1 processing sequence step 8
-            current.listMapping = new HashMap<String, List<Object>>();
+            current.listMapping = new HashMap<String, List<String>>();
         }
 
         processRels(attrs, rels, current);
@@ -288,21 +297,21 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      * @param skipTerms is terms should be skipped
      * @return list of predicates
      */
-    private static List<String> convertRelRevToList(String propertyVal, boolean skipTerms) {
+    private List<String> convertRelRevToList(String propertyVal, boolean skipTerms) {
         if (propertyVal == null) {
             return null;
         }
-        List<String> result = new ArrayList<String>(Arrays.asList(propertyVal.split(SEPARATOR)));
-        if (skipTerms) {
-            for (Iterator<String> li = result.iterator(); li.hasNext(); ) {
-                String rel = li.next();
-                if (rel.indexOf(':') == -1) {
-                    li.remove();
-                }
+        List<String> result = new ArrayList<String>();
+        Iterator<String> iterator = splitter.split(propertyVal);
+        while (splitter.hasNext()) {
+            String pred = iterator.next();
+            if (skipTerms && pred.indexOf(':') == -1) {
+                continue;
             }
-            if (result.isEmpty()) {
-                result = null;
-            }
+            result.add(pred);
+        }
+        if (skipTerms && result.isEmpty()) {
+            result = null;
         }
         return result;
     }
@@ -317,22 +326,20 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         if (roleVal == null) {
             return;
         }
-        List<String> roles = new ArrayList<String>();
-        for (String role : roleVal.split(SEPARATOR)) {
-            try {
-                roles.add(current.resolveRole(role));
-            } catch (MalformedIriException e) {
-                // do nothing
-            }
-        }
         String subject;
         if (id != null) {
             subject = dh.base + '#' + id;
         } else {
             subject = dh.createBnode(true);
         }
-        for (String role : roles) {
-            addNonLiteral(subject, XHTML_VOCAB + "role", role);
+        Iterator<String> iterator = splitter.split(roleVal);
+        while (splitter.hasNext()) {
+            try {
+                String role = current.resolveRole(iterator.next());
+                addNonLiteral(subject, XHTML_VOCAB + "role", role);
+            } catch (MalformedIriException e) {
+                // do nothing
+            }
         }
     }
 
@@ -419,16 +426,18 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         if (newSubject != null) {
             // RDFa Core 1.0 processing sequence step 6
             // RDFa Core 1.1 processing sequence step 7
-            for (String type : attrs.getValue(RDFa.TYPEOF_ATTR).split(SEPARATOR)) {
+            Iterator<String> iterator = splitter.split(attrs.getValue(RDFa.TYPEOF_ATTR));
+            while (splitter.hasNext()) {
                 try {
-                    String iri = current.resolvePredOrDatatype(type);
+                    String iri = current.resolvePredOrDatatype(iterator.next());
                     addNonLiteral(newSubject, RDF.TYPE, iri);
                 } catch (MalformedIriException e) {
                     // do nothing
                 }
             }
         }
-        return noRelAndRev && current.subject == parent.object && attrs.getValue(RDFa.PROPERTY_ATTR) == null;
+        return noRelAndRev && attrs.getValue(RDFa.PROPERTY_ATTR) == null
+                && (current.subject == null && parent.object == null || current.subject.equals(parent.object));
     }
 
     /**
@@ -500,7 +509,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
                     continue;
                 }
                 if (inList) {
-                    List<Object> list = current.getMappingForIri(iri);
+                    List<String> list = current.getMappingForIri(iri);
                     if (current.object != null) {
                         list.add(current.object);
                     } else {
@@ -510,7 +519,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
                     if (current.object != null) {
                         addNonLiteral(current.subject, iri, current.object);
                     } else {
-                        current.incomplTriples.add(FORWARD + iri);
+                        current.incomplTriples.add(iri);
                     }
                 }
             }
@@ -531,7 +540,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
                     if (current.object != null) {
                         addNonLiteral(current.object, iri, current.subject);
                     } else {
-                        current.incomplTriples.add(REVERSE + iri);
+                        current.incomplTriples.add(REVERSED_TRIPLE_FLAG);
+                        current.incomplTriples.add(iri);
                     }
                 } catch (MalformedIriException e) {
                     // do nothing
@@ -557,13 +567,9 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
         // RDFa Core 1.0 processing sequence step 9
         // RDFa Core 1.1 processing sequence step 11
-        Object object = parseLiteralObject(qName, attrs, current, parent, noRelsAndRevs);
+        parseLiteralObject(qName, attrs, current, parent, noRelsAndRevs);
 
-        boolean inList = attrs.getValue(RDFa.INLIST_ATTR) != null;
-        for (String pred : attrs.getValue(RDFa.PROPERTY_ATTR).trim().split(SEPARATOR)) {
-            processPropertyPredicate(pred, object, current, inList);
-        }
-
+        // noinspection StringEquality
         current.parsingLiteral = current.objectLitDt == RDF.XML_LITERAL;
         if (current.properties == null) {
             current.objectLitDt = null;
@@ -578,82 +584,60 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      * @param current current context
      * @param parent parent context
      * @param noRelsAndRevs are on @rel and @rev attributes specified
-     * @return object found or null otherwise
      */
-    private Object parseLiteralObject(String qName, Attributes attrs, EvalContext current,
-                                      EvalContext parent, boolean noRelsAndRevs) {
+    private void parseLiteralObject(String qName, Attributes attrs, EvalContext current,
+                                    EvalContext parent, boolean noRelsAndRevs) {
         String content = parseContent(attrs);
-        String datatype = parseDatatype(qName, attrs, current);
+        String langOrDt = parseDatatype(qName, attrs, current);
 
-        if (datatype != null && !RDF.XML_LITERAL.equals(datatype)) {
+        if (langOrDt != null && !RDF.XML_LITERAL.equals(langOrDt)) {
             // RDFa Core 1.0 processing sequence step 9, typed literal case
             // RDFa Core 1.1 processing sequence step 11, typed literal case
             if (content != null) {
-                try {
-                    return TypedLiteral.from(content, datatype);
-                } catch (ParseException e) {
-                    return new PlainLiteral(content, current.lang);
-                }
+                langOrDt = resolveLangOrDt(content, langOrDt, current);
             } else {
-                current.objectLitDt = datatype;
+                current.objectLitDt = langOrDt;
+                langOrDt = null;
             }
-        } else if (dh.rdfaVersion > RDFa.VERSION_10) {
-            if (datatype != null) {
-                if (datatype.length() == 0) {
-                    // RDFa Core 1.1 processing sequence step 11, plain literal case
-                    if (content != null) {
-                        return new PlainLiteral(content, current.lang);
-                    } else {
+        } else if (content != null) {
+            // RDFa Core 1.0 processing sequence step 9, plain literal case
+            langOrDt = current.lang;
+        } else if (langOrDt == null && dh.rdfaVersion > RDFa.VERSION_10) {
+            if (attrs.getValue(RDFa.CONTENT_ATTR) == null && attrs.getValue(VALUE_ATTR) == null && noRelsAndRevs) {
+                // RDFa Core 1.1 processing sequence step 11, no rel or rev or content case
+                try {
+                    langOrDt = coalesce(qName, attrs, parent, current,
+                            RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
+                } catch (MalformedIriException e) {
+                    warning(RDFa.WARNING, e.getMessage());
+                    pushContextNoLiteral(current, parent);
+                }
+            }
+            if (langOrDt == null) {
+                if (attrs.getValue(RDFa.ABOUT_ATTR) == null && attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
+                    // RDFa Core 1.1 processing sequence step 11, @typeof present and @about is not case
+                    langOrDt = current.object;
+                    if (current.object == null) {
+                        // RDFa Core 1.1 processing sequence step 11, last plain literal case
                         current.objectLitDt = PLAIN_LITERAL;
                     }
-                } else if (datatype.length() > 0) {
-                    // == rdf:XMLLiteral
-                    // RDFa Core 1.1 processing sequence step 11, xml literal case
-                    current.objectLitDt = RDF.XML_LITERAL;
-                }
-            } else {
-                Object result = null;
-                if (content != null) {
-                    // RDFa Core 1.1 processing sequence step 11, plain literal using @content case
-                    return new PlainLiteral(content, current.lang);
-                } else if (attrs.getValue(RDFa.CONTENT_ATTR) == null
-                        && attrs.getValue(VALUE_ATTR) == null
-                        && noRelsAndRevs) {
-                    // RDFa Core 1.1 processing sequence step 11, no rel or rev or content case
-                    try {
-                        result = coalesce(qName, attrs, parent, current,
-                                RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
-                    } catch (MalformedIriException e) {
-                        warning(RDFa.WARNING, e.getMessage());
-                        pushContextNoLiteral(current, parent);
-                    }
-                }
-                if (result == null && attrs.getValue(RDFa.ABOUT_ATTR) == null
-                        && attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-                    // RDFa Core 1.1 processing sequence step 11, @typeof present and @about is not case
-                    result = current.object;
-                }
-                if (result == null) {
+                } else {
                     // RDFa Core 1.1 processing sequence step 11, last plain literal case
                     current.objectLitDt = PLAIN_LITERAL;
                 }
-                return result;
             }
         } else {
-            if (content != null) {
-                // RDFa Core 1.0 processing sequence step 9, plain literal case
-                return new PlainLiteral(content, current.lang);
+            if (langOrDt == null || langOrDt.length() > 0) {
+                // RDFa Core 1.0 processing sequence step 9, xml literal case
+                current.objectLitDt = RDF.XML_LITERAL;
             } else {
-                if (datatype == null || datatype.length() > 0) {
-                    // RDFa Core 1.0 processing sequence step 9, xml literal case
-                    current.objectLitDt = RDF.XML_LITERAL;
-                } else {
-                    // RDFa Core 1.0 processing sequence step 9, plain literal case
-                    current.objectLitDt = PLAIN_LITERAL;
-                }
+                // RDFa Core 1.0 processing sequence step 9, plain literal case
+                current.objectLitDt = PLAIN_LITERAL;
             }
+            langOrDt = null;
         }
-        return null;
+        boolean inList = attrs.getValue(RDFa.INLIST_ATTR) != null;
+        processPropertyPredicate(attrs, content, langOrDt, current, inList);
     }
 
     /**
@@ -688,7 +672,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
                 if (datatype == null) {
                     datatype = AUTODETECT_DATE_DATATYPE;
                 }
-            } else if (qName.equals("time") && datatype == null) {
+            } else if (qName.equals(TIME_QNAME) && datatype == null) {
                 datatype = AUTODETECT_DATE_DATATYPE;
             }
         }
@@ -703,39 +687,85 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
     }
 
     /**
-     * Generates triples corresponding to specified object and predicate from @property
-     * @param pred predicate from property attribute
-     * @param object statement object can be LiteralNode or String (URI or BNode)
+     * Generates triples corresponding to specified object and predicates from @property attribute
+     * @param attrs node's attributes
+     * @param content objects's content
+     * @param langOrUri object's content lang or datatype (if literal) or object's URI
      * @param current current context
      * @param inList is inlist property presented
      */
-    private void processPropertyPredicate(String pred, Object object, EvalContext current, boolean inList) {
-        String iri;
-        try {
-            iri = current.resolvePredOrDatatype(pred);
-        } catch (MalformedIriException e) {
-            return;
-        }
-        if (object != null) {
-            if (dh.rdfaVersion > RDFa.VERSION_10 && inList) {
-                List<Object> list = current.getMappingForIri(iri);
-                list.add(object);
-            } else {
-                if (object instanceof LiteralNode) {
-                    addLiteralTriple(current.subject, iri, (LiteralNode) object);
+    private void processPropertyPredicate(Attributes attrs, String content, String langOrUri,
+                                          EvalContext current, boolean inList) {
+        Iterator<String> iterator = splitter.split(attrs.getValue(RDFa.PROPERTY_ATTR));
+        while (splitter.hasNext()) {
+            String iri;
+            try {
+                iri = current.resolvePredOrDatatype(iterator.next());
+            } catch (MalformedIriException e) {
+                continue;
+            }
+            if (content != null || langOrUri != null) {
+                if (dh.rdfaVersion > RDFa.VERSION_10 && inList) {
+                    List<String> list = current.getMappingForIri(iri);
+                    if (content != null) {
+                        list.add(LITERAL_OBJECT_FLAG);
+                        list.add(content);
+                        list.add(langOrUri);
+                    } else {
+                        list.add(langOrUri);
+                    }
                 } else {
-                    addNonLiteral(current.subject, iri, (String) object);
+                    if (content != null) {
+                        addLiteralTriple(current.subject, iri, content, langOrUri);
+                    } else {
+                        addNonLiteral(current.subject, iri, langOrUri);
+                    }
                 }
-            }
-        } else if (current.properties == null) {
-            if (dh.rdfaVersion > RDFa.VERSION_10 && inList) {
-                current.properties = RDFa.INLIST_ATTR + " " + iri;
+            } else if (current.properties == null) {
+                current.properties = new ArrayList<String>();
+                if (dh.rdfaVersion > RDFa.VERSION_10 && inList) {
+                    current.properties.add(RDFa.INLIST_ATTR);
+                }
+                current.properties.add(iri);
             } else {
-                current.properties = iri;
+                current.properties.add(iri);
             }
-        } else {
-            current.properties += " " + iri;
         }
+    }
+
+    private String resolveLangOrDt(String content, String dt, EvalContext current) {
+        if (dt == null) {
+            return current.lang;
+        }
+        if (dt.equals(RdfaParser.AUTODETECT_DATE_DATATYPE)) {
+            try {
+                if (content.matches("-?P\\d+Y\\d+M\\d+DT\\d+H\\d+M\\d+(\\.\\d+)?S")) {
+                    return XSD.DURATION;
+                }
+                if (content.indexOf(':') != -1) {
+                    if (content.indexOf('T') != -1) {
+                        DatatypeConverter.parseDateTime(content);
+                        return XSD.DATE_TIME;
+                    }
+                    DatatypeConverter.parseTime(content);
+                    return XSD.TIME;
+                }
+                if (content.matches("-?\\d{4,}")) {
+                    return XSD.G_YEAR;
+                }
+                if (content.matches("-?\\d{4,}-(0[1-9]|1[0-2])")) {
+                    return XSD.G_YEAR_MONTH;
+                }
+                DatatypeConverter.parseDate(content);
+                return XSD.DATE;
+            } catch (IllegalArgumentException e) {
+                return current.lang;
+            }
+        }
+        if (dt.indexOf(':') == -1) {
+            return current.lang;
+        }
+        return dt;
     }
 
     /**
@@ -748,17 +778,15 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
             return;
         }
         String subject = parent.subject;
-        for (Object obj : parent.incomplTriples) {
-            if (obj instanceof String) {
-                String pred = (String) obj;
-                if (pred.startsWith(FORWARD)) {
-                    addNonLiteral(subject, pred.substring(PREFIX_LENGTH), current.subject);
-                } else {
-                    addNonLiteral(current.subject, pred.substring(PREFIX_LENGTH), subject);
-                }
+        for (Iterator iti = parent.incomplTriples.iterator(); iti.hasNext(); ) {
+            Object predicateOrList = iti.next();
+            if (predicateOrList == REVERSED_TRIPLE_FLAG) {
+                addNonLiteral(current.subject, (String) iti.next(), subject);
+            } else if (predicateOrList instanceof String) {
+                addNonLiteral(subject, (String) predicateOrList, current.subject);
             } else {
                 @SuppressWarnings("unchecked")
-                List<Object> list = (List<Object>) obj;
+                Collection<String> list = (Collection<String>) predicateOrList;
                 list.add(current.subject);
             }
         }
@@ -771,7 +799,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      */
     private void pushContext(EvalContext current, EvalContext parent, boolean skipElement) {
         if (current.parsingLiteral) {
-            xmlString = "";
+            xmlString = new StringBuilder();
             xmlStringPred = current.properties;
             xmlStringSubj = current.subject == null ? parent.subject : current.subject;
         }
@@ -828,7 +856,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
         // serialize close tag if parsing literal
         if (xmlString != null) {
-            xmlString += "</" + qName + ">";
+            xmlString.append("</").append(qName).append('>');
         }
 
         if (contextStack.isEmpty()) {
@@ -838,7 +866,9 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         EvalContext parent = contextStack.peek();
         processContent(current, parent);
 
+        // noinspection ObjectEquality
         if (parent.listMapping != current.listMapping) {
+            // current mapping isn't inherited from parent
             // RDFa Core 1.0 processing sequence step 14
             processListMappings(current);
         }
@@ -850,16 +880,17 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      */
     private void processXmlString(EvalContext current) {
         if (current.parsingLiteral && xmlString != null) {
-            if (dh.rdfaVersion == RDFa.VERSION_10 && !xmlString.contains("<")) {
-                for (String pred : xmlStringPred.split(SEPARATOR)) {
-                    addPlainLiteral(xmlStringSubj, pred, xmlString, current.lang);
+            String content = xmlString.toString();
+            xmlString = null;
+            if (dh.rdfaVersion == RDFa.VERSION_10 && content.indexOf('<') == -1) {
+                for (String pred : xmlStringPred) {
+                    addPlainLiteral(xmlStringSubj, pred, content, current.lang);
                 }
             } else {
-                for (String pred : xmlStringPred.split(SEPARATOR)) {
-                    addTypedLiteral(xmlStringSubj, pred, xmlString, RDF.XML_LITERAL);
+                for (String pred : xmlStringPred) {
+                    addTypedLiteral(xmlStringSubj, pred, content, RDF.XML_LITERAL);
                 }
             }
-            xmlString = null;
         }
     }
 
@@ -877,37 +908,21 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
             parent.objectLit += content;
         } else {
             String dt = current.objectLitDt;
-            boolean inlist = current.properties.startsWith(RDFa.INLIST_ATTR + " ");
+            boolean inlist = current.properties.get(0).equals(RDFa.INLIST_ATTR);
 
             if (inlist) {
-                LiteralNode currObjectLit;
-                if (dt.isEmpty()) {
-                    currObjectLit = new PlainLiteral(content, current.lang);
-                } else {
-                    try {
-                        currObjectLit = TypedLiteral.from(content, dt);
-                    } catch (ParseException e) {
-                        currObjectLit = new PlainLiteral(content, current.lang);
-                    }
-                }
-                for (String predIri : current.properties.substring(
-                        RDFa.INLIST_ATTR.length() + 1).split(SEPARATOR)) {
-                    current.getMappingForIri(predIri).add(currObjectLit);
+                String langOrDt = resolveLangOrDt(content, dt, current);
+                current.properties.remove(0);
+                for (String predIri : current.properties) {
+                    List<String> mappingForIri = current.getMappingForIri(predIri);
+                    mappingForIri.add(LITERAL_OBJECT_FLAG);
+                    mappingForIri.add(content);
+                    mappingForIri.add(langOrDt);
                 }
             } else {
-                if (dt.isEmpty()) {
-                    for (String predIri : current.properties.split(SEPARATOR)) {
-                        addPlainLiteral(current.subject, predIri, content, current.lang);
-                    }
-                } else {
-                    for (String predIri : current.properties.split(SEPARATOR)) {
-                        try {
-                            TypedLiteral lit = TypedLiteral.from(content, dt);
-                            addTypedLiteral(current.subject, predIri, lit.getContent(), lit.getType());
-                        } catch (ParseException e) {
-                            addPlainLiteral(current.subject, predIri, content, current.lang);
-                        }
-                    }
+                for (String predIri : current.properties) {
+                    dt = resolveLangOrDt(content, dt, current);
+                    addLiteralTriple(current.subject, predIri, content, dt);
                 }
             }
         }
@@ -918,16 +933,20 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      * @param current current context
      */
     private void processListMappings(EvalContext current) {
-        Map<String, List<Object>> list = current.listMapping;
+        Map<String, List<String>> list = current.listMapping;
         for (String pred : list.keySet()) {
             String prev = null;
             String start = null;
-            for (Object res : list.get(pred)) {
+            for (Iterator<String> iterator = list.get(pred).iterator(); iterator.hasNext(); ) {
+                String res = iterator.next();
                 String child = dh.createBnode(false);
-                if (res instanceof LiteralNode) {
-                    addLiteralTriple(child, RDF.FIRST, (LiteralNode) res);
+                // noinspection StringEquality
+                if (res == LITERAL_OBJECT_FLAG) {
+                    String content = iterator.next();
+                    String langOrDt = iterator.next();
+                    addLiteralTriple(child, RDF.FIRST, content, langOrDt);
                 } else {
-                    addNonLiteral(child, RDF.FIRST, (String) res);
+                    addNonLiteral(child, RDF.FIRST, res);
                 }
                 if (prev == null) {
                     start = child;
@@ -954,7 +973,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         }
         EvalContext parent = contextStack.peek();
         if (xmlString != null) {
-            xmlString += String.copyValueOf(buffer, start, length);
+            xmlString.append(buffer, start, length);
         }
         if (parent.objectLit != null) {
             parent.addContent(String.copyValueOf(buffer, start, length));
@@ -969,8 +988,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
     }
 
     @Override
-    public void startDTD(String s, String s1, String s2) throws SAXException {
-        dh.processDtd(s, s1, s2);
+    public void startDTD(String name, String publicId, String systemId) throws SAXException {
+        dh.processDtd(name, publicId, systemId);
     }
 
     @Override
@@ -1034,7 +1053,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
      * @param vocabUrl URL to load from
      * @return loaded vocabulary (can be cached)
      */
-    public Vocabulary loadVocabulary(String vocabUrl) {
+    Vocabulary loadVocabulary(String vocabUrl) {
         if (sinkOutputGraph) {
             sink.addNonLiteral(dh.base, RDFa.USES_VOCABULARY, vocabUrl);
         }
@@ -1092,13 +1111,11 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
     // proxying TripleSink calls to filter output graph
 
-    private void addLiteralTriple(String subject, String pred, LiteralNode literal) {
-        if (literal instanceof TypedLiteral) {
-            TypedLiteral tl = (TypedLiteral) literal;
-            addTypedLiteral(subject, pred, tl.getContent(), tl.getType());
+    private void addLiteralTriple(String subject, String pred, String content, String langOrDt) {
+        if (langOrDt == null || langOrDt.length() < 6 || langOrDt.indexOf(':') == -1) {
+            addPlainLiteral(subject, pred, content, langOrDt);
         } else {
-            PlainLiteral pl = (PlainLiteral) literal;
-            addPlainLiteral(subject, pred, pl.getContent(), pl.getLang());
+            addTypedLiteral(subject, pred, content, langOrDt);
         }
     }
 
@@ -1187,6 +1204,51 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
 
     @Override
     public void endDTD() throws SAXException {
+    }
+
+    private static final class Splitter implements Iterator<String> {
+        private int pos = -1;
+        private int length = -1;
+        private String string = null;
+
+        public Iterator<String> split(String string) {
+            this.string = string;
+            length = string.length();
+            pos = 0;
+            while (pos < length && XmlUtils.WHITESPACE.get(string.charAt(pos))) {
+                pos++;
+            }
+            return this;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < length;
+        }
+
+        @Override
+        public String next() {
+            int start = pos;
+            while (pos < length && !XmlUtils.WHITESPACE.get(string.charAt(pos))) {
+                pos++;
+            }
+            if (start == pos) {
+                throw new NoSuchElementException();
+            }
+            String result = string.substring(start, pos);
+            while (pos < length && XmlUtils.WHITESPACE.get(string.charAt(pos))) {
+                pos++;
+            }
+            if (pos == length) {
+                string = null;
+            }
+            return result;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 
 }

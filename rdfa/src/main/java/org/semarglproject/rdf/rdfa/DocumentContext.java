@@ -101,17 +101,17 @@ final class DocumentContext {
         return RDF.BNODE_PREFIX + 'n' + nextBnodeId++;
     }
 
-    public void processDtd(String s, String s1, String s2) {
-        if (s1 == null) {
-            if (HTML_ROOT_ELEMENT.equalsIgnoreCase(s)) {
+    public void processDtd(String name, String publicId, String systemId) {
+        if (publicId == null) {
+            if (HTML_ROOT_ELEMENT.equalsIgnoreCase(name)) {
                 documentFormat = FORMAT_HTML5;
             }
         } else {
-            s1 = s1.toLowerCase();
-            if (s1.contains(HTML_ROOT_ELEMENT)) {
+            String publicIdLower = publicId.toLowerCase();
+            if (publicIdLower.contains(HTML_ROOT_ELEMENT)) {
                 documentFormat = FORMAT_HTML4;
             }
-            if (s1.contains(RDFA_10_STRING)) {
+            if (publicIdLower.contains(RDFA_10_STRING)) {
                 rdfaVersion = RDFa.VERSION_10;
             }
         }
