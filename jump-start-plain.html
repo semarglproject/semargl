@@ -15,7 +15,7 @@
     limitations under the License.
 -->
 
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html"
       prefix="dc: http://purl.org/dc/terms/
               foaf: http://xmlns.com/foaf/0.1/
               rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -54,9 +54,9 @@
                     <div class="brand">Semargl</div>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="active"><a href="index.html" id="go-home" class="button">Home</a></li>
+                            <li><a href="index.html" id="go-home" class="button">Home</a></li>
                             <li><a href="demo-rdfa.html" id="view-demo" class="button">Demo</a></li>
-                            <li><a href="jump-start-plain.html" id="view-docs" class="button-pressed">Usage</a></li>
+                            <li class="active"><a href="jump-start-plain.html" id="view-docs" class="button-pressed">Usage</a></li>
                         </ul>
                     </div>
                 </div>
@@ -68,55 +68,92 @@
 <div class="container">
 
     <div class="page-header">
-        <h1>About</h1>
+        <h1>Usage in plain Java</h1>
     </div>
 
-    <p property="description" class="lead">Semargl is a modular framework for crawling
-        <a href="http://en.wikipedia.org/wiki/Linked_data">linked data</a> from structured documents.
-        The main goal of project is to provide lightweight and performant tool without excess dependencies.</p>
+    <p>
+        Start by adding maven dependency to your project.
+    </p>
 
-    <p class="lead">At this moment it offers high-performant streaming parsers for RDF/XML,
-        <a href="http://en.wikipedia.org/wiki/Rdfa">RDFa</a>, N-Triples, streaming serializer for
-        Turtle and integration with Jena, Sesame and Clerezza.</p>
+<pre><code class="xml">&lt;repositories&gt;
+    &lt;repository&gt;
+        &lt;id&gt;Semargl repo&lt;/id&gt;
+        &lt;url&gt;https://github.com/levkhomich/semargl/raw/master/maven-repo&lt;/url&gt;
+    &lt;/repository&gt;
+&lt;/repositories&gt;
 
-    <p class="lead">Small memory footprint, and CPU requirements allow framework to be used by any application.
-        It runs seamlessly on Android and GAE.</p>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
+        &lt;artifactId&gt;semargl-rdfa&lt;/artifactId&gt;
+        &lt;version&gt;0.3&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
 
-    <h3>Supported W3C specifications</h3>
+    <p>
+        Now you can create processing pipes using simple API. For example, if you want to extract
+        RDFa triples from your document, serialize them to turtle and then print to <code>System.out</code>, you can
+        do following:
+    </p>
 
-    <h4>RDF</h4>
+<pre><code class="java">CharOutputSink outputSink = new CharOutputSink();
+StreamProcessor sp = new StreamProcessor(
+RdfaParser.connect(TurtleSerializer.connect(outputSink));
 
-    <ul rel="implements">
-        <li>RDF Semantics (<a href="http://www.w3.org/TR/2004/REC-rdf-mt-20040210/">REC</a>)</li>
-        <li>RDF Test Cases (<a href="http://www.w3.org/TR/2004/REC-rdf-testcases-20040210/">REC</a>)</li>
-    </ul>
+outputSink.connect(System.out);
+sp.process(someHtmlFile);</code></pre>
 
-    <h4>RDFa</h4>
+    <p>
+        You can customize pipes implementing your own sinks or pipes:
+    </p>
 
-    <ul rel="implements">
-        <li>Core 1.0 (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">REC</a>),
-            Lite 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-lite-20120607/">REC</a>) and
-            Core 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">REC</a>)
-        </li>
-        <li>XHTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/REC-xhtml-rdfa-20120607/">REC</a>)</li>
-        <li>HTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/WD-rdfa-in-html-20120911/">WD</a>)</li>
-        <li>Optional features: Processor Graph Reporting (<a href="http://www.w3.org/ns/rdfa.html">REC</a>),
-            Vocabulary Expansion (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">REC</a>),
-            Role Attribute 1.0 (<a href="http://www.w3.org/TR/2012/PR-role-attribute-20121213/">PR</a>)
-        </li>
-    </ul>
+<pre><code class="java">class LiteralCounterSink implements TripleSink {
 
-    <h4>Other</h4>
+    private int count = 0;
 
-    <ul rel="implements">
-        <li>RDF/XML Syntax Specification (<a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">REC</a>)
-        </li>
-        <li>SVG Tiny 1.2 Metadata (<a href="www.w3.org/TR/2008/REC-SVGTiny12-20081222/metadata.html">REC</a>)
-        </li>
-        <li>Terse RDF Triple Language (<a href="http://www.w3.org/TeamSubmission/2011/SUBM-turtle-20110328/">SUBM</a>)
-        </li>
-        <li>N-Triples (<a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">IWD</a>)</li>
-    </ul>
+    void startStream() throws ParseException {
+        count = 0
+    }
+
+    void addNonLiteral(String subj, String pred, String obj) {
+        // ignore non literal
+    }
+
+    void addPlainLiteral(String subj, String pred, String content, String lang) {
+        count++;
+    }
+
+    void addTypedLiteral(String subj, String pred, String content, String type) {
+        count++;
+    }
+
+    void endStream() throws ParseException {
+        System.out.println("Triples processed: " + customSink.count);
+    }
+
+    // ignored callbacks
+    void setBaseUri(String baseUri) {}
+    boolean setProperty(String key, Object value) {}
+
+    public static void main(String[] args) throws Exception {
+        TripleSink mySink = new LiteralCounterSink();
+        StreamProcessor sp = new StreamProcessor(RdfaParser.connect(mySink));
+
+        // number of literal triples extracted from URI will be printed to System.out
+        sp.process("http://semarglproject.org");
+    }
+};</code></pre>
+
+    <p>
+        To change pipeline settings, you could use <code>setProperty</code> method with appropriate key
+        and value (which can be found in javadocs).
+    </p>
+
+<pre class="java"><code>// properties can be changed both for single pipe and its children (if they exist)
+outputSink.setProperty(CharOutputSink.CHARSET_PROPERTY, "UTF-8");
+// or all pipe hierarchy of stream processor
+sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);
+</code></pre>
 
     <div id="footer">
         <div class="container">
@@ -140,7 +177,6 @@
     </div>
 
 </div>
-
 
 <a rel="repository" href="https://github.com/levkhomich/semargl.git" typeof="GitRepository">
     <img id="github-badge" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"/>

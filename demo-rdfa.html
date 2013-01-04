@@ -35,6 +35,8 @@
         hljs.tabReplace = '    ';
         hljs.initHighlightingOnLoad();
     </script>
+    <script src="javascripts/light_ajax.js"></script>
+    <script src="javascripts/main.js"></script>
     <title>Semargl: better linked data processing</title>
 </head>
 
@@ -54,8 +56,8 @@
                     <div class="brand">Semargl</div>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="active"><a href="index.html" id="go-home" class="button">Home</a></li>
-                            <li><a href="demo-rdfa.html" id="view-demo" class="button">Demo</a></li>
+                            <li><a href="index.html" id="go-home" class="button">Home</a></li>
+                            <li class="active"><a href="demo-rdfa.html" id="view-demo" class="button">Demo</a></li>
                             <li><a href="jump-start-plain.html" id="view-docs" class="button-pressed">Usage</a></li>
                         </ul>
                     </div>
@@ -68,55 +70,80 @@
 <div class="container">
 
     <div class="page-header">
-        <h1>About</h1>
+        <h1>RDFa endpoint demo</h1>
     </div>
 
-    <p property="description" class="lead">Semargl is a modular framework for crawling
-        <a href="http://en.wikipedia.org/wiki/Linked_data">linked data</a> from structured documents.
-        The main goal of project is to provide lightweight and performant tool without excess dependencies.</p>
+    <p>This is a demo endpoint provided by
+        <a rel="homepage" href="http://semarglproject.org/">Semargl Project</a>.
+        It can be used to extract <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a>
+        data from web pages both as a web service or as a standalone web application.</p>
 
-    <p class="lead">At this moment it offers high-performant streaming parsers for RDF/XML,
-        <a href="http://en.wikipedia.org/wiki/Rdfa">RDFa</a>, N-Triples, streaming serializer for
-        Turtle and integration with Jena, Sesame and Clerezza.</p>
+    <p>You can try it using form below.</p>
 
-    <p class="lead">Small memory footprint, and CPU requirements allow framework to be used by any application.
-        It runs seamlessly on Android and GAE.</p>
+    <form onsubmit="return processUri();">
+        <fieldset>
+            <legend>Processing parameters</legend>
 
-    <h3>Supported W3C specifications</h3>
+            <div class="input-prepend input-append input-large">
+                <span class="add-on">Document URI</span>
+                <input id="uri" type="text" style="width:600px" value="http://semarglproject.org"/>
+                <button class="btn btn-primary" type="button" onclick="processUri();">Process</button>
+            </div>
 
-    <h4>RDF</h4>
+            <label>
+                <input id="includeOutput" type="checkbox" checked="true"/> include output graph
+            </label>
+            <label>
+                <input id="includeProcessor" type="checkbox"/> include processor graph
+            </label>
+            <label>
+                <input id="forceRdfa10" type="checkbox"/> force RDFa 1.0 mode
+            </label>
+            <label>
+                <input id="vocabExpansion" type="checkbox" checked="true" disabled /> enable vocabulary expansion
+            </label>
 
-    <ul rel="implements">
-        <li>RDF Semantics (<a href="http://www.w3.org/TR/2004/REC-rdf-mt-20040210/">REC</a>)</li>
-        <li>RDF Test Cases (<a href="http://www.w3.org/TR/2004/REC-rdf-testcases-20040210/">REC</a>)</li>
-    </ul>
+            <span id="results_wrapper" style="display: none">
+                <h4>Results</h4>
 
-    <h4>RDFa</h4>
+                <pre><code id="results">
+                </code></pre>
+            </span>
+        </fieldset>
+    </form>
 
-    <ul rel="implements">
-        <li>Core 1.0 (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">REC</a>),
-            Lite 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-lite-20120607/">REC</a>) and
-            Core 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">REC</a>)
-        </li>
-        <li>XHTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/REC-xhtml-rdfa-20120607/">REC</a>)</li>
-        <li>HTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/WD-rdfa-in-html-20120911/">WD</a>)</li>
-        <li>Optional features: Processor Graph Reporting (<a href="http://www.w3.org/ns/rdfa.html">REC</a>),
-            Vocabulary Expansion (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">REC</a>),
-            Role Attribute 1.0 (<a href="http://www.w3.org/TR/2012/PR-role-attribute-20121213/">PR</a>)
-        </li>
-    </ul>
+    <section id="main_content">
 
-    <h4>Other</h4>
+        <h3>Supported features</h3>
 
-    <ul rel="implements">
-        <li>RDF/XML Syntax Specification (<a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">REC</a>)
-        </li>
-        <li>SVG Tiny 1.2 Metadata (<a href="www.w3.org/TR/2008/REC-SVGTiny12-20081222/metadata.html">REC</a>)
-        </li>
-        <li>Terse RDF Triple Language (<a href="http://www.w3.org/TeamSubmission/2011/SUBM-turtle-20110328/">SUBM</a>)
-        </li>
-        <li>N-Triples (<a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">IWD</a>)</li>
-    </ul>
+        <ul rel="implements">
+            <li>Core 1.0 (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">REC</a>),
+                Lite 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-lite-20120607/">REC</a>) and
+                Core 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">REC</a>)
+            </li>
+            <li>XHTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/REC-xhtml-rdfa-20120607/">REC</a>)</li>
+            <li>HTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/WD-rdfa-in-html-20120911/">WD</a>)</li>
+            <li>SVG Tiny 1.2 Metadata (<a href="www.w3.org/TR/2008/REC-SVGTiny12-20081222/metadata.html">REC</a>)
+            </li>
+            <li>Optional features: Processor Graph Reporting (<a href="http://www.w3.org/ns/rdfa.html">REC</a>),
+                Vocabulary Expansion (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">REC</a>),
+                Role Attribute 1.0 (<a href="http://www.w3.org/TR/2012/PR-role-attribute-20121213/">PR</a>)
+            </li>
+        </ul>
+
+        <h3>Direct access</h3>
+
+        <p>Service can be used directly via GET requests to
+            <a href="http://demo.semarglproject.org/process?uri={your_uri}">this endpoint</a>.
+            You can check W3C recommendation conformance at
+            <a href="http://rdfa.info/test-suite">rdfa-info</a>.</p>
+
+        <h3>Reporting bugs</h3>
+
+        <p>Submit reports to project's <a href="https://github.com/levkhomich/semargl/issues"
+                                          rel="bug-database">issue tracker</a></p>
+
+    </section>
 
     <div id="footer">
         <div class="container">
@@ -140,7 +167,6 @@
     </div>
 
 </div>
-
 
 <a rel="repository" href="https://github.com/levkhomich/semargl.git" typeof="GitRepository">
     <img id="github-badge" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"/>
