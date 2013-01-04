@@ -37,7 +37,6 @@ body {
 }
 
 #footer {
-    height: 60px;
     padding: 0 20px 20px 20px;
     margin-top: 40px;
     background-color: #f5f5f5;
@@ -68,6 +67,12 @@ body {
     top: 0;
     right: 0;
     border: 0;
+}
+
+@media (max-width: 1200px) {
+    #github-badge {
+        display: none;
+    }
 }
 
 pre {
