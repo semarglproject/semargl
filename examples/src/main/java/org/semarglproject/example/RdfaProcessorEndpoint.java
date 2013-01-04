@@ -39,7 +39,7 @@ public final class RdfaProcessorEndpoint extends AbstractHandler {
     private final CharOutputSink charOutputSink;
 
     public RdfaProcessorEndpoint() {
-        charOutputSink = new CharOutputSink();
+        charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(RdfaParser.connect(TurtleSerializer.connect(charOutputSink)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
@@ -93,7 +93,7 @@ public final class RdfaProcessorEndpoint extends AbstractHandler {
         Reader reader = new InputStreamReader(url.openStream());
 
         response.setContentType("text/turtle; charset=UTF-8");
-        charOutputSink.setOutput(response.getWriter());
+        charOutputSink.connect(response.getWriter());
         try {
             streamProcessor.process(reader, uri);
         } catch (ParseException e) {

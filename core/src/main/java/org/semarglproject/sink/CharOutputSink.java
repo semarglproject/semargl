@@ -27,28 +27,68 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
+/**
+ * Implementation of {@link CharSink}. Provides bridging to Java IO APIs
+ * ({@link Writer}, {@link OutputStream}, {@link File}).
+ */
 public final class CharOutputSink implements CharSink {
 
     private File file;
     private Writer writer;
     private OutputStream outputStream;
     private boolean closeOnEndStream;
+    private final Charset charset;
 
-    public void setOutput(File file) {
+    /**
+     * Creates class instance with default charset encoding..
+     */
+    public CharOutputSink() {
+        this(Charset.defaultCharset());
+    }
+
+    /**
+     * Creates class instance with specified charset encoding.
+     * @param charset charset
+     */
+    public CharOutputSink(Charset charset) {
+        this.charset = charset;
+    }
+
+    /**
+     * Creates class instance with specified charset name.
+     * @param charsetName charset name
+     */
+    public CharOutputSink(String charsetName) {
+        this.charset = Charset.forName(charsetName);
+    }
+
+    /**
+     * Redirects output to specified file
+     * @param file output file
+     */
+    public void connect(File file) {
         this.file = file;
         this.writer = null;
         this.outputStream = null;
         this.closeOnEndStream = true;
     }
 
-    public void setOutput(Writer writer) {
+    /**
+     * Redirects output to specified writer
+     * @param writer output writer
+     */
+    public void connect(Writer writer) {
         this.file = null;
         this.writer = writer;
         this.outputStream = null;
         this.closeOnEndStream = false;
     }
 
-    public void setOutput(OutputStream outputStream) {
+    /**
+     * Redirects output to specified stream
+     * @param outputStream output stream
+     */
+    public void connect(OutputStream outputStream) {
         this.file = null;
         this.writer = null;
         this.outputStream = outputStream;
@@ -73,12 +113,12 @@ public final class CharOutputSink implements CharSink {
         if (writer == null) {
             if (file != null) {
                 try {
-                    writer = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8"));
+                    writer = new OutputStreamWriter(new FileOutputStream(file), charset);
                 } catch (FileNotFoundException e) {
-                    new ParseException(e);
+                    throw new ParseException(e);
                 }
             } else if (outputStream != null) {
-                writer = new OutputStreamWriter(outputStream, Charset.forName("UTF-8"));
+                writer = new OutputStreamWriter(outputStream, charset);
             }
         }
     }

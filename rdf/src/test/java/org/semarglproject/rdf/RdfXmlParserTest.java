@@ -39,7 +39,7 @@ public final class RdfXmlParserTest {
     public void cleanTargetDir() throws IOException, SAXException {
         RdfXmlTestBundle.prepareTestDir();
 
-        charOutputSink = new CharOutputSink();
+        charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(RdfXmlParser.connect(TurtleSerializer.connect(charOutputSink)));
     }
 
@@ -53,7 +53,7 @@ public final class RdfXmlParserTest {
         runTestWith(testCase, new SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                charOutputSink.setOutput(output);
+                charOutputSink.connect(output);
                 streamProcessor.process(input, inputUri);
             }
         });

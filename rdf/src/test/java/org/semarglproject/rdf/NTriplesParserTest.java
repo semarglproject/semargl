@@ -32,7 +32,7 @@ public final class NTriplesParserTest {
     @BeforeClass
     public void cleanTargetDir() {
         NTriplesTestBundle.prepareTestDir();
-        charOutputSink = new CharOutputSink();
+        charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(NTriplesParser.connect(TurtleSerializer.connect(charOutputSink)));
     }
 
@@ -46,7 +46,7 @@ public final class NTriplesParserTest {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                charOutputSink.setOutput(output);
+                charOutputSink.connect(output);
                 streamProcessor.process(input, inputUri);
             }
         });

@@ -40,7 +40,7 @@ public final class RdfaParserTest {
     private SaveToFileCallback semarglTurtleCallback = new SaveToFileCallback() {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
-            charOutputSink.setOutput(output);
+            charOutputSink.connect(output);
             streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             streamProcessor.process(input, inputUri);
         }
@@ -51,7 +51,7 @@ public final class RdfaParserTest {
         RdfaTestBundle.prepareTestDir();
 //        RdfaTestBundle.downloadAllTests(2);
 
-        charOutputSink = new CharOutputSink();
+        charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(RdfaParser.connect(TurtleSerializer.connect(charOutputSink)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
     }
