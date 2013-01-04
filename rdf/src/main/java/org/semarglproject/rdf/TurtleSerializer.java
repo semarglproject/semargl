@@ -16,7 +16,7 @@
 package org.semarglproject.rdf;
 
 import org.semarglproject.sink.CharSink;
-import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
 
@@ -29,7 +29,7 @@ import java.util.Set;
  * Implementation of {@link TripleSink} which serializes triples to {@link CharSink} using
  * <a href="http://www.w3.org/TR/2012/WD-turtle-20120710/">Turtle</a> syntax. *
  */
-public final class TurtleSerializer extends Converter<TripleSink, CharSink>  implements TripleSink {
+public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink {
 
     private static final String DOT_EOL = " .\n";
     private static final String COMMA_EOL = " ,\n";

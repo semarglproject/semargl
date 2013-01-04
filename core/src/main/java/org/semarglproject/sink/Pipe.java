@@ -17,11 +17,15 @@ package org.semarglproject.sink;
 
 import org.semarglproject.rdf.ParseException;
 
-public abstract class Converter<T extends DataSink, S extends DataSink> implements DataSink {
+/**
+ * Base class for pipeline procecessing blocks with one source and one sink.
+ * @param <S> class of output sink
+ */
+public abstract class Pipe<S extends DataSink> implements DataSink {
 
     protected final S sink;
 
-    protected Converter(S sink) {
+    protected Pipe(S sink) {
         this.sink = sink;
     }
 

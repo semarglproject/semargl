@@ -17,7 +17,7 @@ package org.semarglproject.rdf;
 
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
-import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.SaxSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
@@ -36,7 +36,7 @@ import java.util.Stack;
 /**
  * Implementation of streaming <a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">RDF/XML</a> parser.
  */
-public final class RdfXmlParser extends Converter<SaxSink, TripleSink> implements SaxSink {
+public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
     private static final String IS_NOT_ALLOWED_HERE = " is not allowed here";
 

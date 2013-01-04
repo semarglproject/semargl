@@ -21,7 +21,7 @@ import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
-import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.SaxSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.vocab.RDF;
@@ -59,8 +59,7 @@ import java.util.NoSuchElementException;
  *     </ul>
  * </p>
  */
-public final class RdfaParser extends Converter<SaxSink, TripleSink>
-        implements SaxSink, TripleSink, ProcessorGraphHandler {
+public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, TripleSink, ProcessorGraphHandler {
 
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
@@ -601,6 +600,7 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
             }
         } else if (content != null) {
             // RDFa Core 1.0 processing sequence step 9, plain literal case
+            // RDFa Core 1.1 processing sequence step 11, plain literal using @content case
             langOrDt = current.lang;
         } else if (langOrDt == null && dh.rdfaVersion > RDFa.VERSION_10) {
             if (attrs.getValue(RDFa.CONTENT_ATTR) == null && attrs.getValue(VALUE_ATTR) == null && noRelsAndRevs) {
@@ -629,9 +629,11 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
         } else {
             if (langOrDt == null || langOrDt.length() > 0) {
                 // RDFa Core 1.0 processing sequence step 9, xml literal case
+                // RDFa Core 1.1 processing sequence step 11, xml literal case
                 current.objectLitDt = RDF.XML_LITERAL;
             } else {
                 // RDFa Core 1.0 processing sequence step 9, plain literal case
+                // RDFa Core 1.1 processing sequence step 11, plain literal case
                 current.objectLitDt = PLAIN_LITERAL;
             }
             langOrDt = null;
@@ -961,8 +963,8 @@ public final class RdfaParser extends Converter<SaxSink, TripleSink>
                 addNonLiteral(prev, RDF.REST, RDF.NIL);
                 addNonLiteral(current.subject, pred, start);
             }
-            list.remove(pred);
         }
+        list.clear();
     }
 
     @Override

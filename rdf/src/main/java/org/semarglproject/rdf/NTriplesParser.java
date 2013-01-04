@@ -16,7 +16,7 @@
 package org.semarglproject.rdf;
 
 import org.semarglproject.sink.CharSink;
-import org.semarglproject.sink.Converter;
+import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.xml.XmlUtils;
 
@@ -25,7 +25,7 @@ import java.util.BitSet;
 /**
  * Implementation of streaming <a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">NTriples</a> parser.
  */
-public final class NTriplesParser extends Converter<CharSink, TripleSink> implements CharSink {
+public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
 
     private static final short MODE_SAVE_UNTIL = 1;
     private static final short MODE_SAVE_WHILE = 2;
