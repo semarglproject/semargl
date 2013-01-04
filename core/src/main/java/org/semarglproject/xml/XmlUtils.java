@@ -21,17 +21,54 @@ import java.util.BitSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * Lightweight XML utils for internal usage
+ */
 public final class XmlUtils {
 
+    /**
+     * XML identifier start char checker
+     */
     public static final BitSet ID_START = new BitSet();
+
+    /**
+     * XML identifier char checker
+     */
     public static final BitSet ID = new BitSet();
+
+    /**
+     * XML whitespace char checker
+     */
     public static final BitSet WHITESPACE = new BitSet();
+
+    /**
+     * XML quote char checker
+     */
     public static final BitSet QUOTE = new BitSet();
+
+    /**
+     * XML greater char checker
+     */
     public static final BitSet GT = new BitSet();
+
+    /**
+     * XML right square bracket char checker
+     */
     public static final BitSet RIGHT_SQ_BRACKET = new BitSet();
 
+    /**
+     * XML lang attribute name
+     */
     public static final String XML_LANG = "xml:lang";
+
+    /**
+     * XML base attribute name
+     */
     public static final String XML_BASE = "xml:base";
+
+    /**
+     * Lang attribute name
+     */
     public static final String LANG = "lang";
 
     private static final String NC_NAME_START_CHAR = "A-Za-z_\u00C0-\u00D6\u00D8-\u00F6"
@@ -84,10 +121,25 @@ public final class XmlUtils {
     private XmlUtils() {
     }
 
+
+    /**
+     * Checks if specified value is valid XML name
+     * @param value value to check
+     * @return true if value is valid XML name
+     */
     public static boolean isValidNCName(String value) {
         return XML_NAME_PATTERN.matcher(value).matches();
     }
 
+    /**
+     * Serializes node open tag
+     * @param nsUri node's NS URI
+     * @param qname node's QName
+     * @param nsMappings node's namespace mappings
+     * @param attrs node's attributes
+     * @param optimizeNs should unused namespaces be skipped
+     * @return string representation of open tag
+     */
     public static String serializeOpenTag(String nsUri, String qname, Map<String, String> nsMappings,
                                           Attributes attrs, boolean optimizeNs) {
         String result = "<" + qname;
