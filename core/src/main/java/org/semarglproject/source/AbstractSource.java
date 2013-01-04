@@ -29,8 +29,8 @@ abstract class AbstractSource<S extends DataSink> {
         this.sink = sink;
     }
 
-    public abstract void process(Reader reader, String mimeType, String baseUri) throws ParseException;
+    protected abstract void process(Reader reader, String mimeType, String baseUri) throws ParseException;
 
-    public abstract void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException;
+    protected abstract void process(InputStream inputStream, String mimeType, String baseUri) throws ParseException;
 
 }
