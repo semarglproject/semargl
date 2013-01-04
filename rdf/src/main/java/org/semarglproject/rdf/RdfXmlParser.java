@@ -46,6 +46,14 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     private static final short PARSE_TYPE_COLLECTION = 4;
     private static final short PARSE_TYPE_RESOURCE = 5;
 
+    private static final String ID_ATTR = "ID";
+    private static final String NODE_ID_ATTR = "nodeID";
+    private static final String ABOUT_ATTR = "about";
+
+    private static final String PARSE_LITERAL_VALUE = "Literal";
+    private static final String PARSE_RESOURCE_VALUE = "Resource";
+    private static final String PARSE_COLLECTION_VALUE = "Collection";
+
     private short mode = 0;
 
     private String baseUri = "";
@@ -164,7 +172,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
                 }
                 subjLiIndexStack.push(liIndex);
 
-                String nodeId = attrs.getValue(RDF.NS, "ID");
+                String nodeId = attrs.getValue(RDF.NS, ID_ATTR);
                 if (nodeId != null) {
                     reifyIri = resolveIRINoResolve(baseStack.peek(), nodeId);
                 }
@@ -190,7 +198,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             error("Invalid property IRI");
         }
 
-        if (attrs.getValue(RDF.NS, "resource") != null && attrs.getValue(RDF.NS, "nodeID") != null) {
+        if (attrs.getValue(RDF.NS, "resource") != null && attrs.getValue(RDF.NS, NODE_ID_ATTR) != null) {
             error("Both rdf:resource and rdf:nodeID are present");
         }
         if (attrs.getValue(RDF.NS, "parseType") != null && !isAttrsValidForParseType(attrs)) {
@@ -257,17 +265,17 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             datatypeIri = resolveIRINoResolve(nsUri, value);
         } else if (attr.equals(RDF.PARSE_TYPE)) {
             parseDepth = 1;
-            if (value.equalsIgnoreCase("Literal")) {
+            if (value.equalsIgnoreCase(PARSE_LITERAL_VALUE)) {
                 parse = new StringBuilder();
                 mode = PARSE_TYPE_LITERAL;
-            } else if (value.equalsIgnoreCase("Resource")) {
+            } else if (value.equalsIgnoreCase(PARSE_RESOURCE_VALUE)) {
                 String bnode = newBnode();
                 processNonLiteralTriple(subjRes, predIri, bnode);
                 subjRes = bnode;
                 subjStack.push(subjRes);
                 subjLiIndexStack.push(1);
                 mode = PARSE_TYPE_RESOURCE;
-            } else if (value.equalsIgnoreCase("Collection")) {
+            } else if (value.equalsIgnoreCase(PARSE_COLLECTION_VALUE)) {
                 String bnode = newBnode();
                 sink.addNonLiteral(subjRes, predIri, bnode);
                 subjRes = bnode;
@@ -422,12 +430,12 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     private String getSubject(Attributes attrs) throws SAXException {
         int count = 0;
         String result = null;
-        String attrValue = attrs.getValue(RDF.NS, "about");
+        String attrValue = attrs.getValue(RDF.NS, ABOUT_ATTR);
         if (attrValue != null) {
             result = resolveIRI(baseStack.peek(), attrValue);
             count++;
         }
-        attrValue = attrs.getValue(RDF.NS, "ID");
+        attrValue = attrs.getValue(RDF.NS, ID_ATTR);
         if (attrValue != null) {
             result = resolveIRINoResolve(baseStack.peek(), attrValue);
             if (processedIDs.contains(result)) {
@@ -436,7 +444,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             processedIDs.add(result);
             count++;
         }
-        attrValue = attrs.getValue(RDF.NS, "nodeID");
+        attrValue = attrs.getValue(RDF.NS, NODE_ID_ATTR);
         if (attrValue != null) {
             result = RDF.BNODE_PREFIX + attrValue.hashCode();
             count++;

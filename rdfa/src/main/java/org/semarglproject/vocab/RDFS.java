@@ -15,12 +15,28 @@
  */
 package org.semarglproject.vocab;
 
+/**
+ * Defines URIs for the RDFS vocabulary terms.
+ */
 public final class RDFS {
+
     public static final String NS = "http://www.w3.org/2000/01/rdf-schema#";
 
-    public static final String SUB_PROPERTY_OF = NS + "subPropertyOf";
-    public static final String SUB_CLASS_OF = NS + "subClassOf";
+    public static final String DOMAIN = NS + "domain";
+    public static final String RANGE = NS + "range";
+    public static final String RESOURCE = NS + "Resource";
+    public static final String LITERAL = NS + "Literal";
+    public static final String DATATYPE = NS + "Datatype";
     public static final String CLASS = NS + "Class";
+    public static final String SUB_CLASS_OF = NS + "subClassOf";
+    public static final String SUB_PROPERTY_OF = NS + "subPropertyOf";
+    public static final String MEMBER = NS + "member";
+    public static final String CONTAINER = NS + "Container";
+    public static final String CONTAINER_MEMBERSHIP_PROPERTY = NS + "ContainerMembershipProperty";
+    public static final String COMMENT = NS + "comment";
+    public static final String SEE_ALSO = NS + "seeAlso";
+    public static final String IS_DEFINED_BY = NS + "isDefinedBy";
+    public static final String LABEL = NS + "label";
 
     private RDFS() {
     }

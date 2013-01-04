@@ -15,6 +15,9 @@
  */
 package org.semarglproject.vocab;
 
+/**
+ * Defines URIs for the RDFa vocabulary terms and RDFa attributes and versions.
+ */
 public final class RDFa {
 
     public static final String NS = "http://www.w3.org/ns/rdfa#";
