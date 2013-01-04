@@ -53,6 +53,11 @@ public class ClerezzaSink implements TripleSink {
         bnodeMap = new HashMap<String, BNode>();
     }
 
+    /**
+     * Instantiates sink for specified Clerezza {@link MGraph}
+     * @param graph graph to sink triples to
+     * @return new instance of Clerezza sink
+     */
     public static TripleSink connect(MGraph graph) {
         return new ClerezzaSink(graph);
     }

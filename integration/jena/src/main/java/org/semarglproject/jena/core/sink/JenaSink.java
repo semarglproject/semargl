@@ -44,7 +44,11 @@ public final class JenaSink extends AbstractJenaSink {
         super(model);
         this.batchSize = batchSize;
     }
-
+    /**
+     * Instantiates sink for specified Jena {@link Model}
+     * @param model model to sink triples to
+     * @return new instance of Jena sink
+     */
     public static TripleSink connect(Model model) {
         return new JenaSink(model, DEFAULT_BATCH_SIZE);
     }

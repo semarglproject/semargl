@@ -30,14 +30,25 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
+/**
+ * Implementation or Jena's RDFReader on top of Semargl APIs.
+ */
 public final class JenaRdfaReader implements RDFReader {
 
     private final StreamProcessor streamProcessor;
 
+    /**
+     * Default constructor. Creates RDFa parser in 1.1 mode with disabled vocabulary expansion feature.
+     * Properties can be changed using {@link #setProperty(String, Object)} calls with property keys
+     * from {@link RdfaParser}.
+     */
     public JenaRdfaReader() {
         streamProcessor = new StreamProcessor(RdfaParser.connect(JenaSink.connect(null)));
     }
 
+    /**
+     * Injects information about Semargl RDFa parser to Jena framework.
+     */
     public static void inject() {
         RDFReaderFImpl.setBaseReaderClassName("RDFA", JenaRdfaReader.class.getName());
     }

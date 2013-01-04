@@ -65,6 +65,11 @@ public class SesameSink implements TripleSink {
         this.handler = handler;
     }
 
+    /**
+     * Instantiates sink for specified Sesame {@link RDFHandler}
+     * @param handler RDFHandler to sink triples to
+     * @return new instance of Sesame sink
+     */
     public static TripleSink connect(RDFHandler handler) {
         return new SesameSink(handler);
     }

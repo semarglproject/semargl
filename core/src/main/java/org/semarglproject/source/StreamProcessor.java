@@ -42,6 +42,10 @@ public final class StreamProcessor extends BaseStreamProcessor {
     private final DataSink sink;
     private final AbstractSource source;
 
+    /**
+     * Instantiates stream processor for pipe starting with specified sink.
+     * @param sink pipe's input
+     */
     public StreamProcessor(DataSink sink) {
         this.sink = sink;
         this.source = createSourceForSink(sink);

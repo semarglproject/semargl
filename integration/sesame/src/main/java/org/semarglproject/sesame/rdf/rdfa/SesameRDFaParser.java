@@ -38,8 +38,10 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 /**
- * 
+ * Implementation or Sesame's RDFParser on top of Semargl APIs.
+ *
  * @author Peter Ansell p_ansell@yahoo.com
+ * @author Lev Khomich levkhomich@gmail.com
  *
  */
 public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler {
@@ -53,6 +55,11 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
 
     private ParseErrorListener parseErrorListener;
 
+    /**
+     * Default constructor. Creates RDFa parser in 1.1 mode with disabled vocabulary expansion feature.
+     * Properties can be changed using {@link #setParserConfig(org.openrdf.rio.ParserConfig)} method or
+     * object's setters.
+     */
     public SesameRDFaParser() {
         preserveBNodeIDs = true;
         vocabExpansionEnabled = false;
@@ -105,7 +112,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
 
     @Override
     public void setParseErrorListener(ParseErrorListener el) {
-        this.parseErrorListener  = el;
+        this.parseErrorListener = el;
     }
 
     @Override
@@ -154,16 +161,28 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
         }
     }
 
+    /**
+     * Changes {@link RdfaParser#ENABLE_PROCESSOR_GRAPH} setting
+     * @param processorGraphEnabled new value to be set
+     */
     public void setProcessorGraphEnabled(boolean processorGraphEnabled) {
         this.processorGraphEnabled = processorGraphEnabled;
         streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
     }
 
+    /**
+     * Changes {@link RdfaParser#ENABLE_VOCAB_EXPANSION} setting
+     * @param vocabExpansionEnabled new value to be set
+     */
     public void setVocabExpansionEnabled(boolean vocabExpansionEnabled) {
         this.vocabExpansionEnabled = vocabExpansionEnabled;
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
     }
 
+    /**
+     * Changes {@link RdfaParser#RDFA_VERSION_PROPERTY} setting
+     * @param rdfaCompatibility new value to be set
+     */
     public void setRdfaCompatibility(short rdfaCompatibility) {
         this.rdfaCompatibility = rdfaCompatibility;
         streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaCompatibility);
