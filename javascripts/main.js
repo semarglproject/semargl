@@ -35,6 +35,7 @@ function processUri() {
     la.load(request, function (data) {
         $('results').textContent = data;
         $('results_wrapper').style.display = 'block';
+        hljs.highlightBlock($('results'), '    ', false);
     });
     return false;
 }
