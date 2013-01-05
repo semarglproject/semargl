@@ -15,13 +15,15 @@
  */
 package org.semarglproject.example;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
+import org.semarglproject.jena.core.sink.JenaSink;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
-import org.semarglproject.sink.TripleSink;
 import org.semarglproject.source.StreamProcessor;
 import org.xml.sax.SAXException;
 
@@ -47,7 +49,7 @@ public final class BenchmarkRdfa {
                 @Override
                 public boolean accept(File file, String s) {
                     // SAX parser crashes here
-                    if (!s.contains("0295")) {
+                    if (s.contains("0236")) {
                         return false;
                     }
                     return s.endsWith(".xhtml") || s.endsWith(".html");
@@ -77,46 +79,16 @@ public final class BenchmarkRdfa {
 
     private static long benchmarkSemarglJena(File path) throws SAXException, ParseException {
         System.out.println("Semargl-Jena benchmark");
-//        Model model = ModelFactory.createDefaultModel();
+        Model model = ModelFactory.createDefaultModel();
 
-        StreamProcessor streamProcessor = new StreamProcessor(RdfaParser.connect(new TripleSink() {
-            @Override
-            public void addNonLiteral(String subj, String pred, String obj) {
-            }
-
-            @Override
-            public void addPlainLiteral(String subj, String pred, String content, String lang) {
-            }
-
-            @Override
-            public void addTypedLiteral(String subj, String pred, String content, String type) {
-            }
-
-            @Override
-            public void setBaseUri(String baseUri) {
-            }
-
-            @Override
-            public void startStream() throws ParseException {
-            }
-
-            @Override
-            public void endStream() throws ParseException {
-            }
-
-            @Override
-            public boolean setProperty(String key, Object value) {
-                return false;
-            }
-        }));
+        StreamProcessor streamProcessor = new StreamProcessor(RdfaParser.connect(JenaSink.connect(model)));
 
         List<File> files = listFiles(path);
         long time = System.nanoTime();
-        for (int i = 0; i < 100; i++)
         for (File file : files) {
             streamProcessor.process(file, HTTP_EXAMPLE_COM);
         }
-//        System.out.println("Model size = " + model.size());
+        System.out.println("Model size = " + model.size());
         return System.nanoTime() - time;
     }
 
@@ -142,7 +114,7 @@ public final class BenchmarkRdfa {
 
     public static void main(String[] args) throws Exception {
         printResults(benchmarkSemarglJena(BENCHMARK_PATH));
-//        printResults(benchmarkSemarglClerezza(BENCHMARK_PATH));
+        printResults(benchmarkSemarglClerezza(BENCHMARK_PATH));
     }
 
 }
