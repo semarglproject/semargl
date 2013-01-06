@@ -26,19 +26,11 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css"/>
-    <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/zenburn.min.css"/>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen"/>
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
-    <script>
-        hljs.tabReplace = '    ';
-        hljs.initHighlightingOnLoad();
-    </script>
-    <script src="javascripts/light_ajax.js"></script>
-    <script src="javascripts/main.js"></script>
-    <title>Semargl: better linked data processing - RDFa demo page</title>
+    <title>Semargl: better linked data processing</title>
 </head>
 
 <body about="http://semarglproject.org" typeof="Project">
@@ -58,9 +50,9 @@
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li><a href="index.html" class="button">Home</a></li>
-                            <li class="active"><a href="demo-rdfa.html" class="button">Demo</a></li>
+                            <li><a href="demo-rdfa.html" class="button">Demo</a></li>
                             <li><a href="jump-start-plain.html">Usage</a></li>
-                            <li><a href="conformance.html" class="button">W3C Conformance</a></li>
+                            <li class="active"><a href="conformance.html" class="button">W3C Conformance</a></li>
                         </ul>
                     </div>
                 </div>
@@ -72,48 +64,46 @@
 <div class="container">
 
     <div class="page-header">
-        <h1>RDFa endpoint demo</h1>
+        <h1>Supported W3C specifications</h1>
     </div>
 
-    <form onsubmit="return processUri();">
-        <fieldset>
-            <div class="input-append">
-                <input id="uri" type="text" value="http://semarglproject.org" placeholder="Document URI"/>
-                <button class="btn btn-primary" type="button" onclick="processUri();">Process</button>
-            </div>
+    <h4>RDF</h4>
 
-            <label>
-                <input id="includeOutput" type="checkbox" checked="true"/> include output graph
-            </label>
-            <label>
-                <input id="includeProcessor" type="checkbox"/> include processor graph
-            </label>
-            <label>
-                <input id="forceRdfa10" type="checkbox"/> force RDFa 1.0 mode
-            </label>
-            <label>
-                <input id="vocabExpansion" type="checkbox" checked="true" disabled /> enable vocabulary expansion
-            </label>
+    <ul rel="implements">
+        <li>RDF Semantics (<a href="http://www.w3.org/TR/2004/REC-rdf-mt-20040210/">REC</a>)</li>
+        <li>RDF Test Cases (<a href="http://www.w3.org/TR/2004/REC-rdf-testcases-20040210/">REC</a>)</li>
+    </ul>
 
-            <span id="results_wrapper" style="display: none">
-                <h4>Results</h4>
+    <h4>RDFa</h4>
 
-                <pre><code id="results">
-                </code></pre>
-            </span>
-        </fieldset>
-    </form>
+    <ul rel="implements">
+        <li>Core 1.0 (<a href="http://www.w3.org/TR/2008/REC-rdfa-syntax-20081014/">REC</a>),
+            Lite 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-lite-20120607/">REC</a>) and
+            Core 1.1 (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">REC</a>)
+        </li>
+        <li>XHTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/REC-xhtml-rdfa-20120607/">REC</a>)</li>
+        <li>HTML+RDFa 1.1 (<a href="http://www.w3.org/TR/2012/WD-rdfa-in-html-20120911/">WD</a>)</li>
+        <li>Optional features: Processor Graph Reporting (<a href="http://www.w3.org/ns/rdfa.html">REC</a>),
+            Vocabulary Expansion (<a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/#s_vocab_expansion">REC</a>),
+            Role Attribute 1.0 (<a href="http://www.w3.org/TR/2012/PR-role-attribute-20121213/">PR</a>)
+        </li>
+    </ul>
 
-    <p class="lead">Endpoint can be used to extract <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a>
-        data from web pages both as a web service or as a standalone web application.</p>
+    <p>
+        RDFa conformance can be checked at <a href="http://rdfa.info/test-suite">rdfa-info</a>.
+    </p>
 
-    <p class="lead">Service can be used directly via GET requests to
-        <a href="http://demo.semarglproject.org/process?uri={your_uri}">
-            http://demo.semarglproject.org/process?uri={your_uri}
-        </a>.
+    <h4>Other</h4>
 
-    <p class="lead">Bugs can be reported <a href="https://github.com/levkhomich/semargl/issues"
-                                      rel="bug-database">here</a></p>
+    <ul rel="implements">
+        <li>RDF/XML Syntax Specification (<a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">REC</a>)
+        </li>
+        <li>SVG Tiny 1.2 Metadata (<a href="www.w3.org/TR/2008/REC-SVGTiny12-20081222/metadata.html">REC</a>)
+        </li>
+        <li>Terse RDF Triple Language (<a href="http://www.w3.org/TeamSubmission/2011/SUBM-turtle-20110328/">SUBM</a>)
+        </li>
+        <li>N-Triples (<a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">IWD</a>)</li>
+    </ul>
 
     <div id="footer">
         <div class="container">
@@ -128,7 +118,7 @@
                 </div>
                 <p>
                     Semargl is maintained by <span href="http://levkhomich.ru/foaf#me" typeof="foaf:Person"
-                                                   rel="dc:creator maintainer developer foaf:maker">
+                                                rel="dc:creator maintainer developer foaf:maker">
                     <a property="foaf:name" rel="foaf:homepage" href="http://levkhomich.ru/">Lev Khomich</a></span>.<br/>
                     Project licensed under
                     <a href="http://www.apache.org/licenses/LICENSE-2.0.html" rel="license">Apache License, Version 2.0</a>
@@ -173,8 +163,6 @@
 </script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
-<script src="javascripts/light_ajax.js"></script>
-<script src="javascripts/main.js"></script>
 
 </body>
 
