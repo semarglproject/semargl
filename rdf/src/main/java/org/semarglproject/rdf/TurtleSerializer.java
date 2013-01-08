@@ -200,12 +200,13 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
     }
 
     private void serializeUri(String uri) {
-        if (uri.startsWith(RDF.NS)) {
-            builder.append("rdf:").append(uri.substring(RDF.NS.length()));
-        } else if (baseUri != null && uri.startsWith(baseUri)) {
-            builder.append(URI_START).append(uri.substring(baseUri.length())).append(URI_END);
+        String escapedUri = uri.replace("\\", "\\\\").replace(">", "\\u003E");
+        if (escapedUri.startsWith(RDF.NS)) {
+            builder.append("rdf:").append(escapedUri.substring(RDF.NS.length()));
+        } else if (baseUri != null && escapedUri.startsWith(baseUri)) {
+            builder.append(URI_START).append(escapedUri.substring(baseUri.length())).append(URI_END);
         } else {
-            builder.append(URI_START).append(uri).append(URI_END);
+            builder.append(URI_START).append(escapedUri).append(URI_END);
         }
         builder.append(SPACE);
     }
@@ -230,11 +231,11 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
     }
 
     private void addContent(String content) {
-        content = content.replace("\\", "\\\\").replace("\"", "\\\"");
-        if (content.contains(EOL)) {
-            builder.append(MULTILINE_QUOTE).append(content).append(MULTILINE_QUOTE);
+        String escapedContent = content.replace("\\", "\\\\").replace("\"", "\\\"");
+        if (escapedContent.contains(EOL)) {
+            builder.append(MULTILINE_QUOTE).append(escapedContent).append(MULTILINE_QUOTE);
         } else {
-            builder.append(SINGLE_LINE_QUOTE).append(content).append(SINGLE_LINE_QUOTE);
+            builder.append(SINGLE_LINE_QUOTE).append(escapedContent).append(SINGLE_LINE_QUOTE);
         }
     }
 
