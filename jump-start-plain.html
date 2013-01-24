@@ -39,7 +39,7 @@
     <title>Semargl: better linked data processing - Jump-start with plain Java</title>
 </head>
 
-<body about="http://semarglproject.org" typeof="Project">
+<body about="http://semarglproject.org" typeof="Project" data-spy="scroll" data-target=".nav-sidebar">
 
 <div class="navbar-wrapper">
     <!-- Wrap the .navbar in .container to center it within the absolutely positioned parent. -->
@@ -67,10 +67,19 @@
     </div>
 </div>
 
+<div class="span3 nav-sidebar affix">
+    <ul class="nav nav-list sidenav" data-spy="affix">
+        <li><a href="#plainjava"><i class="icon-chevron-right"></i> Plain Java</a></li>
+        <li><a href="#jena"><i class="icon-chevron-right"></i> Jena</a></li>
+        <li><a href="#sesame"><i class="icon-chevron-right"></i> Sesame</a></li>
+    </ul>
+</div>
+
 <div class="container">
 
+    <section id="plainjava">
     <div class="page-header">
-        <h1>Usage in plain Java</h1>
+        <h1>Plain Java API</h1>
     </div>
 
     <p>
@@ -157,6 +166,83 @@ outputSink.setProperty(CharOutputSink.CHARSET_PROPERTY, "UTF-8");
 sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);
 </code></pre>
 
+    </section>
+
+    <section id="jena">
+        <div class="page-header">
+            <h1>Jena API</h1>
+        </div>
+
+        <p>
+            At this moment <code>semargl-jena</code> module provides RDFa parser usable from Jena API.
+            You should specify following dependency.
+        </p>
+
+<pre><code class="xml">&lt;repositories&gt;
+    &lt;repository&gt;
+        &lt;id&gt;Semargl repo&lt;/id&gt;
+        &lt;url&gt;https://github.com/levkhomich/semargl/raw/master/maven-repo&lt;/url&gt;
+    &lt;/repository&gt;
+&lt;/repositories&gt;
+
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
+        &lt;artifactId&gt;semargl-jena&lt;/artifactId&gt;
+        &lt;version&gt;0.3&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+
+        <p>
+            Then inject parser.
+        </p>
+
+<pre class="java"><code>JenaRdfaReader.inject();</code></pre>
+
+        <p>
+            After this steps you will be able to use Semargl RDFa parser by specifying "RDFA" format in
+            <code>Model.read()</code> methods.
+        </p>
+
+<pre class="java"><code>Model model = ... // Jena calls
+model.read(new FileReader(file), docUri, "RDFA");</code></pre>
+
+    </section>
+
+    <section id="sesame">
+        <div class="page-header">
+            <h1>Sesame API</h1>
+        </div>
+
+        <p>
+            Sesame support provided by <code>semargl-module</code>. Add following code to your <code>pom.xml</code>.
+        </p>
+
+<pre><code class="xml">&lt;repositories&gt;
+    &lt;repository&gt;
+        &lt;id&gt;Semargl repo&lt;/id&gt;
+        &lt;url&gt;https://github.com/levkhomich/semargl/raw/master/maven-repo&lt;/url&gt;
+    &lt;/repository&gt;
+&lt;/repositories&gt;
+
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
+        &lt;artifactId&gt;semargl-sesame&lt;/artifactId&gt;
+        &lt;version&gt;0.3&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+
+        <p>
+            RDFa parser can be used through Sesame RIO API.
+        </p>
+
+<pre class="java"><code>RDFParser rdfParser = Rio.createParser(RDFaFormat.RDFA);
+rdfParser.setRDFHandler(model);
+rdfParser.parse(input, inputUri);</code></pre>
+
+    </section>
+
     <div id="footer">
         <div class="container">
             <div class="muted credit">
@@ -178,6 +264,7 @@ sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);
             </div>
         </div>
     </div>
+
 
 </div>
 
