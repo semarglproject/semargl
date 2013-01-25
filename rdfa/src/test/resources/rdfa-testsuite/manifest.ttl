@@ -2571,6 +2571,7 @@ white   space
      the same base as the original document.
     """;
    test:specificationReference "RDFa Core 1.1, section 7.5 step 3" .
+
 <test-cases/0320> dc:contributor "Gregg Kellogg";
    dc:title "@property binds to @href";
    a test:TestCase;
@@ -2581,3 +2582,80 @@ white   space
    test:informationResourceResults <test-cases/0320.sparql>;
    test:purpose "Given @property with @href and @src, @href is used as object and sets new subject.";
    test:specificationReference "RDFa Core 1.1, section 7.5 step 5" .
+
+<test-cases/0321> dc:contributor "Gregg Kellogg";
+   dc:title "rdfa:copye to rdfa:Pattern";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0321.html>;
+   test:informationResourceResults <test-cases/0321.sparql>;
+   test:purpose "Simple reference to an rdfa:Pattern.";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
+
+<test-cases/0322> dc:contributor "Gregg Kellogg";
+   dc:title "rdfa:copy for additional property value";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0322.html>;
+   test:informationResourceResults <test-cases/0322.sparql>;
+   test:purpose "an rdfa:Pattern can add an additional property value.";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
+
+<test-cases/0323> dc:contributor "Gregg Kellogg";
+   dc:title "Multiple references to rdfa:Pattern";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0323.html>;
+   test:informationResourceResults <test-cases/0323.sparql>;
+   test:purpose "Multiple subjects can reference the same rdfa:Pattern.";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
+
+<test-cases/0324> dc:contributor "Gregg Kellogg";
+   dc:title "Multiple references to rdfa:Pattern";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0324.html>;
+   test:informationResourceResults <test-cases/0324.sparql>;
+   test:purpose "A subject can reference multiple rdfa:Pattern definitions.";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
+
+<test-cases/0325> dc:contributor "Gregg Kellogg";
+   dc:title "Multiple references to rdfa:Pattern creating a resource";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0325.html>;
+   test:informationResourceResults <test-cases/0325.sparql>;
+   test:purpose "An rdfa:Pattern defining a new blank-node object only creates a single node.";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
+
+<test-cases/0326> dc:contributor "Gregg Kellogg";
+   dc:title "rdfa:Pattern removed only if referenced";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0325.html>;
+   test:informationResourceResults <test-cases/0325.sparql>;
+   test:purpose "An rdfa:Pattern is removed if referenced, and not otherwise";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
+
+<test-cases/0327> dc:contributor "Gregg Kellogg";
+   dc:title "rdfa:Pattern chaining";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1-vocab";
+   rdfatest:hostLanguage "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput <test-cases/0325.html>;
+   test:informationResourceResults <test-cases/0325.sparql>;
+   test:purpose "RDFa reference folding rules are repeated to allow prototypes to be chained.";
+   test:specificationReference "HTML+RDFa Section 3.5.1" .
