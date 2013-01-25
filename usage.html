@@ -102,9 +102,8 @@
 &lt;/dependencies&gt;</code></pre>
 
     <p>
-        Now you can create processing pipes using simple API. For example, if you want to extract
-        RDFa triples from your document, serialize them to turtle and then print to <code>System.out</code>, you can
-        do following:
+        Now you can create processing pipes using simple API. For example, do following to extract
+        RDFa triples from your document, serialize them to turtle and then print to <code>System.out</code>.
     </p>
 
 <pre><code class="java">CharOutputSink outputSink = new CharOutputSink();
@@ -115,7 +114,7 @@ outputSink.connect(System.out);
 sp.process(someHtmlFile);</code></pre>
 
     <p>
-        You can customize pipes implementing your own sinks or pipes:
+        You can customize processing steps by implementing your own sinks or pipes:
     </p>
 
 <pre><code class="java">class LiteralCounterSink implements TripleSink {
@@ -215,7 +214,7 @@ model.read(new FileReader(file), docUri, "RDFA");</code></pre>
         </div>
 
         <p>
-            Sesame support provided by <code>semargl-module</code>. Add following code to your <code>pom.xml</code>.
+            Sesame support provided by <code>semargl-sesame</code> module. Add following code to your <code>pom.xml</code>.
         </p>
 
 <pre><code class="xml">&lt;repositories&gt;
