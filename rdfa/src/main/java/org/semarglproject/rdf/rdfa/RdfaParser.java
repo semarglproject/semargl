@@ -24,6 +24,7 @@ import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.SaxSink;
 import org.semarglproject.sink.TripleSink;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.RDFa;
 import org.semarglproject.vocab.XSD;
@@ -52,7 +53,7 @@ import java.util.NoSuchElementException;
  *     List of supported options:
  *     <ul>
  *         <li>{@link #RDFA_VERSION_PROPERTY}</li>
- *         <li>{@link #PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
+ *         <li>{@link StreamProcessor#PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
  *         <li>{@link #ENABLE_OUTPUT_GRAPH}</li>
  *         <li>{@link #ENABLE_PROCESSOR_GRAPH}</li>
  *         <li>{@link #ENABLE_VOCAB_EXPANSION}</li>
@@ -67,14 +68,6 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
      */
     public static final String RDFA_VERSION_PROPERTY =
             "http://semarglproject.org/rdfa/properties/version";
-
-    /**
-     * Used as a key with {@link #setProperty(String, Object)} method.
-     * Allows to specify handler for <a href="http://www.w3.org/ns/rdfa.html">processor graph</a> events.
-     * Subclass of {@link ProcessorGraphHandler} must be passed as a value.
-     */
-    public static final String PROCESSOR_GRAPH_HANDLER_PROPERTY =
-            "http://semarglproject.org/rdfa/properties/processor-graph-handler";
 
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
@@ -152,6 +145,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
     private final DocumentContext dh;
     private final Splitter splitter;
     private Locator locator = null;
+
     private ProcessorGraphHandler processorGraphHandler = null;
 
     private boolean rdfXmlInline = false;
@@ -1035,8 +1029,10 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
                 throw new IllegalArgumentException("Unsupported RDFa version");
             }
             defaultRdfaVersion = (short) rdfaVersion;
-        } else if (PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key) && value instanceof ProcessorGraphHandler) {
+        } else if (StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key)
+                && value instanceof ProcessorGraphHandler) {
             processorGraphHandler = (ProcessorGraphHandler) value;
+            return false;
         } else {
             return false;
         }

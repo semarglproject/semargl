@@ -69,7 +69,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
         streamProcessor = new StreamProcessor(RdfaParser.connect(SesameSink.connect(null)));
         streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
-        streamProcessor.setProperty(RdfaParser.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
+        streamProcessor.setProperty(StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
     }
 
     @Override
@@ -133,7 +133,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
 
     @Override
     public RdfaParserConfig getParserConfig() {
-        return new RdfaParserConfig(false, true, preserveBNodeIDs, DatatypeHandling.IGNORE,
+        return new RdfaParserConfig(false, false, preserveBNodeIDs, DatatypeHandling.IGNORE,
                 processorGraphEnabled, vocabExpansionEnabled, rdfaCompatibility);
     }
 
@@ -149,9 +149,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
 
     @Override
     public void setStopAtFirstError(boolean stopAtFirstError) {
-        if (!stopAtFirstError) {
-            throw new IllegalArgumentException("Parser doesn't support stopAtFirstError = " + stopAtFirstError);
-        }
+        // RDFa parser ignores all errors when possible by default
     }
 
     @Override

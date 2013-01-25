@@ -20,6 +20,7 @@ import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.SaxSink;
 import org.semarglproject.sink.TripleSink;
+import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
@@ -35,16 +36,30 @@ import java.util.Stack;
 
 /**
  * Implementation of streaming <a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">RDF/XML</a> parser.
+ * <p>
+ *     List of supported options:
+ *     <ul>
+ *         <li>{@link StreamProcessor#PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
+ *         <li>{@link StreamProcessor#ENABLE_ERROR_RECOVERY}</li>
+ *     </ul>
+ * </p>
  */
 public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
+    /**
+     * Class URI for errors produced by a parser
+     */
+    public static final String ERROR = "http://semarglproject.org/ntriples/Error";
+
     private static final String IS_NOT_ALLOWED_HERE = " is not allowed here";
 
+    // processing modes
     private static final short INSIDE_OF_PROPERTY = 1;
     private static final short INSIDE_OF_RESOURCE = 2;
     private static final short PARSE_TYPE_LITERAL = 3;
     private static final short PARSE_TYPE_COLLECTION = 4;
     private static final short PARSE_TYPE_RESOURCE = 5;
+    private static final short ERROR_RECOVERY = 6;
 
     private static final String ID_ATTR = "ID";
     private static final String NODE_ID_ATTR = "nodeID";
@@ -87,6 +102,9 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     private int parseDepth = 0;
     private StringBuilder parse = new StringBuilder();
 
+    private ProcessorGraphHandler processorGraphHandler = null;
+    private boolean ignoreErrors = false;
+
     private RdfXmlParser(TripleSink sink) {
         super(sink);
     }
@@ -100,8 +118,16 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         return new RdfXmlParser(sink);
     }
 
-    private static void error(String msg) throws SAXException {
-        throw new SAXException(new ParseException(msg));
+    private void error(String msg) throws SAXException {
+        if (processorGraphHandler != null) {
+            processorGraphHandler.error(ERROR, msg);
+        }
+        if (ignoreErrors) {
+            modeStack.push(mode);
+            mode = ERROR_RECOVERY;
+        } else {
+            throw new SAXException(new ParseException(msg));
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -116,6 +142,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     @Override
     public void startElement(String nsUri, String lname, String qname, Attributes attrs) throws SAXException {
         modeStack.push(mode);
+
         if (parseDepth > 0) {
             parseDepth++;
             if (mode == PARSE_TYPE_LITERAL) {
@@ -123,6 +150,10 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
                 nsMappings.clear();
                 return;
             }
+        }
+
+        if (mode == ERROR_RECOVERY) {
+            return;
         }
 
         processLangAndBase(attrs);
@@ -139,6 +170,10 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             case PARSE_TYPE_COLLECTION:
             case INSIDE_OF_PROPERTY: {
                 subjRes = getSubject(attrs);
+                if (subjRes == null) {
+                    // error during subject processing was ignored so we need to skip next steps
+                    return;
+                }
 
                 if (mode != PARSE_TYPE_COLLECTION && !subjStack.isEmpty()) {
                     processNonLiteralTriple(subjStack.peek(), predIri, subjRes);
@@ -147,8 +182,9 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
                 if (!iri.equals(RDF.DESCRIPTION)) {
                     if (iri.equals(RDF.LI)) {
                         error(qname + IS_NOT_ALLOWED_HERE);
+                    } else {
+                        sink.addNonLiteral(subjRes, RDF.TYPE, iri);
                     }
-                    sink.addNonLiteral(subjRes, RDF.TYPE, iri);
                 }
 
                 processResourceAttrs(qname, attrs);
@@ -164,7 +200,12 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             case INSIDE_OF_RESOURCE: {
                 int liIndex = subjLiIndexStack.pop();
 
-                checkPropertyForErrors(qname, iri, attrs);
+                boolean correctProperty = checkPropertyForErrors(qname, iri, attrs);
+
+                if (!correctProperty) {
+                    // error during property processing was ignored so we need to skip next steps
+                    return;
+                }
 
                 predIri = iri;
                 if (predIri.equals(RDF.LI)) {
@@ -190,20 +231,25 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         }
     }
 
-    private void checkPropertyForErrors(String qname, String iri, Attributes attrs) throws SAXException {
+    private boolean checkPropertyForErrors(String qname, String iri, Attributes attrs) throws SAXException {
         if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
             error(qname + IS_NOT_ALLOWED_HERE);
+            return false;
         }
         if (!RIUtils.isIri(iri)) {
             error("Invalid property IRI");
+            return false;
         }
 
         if (attrs.getValue(RDF.NS, "resource") != null && attrs.getValue(RDF.NS, NODE_ID_ATTR) != null) {
             error("Both rdf:resource and rdf:nodeID are present");
+            return false;
         }
         if (attrs.getValue(RDF.NS, "parseType") != null && !isAttrsValidForParseType(attrs)) {
             error("rdf:parseType conflicts with other attributes");
+            return false;
         }
+        return true;
     }
 
     private void processResourceAttrs(String qname, Attributes attrs) throws SAXException {
@@ -219,8 +265,9 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             } else {
                 if (violatesSchema(tag) || tag.equals(RDF.LI)) {
                     error(qname + IS_NOT_ALLOWED_HERE);
+                } else {
+                    sink.addPlainLiteral(subjRes, tag, value, langStack.peek());
                 }
-                sink.addPlainLiteral(subjRes, tag, value, langStack.peek());
             }
         }
     }
@@ -251,6 +298,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             base += '#';
             if (!RIUtils.isAbsoluteIri(base)) {
                 error("Invalid base IRI");
+                base = baseStack.peek();
             }
         }
         baseStack.push(base);
@@ -259,8 +307,10 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     private void processPropertyTagAttr(String nsUri, String attr, String value) throws SAXException {
         if (attr.equals(RDF.RESOURCE)) {
             String id = resolveIRI(baseStack.peek(), value);
-            processNonLiteralTriple(subjRes, predIri, id);
-            captureLiteral = false;
+            if (id != null) {
+                processNonLiteralTriple(subjRes, predIri, id);
+                captureLiteral = false;
+            }
         } else if (attr.equals(RDF.DATATYPE)) {
             datatypeIri = resolveIRINoResolve(nsUri, value);
         } else if (attr.equals(RDF.PARSE_TYPE)) {
@@ -288,18 +338,20 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         } else if (attr.equals(RDF.NODEID)) {
             if (!XmlUtils.isValidNCName(value)) {
                 error("Invalid nodeID");
+            } else {
+                String id = RDF.BNODE_PREFIX + value.hashCode();
+                processNonLiteralTriple(subjRes, predIri, id);
+                captureLiteral = false;
             }
-            String id = RDF.BNODE_PREFIX + value.hashCode();
-            processNonLiteralTriple(subjRes, predIri, id);
-            captureLiteral = false;
         } else {
             if (violatesSchema(attr) || attr.equals(RDF.NIL)) {
                 error(attr + IS_NOT_ALLOWED_HERE);
+            } else {
+                String bnode = newBnode();
+                processNonLiteralTriple(subjRes, predIri, bnode);
+                sink.addPlainLiteral(bnode, attr, value, langStack.peek());
+                captureLiteral = false;
             }
-            String bnode = newBnode();
-            processNonLiteralTriple(subjRes, predIri, bnode);
-            sink.addPlainLiteral(bnode, attr, value, langStack.peek());
-            captureLiteral = false;
         }
     }
 
@@ -371,6 +423,10 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
                 mode = INSIDE_OF_RESOURCE;
                 break;
             }
+            case ERROR_RECOVERY: {
+                mode = modeStack.pop();
+                return;
+            }
             default:
                 throw new IllegalStateException("Unknown mode = " + mode);
         }
@@ -433,16 +489,21 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         String attrValue = attrs.getValue(RDF.NS, ABOUT_ATTR);
         if (attrValue != null) {
             result = resolveIRI(baseStack.peek(), attrValue);
-            count++;
+            if (result != null) {
+                count++;
+            }
         }
         attrValue = attrs.getValue(RDF.NS, ID_ATTR);
         if (attrValue != null) {
             result = resolveIRINoResolve(baseStack.peek(), attrValue);
-            if (processedIDs.contains(result)) {
-                error("Duplicate definition for resource ID = " + result);
+            if (result != null) {
+                if (processedIDs.contains(result)) {
+                    error("Duplicate definition for resource ID = " + result);
+                    return null;
+                }
+                processedIDs.add(result);
+                count++;
             }
-            processedIDs.add(result);
-            count++;
         }
         attrValue = attrs.getValue(RDF.NS, NODE_ID_ATTR);
         if (attrValue != null) {
@@ -454,6 +515,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         }
         if (count > 1) {
             error("Ambiguous identifier definition");
+            return null;
         }
         return result;
     }
@@ -463,25 +525,42 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         return RDF.BNODE_PREFIX + bnodeId;
     }
 
-    private static String resolveIRINoResolve(String nsIri, String iri) throws SAXException {
+    /**
+     * Resolves specified IRI ignoring special cases
+     * @param baseIri base to resolve against
+     * @param iri IRI to resolve
+     * @return resolved IRI or null on error
+     * @throws SAXException
+     */
+    private String resolveIRINoResolve(String baseIri, String iri) throws SAXException {
         if (RIUtils.isAbsoluteIri(iri)) {
             return iri;
         }
         if (!XmlUtils.isValidNCName(iri)) {
-            throw new SAXException(new ParseException("Vocab term must be a valid NCName"));
+            error("Vocab term must be a valid NCName");
+            return null;
         }
-        String result = nsIri + iri;
+        String result = baseIri + iri;
         if (RIUtils.isAbsoluteIri(result)) {
             return result;
         }
-        throw new SAXException(new ParseException(new MalformedIriException("Malformed IRI: " + iri)));
+        error("Malformed IRI: " + iri);
+        return null;
     }
 
-    private static String resolveIRI(String nsIri, String iri) throws SAXException {
+    /**
+     * Resolves specified IRI
+     * @param baseIri base to resolve against
+     * @param iri IRI to resolve
+     * @return resolved IRI or null on error
+     * @throws SAXException
+     */
+    private String resolveIRI(String baseIri, String iri) throws SAXException {
         try {
-            return RIUtils.resolveIri(nsIri, iri);
+            return RIUtils.resolveIri(baseIri, iri);
         } catch (MalformedIriException e) {
-            throw new SAXException(new ParseException(e));
+            error(e.getMessage());
+            return null;
         }
     }
 
@@ -603,6 +682,11 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
     @Override
     protected boolean setPropertyInternal(String key, Object value) {
+        if (StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key) && value instanceof ProcessorGraphHandler) {
+            processorGraphHandler = (ProcessorGraphHandler) value;
+        } else if (StreamProcessor.ENABLE_ERROR_RECOVERY.equals(key) && value instanceof Boolean) {
+            ignoreErrors = (Boolean) value;
+        }
         return false;
     }
 }

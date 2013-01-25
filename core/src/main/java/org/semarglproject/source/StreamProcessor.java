@@ -39,6 +39,21 @@ public final class StreamProcessor extends BaseStreamProcessor {
      */
     public static final String XML_READER_PROPERTY = "http://semarglproject.org/core/properties/xml-parser";
 
+    /**
+     * Used as a key with {@link #setProperty(String, Object)} method.
+     * Enables or disables error recovery mechanism.
+     */
+    public static final String ENABLE_ERROR_RECOVERY =
+            "http://semarglproject.org/core/properties/enable-error-recovery";
+
+    /**
+     * Used as a key with {@link #setProperty(String, Object)} method.
+     * Allows to specify handler for processor events.
+     * Subclass of {@link org.semarglproject.rdf.ProcessorGraphHandler} must be passed as a value.
+     */
+    public static final String PROCESSOR_GRAPH_HANDLER_PROPERTY =
+            "http://semarglproject.org/core/properties/processor-graph-handler";
+
     private final DataSink sink;
     private final AbstractSource source;
 
