@@ -1,6 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
 
     <groupId>org.semarglproject</groupId>
     <artifactId>semargl-parent</artifactId>
@@ -34,8 +41,13 @@
     <scm>
         <connection>scm:git:git@github.com:levkhomich/semargl.git</connection>
         <developerConnection>scm:git:git@github.com:levkhomich/semargl.git</developerConnection>
-        <url>git@github.com:levkhomich/semargl.git</url>
+        <url>https://github.com/levkhomich/semargl.git</url>
     </scm>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/levkhomich/semargl/issues</url>
+    </issueManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -183,7 +195,8 @@
                                 <configLocation>checkstyle/checkstyle-other.xml</configLocation>
                                 <includes>**/*</includes>
                                 <excludes>
-                                    **/*.java,**/test/resources/**/*,**/target/**/*,**/maven-repo/**/*
+                                    **/*.java,**/test/resources/**/*,**/target/**/*,**/maven-repo/**/*,
+                                    **/release.properties
                                 </excludes>
                                 <sourceDirectory>.</sourceDirectory>
                             </configuration>
