@@ -155,8 +155,7 @@ sp.process(someHtmlFile);</code></pre>
 <pre class="java"><code>// properties can be changed both for single pipe and its children (if they exist)
 outputSink.setProperty(CharOutputSink.CHARSET_PROPERTY, "UTF-8");
 // or all pipe hierarchy of stream processor
-sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);
-</code></pre>
+sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);</code></pre>
 
     </section>
 
@@ -170,7 +169,7 @@ sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);
             You should specify following dependency.
         </p>
 
-<pre><code class="xml"&lt;dependencies&gt;
+<pre><code class="xml">&lt;dependencies&gt;
     &lt;dependency&gt;
         &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
         &lt;artifactId&gt;semargl-jena&lt;/artifactId&gt;
