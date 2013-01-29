@@ -30,6 +30,7 @@ import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.sesame.core.sink.SesameSink;
 import org.semarglproject.vocab.RDFa;
+import org.xml.sax.XMLReader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +71,15 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
         streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH, processorGraphEnabled);
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, vocabExpansionEnabled);
         streamProcessor.setProperty(StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
+    }
+
+    /**
+     * Constructor which allows to specify custom XMLReader.
+     * @param xmlReader instance of XMLReader to be used in processing
+     */
+    public SesameRDFaParser(XMLReader xmlReader) {
+        this();
+        streamProcessor.setProperty(StreamProcessor.XML_READER_PROPERTY, xmlReader);
     }
 
     @Override
