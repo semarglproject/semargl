@@ -24,7 +24,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css"/>
     <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/zenburn.min.css"/>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen"/>
@@ -72,6 +72,7 @@
         <li><a href="#plainjava"><i class="icon-chevron-right"></i> Plain Java</a></li>
         <li><a href="#jena"><i class="icon-chevron-right"></i> Jena</a></li>
         <li><a href="#sesame"><i class="icon-chevron-right"></i> Sesame</a></li>
+        <li><a href="#extending"><i class="icon-chevron-right"></i> Extending the framework</a></li>
     </ul>
 </div>
 
@@ -105,47 +106,6 @@ RdfaParser.connect(TurtleSerializer.connect(outputSink));
 
 outputSink.connect(System.out);
 sp.process(someHtmlFile);</code></pre>
-
-    <p>
-        You can customize processing steps by implementing your own sinks or pipes:
-    </p>
-
-<pre><code class="java">class LiteralCounterSink implements TripleSink {
-
-    private int count = 0;
-
-    void startStream() throws ParseException {
-        count = 0
-    }
-
-    void addNonLiteral(String subj, String pred, String obj) {
-        // ignore non literal
-    }
-
-    void addPlainLiteral(String subj, String pred, String content, String lang) {
-        count++;
-    }
-
-    void addTypedLiteral(String subj, String pred, String content, String type) {
-        count++;
-    }
-
-    void endStream() throws ParseException {
-        System.out.println("Triples processed: " + customSink.count);
-    }
-
-    // ignored callbacks
-    void setBaseUri(String baseUri) {}
-    boolean setProperty(String key, Object value) {}
-
-    public static void main(String[] args) throws Exception {
-        TripleSink mySink = new LiteralCounterSink();
-        StreamProcessor sp = new StreamProcessor(RdfaParser.connect(mySink));
-
-        // number of literal triples extracted from URI will be printed to System.out
-        sp.process("http://semarglproject.org");
-    }
-};</code></pre>
 
     <p>
         To change pipeline settings, you could use <code>setProperty</code> method with appropriate key
@@ -220,6 +180,54 @@ rdfParser.parse(input, inputUri);</code></pre>
 
     </section>
 
+    <section id="extending">
+        <div class="page-header">
+            <h1>Extending framework</h1>
+        </div>
+
+        <p>
+            You can customize processing steps by implementing your own sinks or pipes:
+        </p>
+
+<pre><code class="java">class LiteralCounterSink implements TripleSink {
+
+    private int count = 0;
+
+    void startStream() throws ParseException {
+        count = 0
+    }
+
+    void addNonLiteral(String subj, String pred, String obj) {
+        // ignore non literal
+    }
+
+    void addPlainLiteral(String subj, String pred, String content, String lang) {
+        count++;
+    }
+
+    void addTypedLiteral(String subj, String pred, String content, String type) {
+        count++;
+    }
+
+    void endStream() throws ParseException {
+        System.out.println("Triples processed: " + customSink.count);
+    }
+
+    // ignored callbacks
+    void setBaseUri(String baseUri) {}
+    boolean setProperty(String key, Object value) {}
+
+    public static void main(String[] args) throws Exception {
+        TripleSink mySink = new LiteralCounterSink();
+        StreamProcessor sp = new StreamProcessor(RdfaParser.connect(mySink));
+
+        // number of literal triples extracted from URI will be printed to System.out
+        sp.process("http://semarglproject.org");
+    }
+};</code></pre>
+
+    </section>
+
     <div id="footer">
         <div class="container">
             <div class="muted credit">
@@ -241,7 +249,6 @@ rdfParser.parse(input, inputUri);</code></pre>
             </div>
         </div>
     </div>
-
 
 </div>
 
