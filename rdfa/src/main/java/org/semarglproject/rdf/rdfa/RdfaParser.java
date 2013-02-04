@@ -643,7 +643,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
      */
     private String parseContent(Attributes attrs) {
         String content = attrs.getValue(RDFa.CONTENT_ATTR);
-        if (dh.documentFormat == DocumentContext.FORMAT_HTML5) {
+        if (content == null && dh.documentFormat == DocumentContext.FORMAT_HTML5) {
             if (attrs.getValue(VALUE_ATTR) != null) {
                 content = attrs.getValue(VALUE_ATTR);
             }
