@@ -902,24 +902,27 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
         }
         if (!parent.parsingLiteral && parent.objectLit != null) {
             parent.objectLit += content;
-        } else {
-            String dt = current.objectLitDt;
-            boolean inlist = current.properties.get(0).equals(RDFa.INLIST_ATTR);
+        }
+        if (current.properties == null) {
+            return;
+        }
 
-            if (inlist) {
-                String langOrDt = resolveLangOrDt(content, dt, current);
-                current.properties.remove(0);
-                for (String predIri : current.properties) {
-                    List<String> mappingForIri = current.getMappingForIri(predIri);
-                    mappingForIri.add(LITERAL_OBJECT_FLAG);
-                    mappingForIri.add(content);
-                    mappingForIri.add(langOrDt);
-                }
-            } else {
-                for (String predIri : current.properties) {
-                    dt = resolveLangOrDt(content, dt, current);
-                    addLiteralTriple(current.subject, predIri, content, dt);
-                }
+        String dt = current.objectLitDt;
+        boolean inlist = RDFa.INLIST_ATTR.equals(current.properties.get(0));
+
+        if (inlist) {
+            String langOrDt = resolveLangOrDt(content, dt, current);
+            current.properties.remove(0);
+            for (String predIri : current.properties) {
+                List<String> mappingForIri = current.getMappingForIri(predIri);
+                mappingForIri.add(LITERAL_OBJECT_FLAG);
+                mappingForIri.add(content);
+                mappingForIri.add(langOrDt);
+            }
+        } else {
+            for (String predIri : current.properties) {
+                dt = resolveLangOrDt(content, dt, current);
+                addLiteralTriple(current.subject, predIri, content, dt);
             }
         }
     }

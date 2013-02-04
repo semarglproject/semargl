@@ -148,7 +148,7 @@ public final class RdfaTestBundle {
                 // there is no way to detect rdfa version from that document
                 if (testNum == 294 && rdfaVersion.equals("rdfa1.0") && docFormat.equals("svg")
                         // RDFa Property Copying feature is not stabilized yet
-                        || testNum >= 321 && testNum <= 324) {
+                        || testNum >= 321 && testNum <= 327) {
                     continue;
                 }
             } catch (NumberFormatException e) {
