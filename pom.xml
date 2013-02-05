@@ -196,7 +196,7 @@
                                 <includes>**/*</includes>
                                 <excludes>
                                     **/*.java,**/test/resources/**/*,**/target/**/*,**/maven-repo/**/*,
-                                    **/release.properties
+                                    **/release.properties,**/.settings,**/.classpath,**/.project
                                 </excludes>
                                 <sourceDirectory>.</sourceDirectory>
                             </configuration>
