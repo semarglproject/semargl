@@ -160,6 +160,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
     @Override
     public void setPreserveBNodeIDs(boolean preserveBNodeIDs) {
         parserConfig.set(BasicParserSettings.PRESERVE_BNODE_IDS, preserveBNodeIDs);
+        refreshSettings();
     }
 
     @Override
