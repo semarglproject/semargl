@@ -24,9 +24,8 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.sesame.rdf.rdfa.RDFaFormat;
-import org.semarglproject.sesame.rdf.rdfa.RdfaParserConfig;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
+import org.semarglproject.sesame.rdf.rdfa.SemarglParserSettings;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -49,12 +48,15 @@ public class SesameRdfaReaderTest {
         @Override
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
             try {
-                RDFParser rdfParser = Rio.createParser(RDFaFormat.RDFA);
-                rdfParser.setParserConfig(new RdfaParserConfig(true, true, RDFa.VERSION_11));
+                RDFParser rdfParser = Rio.createParser(RDFFormat.RDFA);
+                rdfParser.getParserConfig().set(SemarglParserSettings.RDFA_COMPATIBILITY, RDFa.VERSION_11);
+                rdfParser.getParserConfig().set(SemarglParserSettings.VOCAB_EXPANSION_ENABLED, true);
+                rdfParser.getParserConfig().set(SemarglParserSettings.PROCESSOR_GRAPH_ENABLED, true);
                 rdfParser.setRDFHandler(model);
                 rdfParser.parse(input, inputUri);
             } catch (OpenRDFException e) {
                 // do nothing
+                // FIXME: Why not fail quickly here?
             } catch (IOException e) {
                 // do nothing
             } finally {
