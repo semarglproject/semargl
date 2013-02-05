@@ -18,4 +18,18 @@
         <module>jena</module>
         <module>sesame</module>
     </modules>
+
+    <build>
+        <plugins>
+            <!-- Skip checkstyle execution for module -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
