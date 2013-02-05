@@ -206,7 +206,7 @@ public final class RdfaTestBundle {
 
             Model resultModel = createModelFromFile(resultFilePath, inputUri);
             String queryStr = IOUtils.toString(openStreamForResource(testCase.getResult()), "UTF-8");
-            assertEquals(askModel(resultModel, queryStr), testCase.getExpectedResult());
+            assertEquals(askModel(resultModel, queryStr), testCase.getExpectedResult(), "Test failed: " + inputUri);
         } catch (IOException e) {
             fail();
         }

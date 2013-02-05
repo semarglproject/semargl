@@ -71,15 +71,23 @@ final class SaxSource extends AbstractSource<SaxSink> {
 
     private void initXmlReader() throws SAXException {
         if (xmlReader == null) {
-            xmlReader = XMLReaderFactory.createXMLReader();
-            xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            xmlReader = getDefaultXmlReader();
         }
         xmlReader.setContentHandler(sink);
         xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", sink);
     }
 
-    public void setXmlReader(XMLReader xmlReader) {
-        this.xmlReader = xmlReader;
+    public void setXmlReader(XMLReader xmlReader) throws SAXException {
+        if(xmlReader == null) {
+            this.xmlReader = getDefaultXmlReader();
+        } else {
+            this.xmlReader = xmlReader;
+        }
     }
 
+    public static XMLReader getDefaultXmlReader() throws SAXException {
+        XMLReader result = XMLReaderFactory.createXMLReader();
+        result.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        return result;
+    }
 }
