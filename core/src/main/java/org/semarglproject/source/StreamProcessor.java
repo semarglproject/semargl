@@ -17,6 +17,7 @@ package org.semarglproject.source;
 
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.DataSink;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import java.io.InputStream;
@@ -90,8 +91,14 @@ public final class StreamProcessor extends BaseStreamProcessor {
     public boolean setProperty(String key, Object value) {
         boolean result = false;
         if (XML_READER_PROPERTY.equals(key) && value instanceof XMLReader && source instanceof SaxSource) {
-            ((SaxSource) source).setXmlReader((XMLReader) value);
-            result = true;
+            try {
+                if (value != null) {
+                    ((SaxSource) source).setXmlReader((XMLReader) value);
+                    result = true;
+                }
+            } catch(SAXException e) {
+                throw new IllegalArgumentException("XMLReader was not able to be initialized", e);
+            }
         }
         return sink.setProperty(key, value) || result;
     }

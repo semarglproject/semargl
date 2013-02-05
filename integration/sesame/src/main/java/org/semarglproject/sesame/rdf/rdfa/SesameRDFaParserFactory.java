@@ -28,7 +28,7 @@ public final class SesameRDFaParserFactory implements RDFParserFactory {
 
     @Override
     public RDFFormat getRDFFormat() {
-        return RDFaFormat.RDFA;
+        return RDFFormat.RDFA;
     }
 
     @Override
