@@ -50,6 +50,9 @@ public final class RDFa {
     public static final String ERROR = NS + "Error";
     public static final String USES_VOCABULARY = NS + "usesVocabulary";
 
+    public static final String COPY = NS + "copy";
+    public static final String PATTERN = NS + "Pattern";
+
     private RDFa() {
     }
 }

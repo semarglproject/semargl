@@ -151,6 +151,9 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
     private boolean rdfXmlInline = false;
     private SaxSink rdfXmlParser = null;
 
+    private Map<String, List<String>> patternProps = new HashMap<String, List<String>>();
+    private List<String> copyingPairs = new ArrayList<String>();
+
     private final Map<String, String> overwriteMappings = new HashMap<String, String>();
 
     private RdfaParser(TripleSink sink) {
@@ -188,8 +191,32 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
 
     @Override
     public void endDocument() throws SAXException {
+        if (sinkOutputGraph) {
+            Iterator<String> iterator = copyingPairs.iterator();
+            while (iterator.hasNext()) {
+                String subj = iterator.next();
+                String pattern = iterator.next();
+                if (patternProps.containsKey(pattern)) {
+                    copyProps(subj, patternProps.get(pattern));
+                }
+            }
+
+            iterator = copyingPairs.iterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                String pattern = iterator.next();
+                patternProps.remove(pattern);
+            }
+            for (String pattern : patternProps.keySet()) {
+                addNonLiteralInternal(pattern, RDF.TYPE, RDFa.PATTERN);
+                copyProps(pattern, patternProps.get(pattern));
+            }
+        }
+
         dh.clear(defaultRdfaVersion);
         contextStack.clear();
+        patternProps.clear();
+        copyingPairs.clear();
     }
 
     @Override
@@ -245,7 +272,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
 
         boolean skipTerms = dh.rdfaVersion > RDFa.VERSION_10 && attrs.getValue(RDFa.PROPERTY_ATTR) != null
                 && (dh.documentFormat == DocumentContext.FORMAT_HTML4
-                        || dh.documentFormat == DocumentContext.FORMAT_HTML5);
+                || dh.documentFormat == DocumentContext.FORMAT_HTML5);
         List<String> rels = convertRelRevToList(attrs.getValue(RDFa.REL_ATTR), skipTerms);
         List<String> revs = convertRelRevToList(attrs.getValue(RDFa.REV_ATTR), skipTerms);
         boolean noRelsAndRevs = rels == null && revs == null;
@@ -255,7 +282,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
         // don't fill parent list if subject was changed at this
         // or previous step by current.parentObject
         if (dh.rdfaVersion > RDFa.VERSION_10 && current.subject != null && (!current.subject.equals(parent.object)
-                    || parent.subject != null && !parent.subject.equals(parent.object))) {
+                || parent.subject != null && !parent.subject.equals(parent.object))) {
             // RDFa Core 1.1 processing sequence step 8
             current.listMapping = new HashMap<String, List<String>>();
         }
@@ -359,15 +386,8 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
                                 BASE_IF_ROOT_NODE, PARENT_OBJECT);
 
                         if (attrs.getValue(RDFa.TYPEOF_ATTR) != null) {
-                            current.object = coalesce(qName, attrs, parent, current,
-                                    RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR);
-                            if (current.object == null) {
-                                if (current.subject != null) {
-                                    current.object = current.subject;
-                                } else {
-                                    current.object = dh.createBnode(noRelAndRev);
-                                }
-                            }
+                            current.object = coalesce(qName, attrs, parent, current, RDFa.ABOUT_ATTR, BASE_IF_ROOT_NODE,
+                                    RDFa.RESOURCE_ATTR, DATA_ATTR, RDFa.HREF_ATTR, RDFa.SRC_ATTR, BNODE_IF_TYPEOF);
                             newSubject = current.object;
                         }
                     } else {
@@ -470,7 +490,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
                 } else if (attr.equals(BNODE_IF_TYPEOF)) {
                     return dh.createBnode(false);
                 }
-            } else if (attr.equals(PARENT_OBJECT)) {
+            } else if (attr.equals(PARENT_OBJECT) && parent.object != null) {
                 return parent.object;
             } else {
                 boolean isHeadOrBody = tagName.equals(HEAD) || tagName.equals(BODY);
@@ -1110,6 +1130,20 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
         return new ParseException(e);
     }
 
+    private void copyProps(String subj, List<String> props) {
+        Iterator<String> iterator = props.iterator();
+        while (iterator.hasNext()) {
+            String type = iterator.next();
+            if (type == null) {
+                addNonLiteralInternal(subj, iterator.next(), iterator.next());
+            } else if (type.isEmpty()) {
+                addPlainLiteralInternal(subj, iterator.next(), iterator.next(), iterator.next());
+            } else {
+                addTypedLiteralInternal(subj, iterator.next(), iterator.next(), type);
+            }
+        }
+    }
+
     // proxying TripleSink calls to filter output graph
 
     private void addLiteralTriple(String subject, String pred, String content, String langOrDt) {
@@ -1125,6 +1159,31 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
         if (!sinkOutputGraph) {
             return;
         }
+        if (obj.equals(RDFa.PATTERN)) {
+            if (!patternProps.containsKey(subj)) {
+                patternProps.put(subj, new ArrayList<String>());
+            }
+            return;
+            // TODO: check vocab expansion
+        } else if (pred.equals(RDFa.COPY)) {
+            if (patternProps.containsKey(obj)) {
+                copyProps(subj, patternProps.get(obj));
+            } else {
+                copyingPairs.add(subj);
+                copyingPairs.add(obj);
+            }
+            return;
+        } else if (patternProps.containsKey(subj)) {
+            List<String> props = patternProps.get(subj);
+            props.add(null);
+            props.add(pred);
+            props.add(obj);
+            return;
+        }
+        addNonLiteralInternal(subj, pred, obj);
+    }
+
+    private void addNonLiteralInternal(String subj, String pred, String obj) {
         if (!expandVocab) {
             sink.addNonLiteral(subj, pred, obj);
             return;
@@ -1151,6 +1210,18 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
         if (!sinkOutputGraph) {
             return;
         }
+        if (patternProps.containsKey(subj)) {
+            List<String> props = patternProps.get(subj);
+            props.add("");
+            props.add(pred);
+            props.add(content);
+            props.add(lang);
+            return;
+        }
+        addPlainLiteralInternal(subj, pred, content, lang);
+    }
+
+    private void addPlainLiteralInternal(String subj, String pred, String content, String lang) {
         sink.addPlainLiteral(subj, pred, content, lang);
         for (String predSynonym : contextStack.peek().expand(pred)) {
             sink.addPlainLiteral(subj, predSynonym, content, lang);
@@ -1162,6 +1233,17 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
         if (!sinkOutputGraph) {
             return;
         }
+        if (patternProps.containsKey(subj)) {
+            List<String> props = patternProps.get(subj);
+            props.add(type);
+            props.add(pred);
+            props.add(content);
+            return;
+        }
+        addTypedLiteralInternal(subj, pred, content, type);
+    }
+
+    private void addTypedLiteralInternal(String subj, String pred, String content, String type) {
         sink.addTypedLiteral(subj, pred, content, type);
         for (String predSynonym : contextStack.peek().expand(pred)) {
             sink.addTypedLiteral(subj, predSynonym, content, type);
