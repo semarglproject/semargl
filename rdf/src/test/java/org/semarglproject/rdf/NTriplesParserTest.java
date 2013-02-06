@@ -27,13 +27,15 @@ import java.io.Writer;
 
 public final class NTriplesParserTest {
     private CharOutputSink charOutputSink;
-    private StreamProcessor streamProcessor;
+    private StreamProcessor streamProcessorTtl;
+    private StreamProcessor streamProcessorNt;
 
     @BeforeClass
     public void cleanTargetDir() {
         NTriplesTestBundle.prepareTestDir();
         charOutputSink = new CharOutputSink("UTF-8");
-        streamProcessor = new StreamProcessor(NTriplesParser.connect(TurtleSerializer.connect(charOutputSink)));
+        streamProcessorTtl = new StreamProcessor(NTriplesParser.connect(TurtleSerializer.connect(charOutputSink)));
+        streamProcessorNt = new StreamProcessor(NTriplesParser.connect(NTriplesSerializer.connect(charOutputSink)));
     }
 
     @DataProvider
@@ -42,12 +44,23 @@ public final class NTriplesParserTest {
     }
 
     @Test(dataProvider = "getTestFiles")
-    public void NTriplesTestsTurtle(String caseName) throws Exception {
+    public void runWithTurtleSink(String caseName) throws Exception {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 charOutputSink.connect(output);
-                streamProcessor.process(input, inputUri);
+                streamProcessorTtl.process(input, inputUri);
+            }
+        });
+    }
+
+    @Test(dataProvider = "getTestFiles")
+    public void runWithNTriplesSink(String caseName) throws Exception {
+        NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
+            @Override
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+                charOutputSink.connect(output);
+                streamProcessorNt.process(input, inputUri);
             }
         });
     }

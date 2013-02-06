@@ -27,20 +27,19 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-import static org.semarglproject.rdf.RdfXmlTestBundle.SaveToFileCallback;
-import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
-
 public final class RdfXmlParserTest {
 
     private CharOutputSink charOutputSink;
-    private StreamProcessor streamProcessor;
+    private StreamProcessor streamProcessorTtl;
+    private StreamProcessor streamProcessorNt;
 
     @BeforeClass
     public void cleanTargetDir() throws IOException, SAXException {
         RdfXmlTestBundle.prepareTestDir();
 
         charOutputSink = new CharOutputSink("UTF-8");
-        streamProcessor = new StreamProcessor(RdfXmlParser.connect(TurtleSerializer.connect(charOutputSink)));
+        streamProcessorTtl = new StreamProcessor(RdfXmlParser.connect(TurtleSerializer.connect(charOutputSink)));
+        streamProcessorNt = new StreamProcessor(RdfXmlParser.connect(NTriplesSerializer.connect(charOutputSink)));
     }
 
     @DataProvider
@@ -49,14 +48,24 @@ public final class RdfXmlParserTest {
     }
 
     @Test(dataProvider = "getTestSuite")
-    public void runW3CWithTurtleSink(TestCase testCase) {
-        runTestWith(testCase, new SaveToFileCallback() {
+    public void runWithTurtleSink(TestCase testCase) {
+        RdfXmlTestBundle.runTestWith(testCase, new RdfXmlTestBundle.SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 charOutputSink.connect(output);
-                streamProcessor.process(input, inputUri);
+                streamProcessorTtl.process(input, inputUri);
             }
         });
     }
 
+    @Test(dataProvider = "getTestSuite")
+    public void runWithNTriplesSink(TestCase testCase) {
+        RdfXmlTestBundle.runTestWith(testCase, new RdfXmlTestBundle.SaveToFileCallback() {
+            @Override
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+                charOutputSink.connect(output);
+                streamProcessorNt.process(input, inputUri);
+            }
+        });
+    }
 }
