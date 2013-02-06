@@ -28,11 +28,7 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Implementation of streaming <a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">RDF/XML</a> parser.
@@ -105,6 +101,9 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     private ProcessorGraphHandler processorGraphHandler = null;
     private boolean ignoreErrors = false;
 
+    // holds data for triples which addition depends on XML node contents (blank or not)
+    private List<String> pendingTriples = new ArrayList<String>();
+
     private RdfXmlParser(TripleSink sink) {
         super(sink);
     }
@@ -141,6 +140,8 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
     @Override
     public void startElement(String nsUri, String lname, String qname, Attributes attrs) throws SAXException {
+        processPendingTriples(true);
+
         modeStack.push(mode);
 
         if (parseDepth > 0) {
@@ -231,6 +232,23 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         }
     }
 
+    private void processPendingTriples(boolean forceNewBNode) {
+        Iterator<String> iterator = pendingTriples.iterator();
+        while (iterator.hasNext()) {
+            String propRes = iterator.next();
+            String attr = iterator.next();
+            String value = iterator.next();
+            if (forceNewBNode || propRes == null) {
+                String bnode = newBnode();
+                processNonLiteralTriple(subjRes, predIri, bnode);
+                sink.addPlainLiteral(bnode, attr, value, langStack.peek());
+            } else {
+                sink.addPlainLiteral(propRes, attr, value, langStack.peek());
+            }
+        }
+        pendingTriples.clear();
+    }
+
     private boolean checkPropertyForErrors(String qname, String iri, Attributes attrs) throws SAXException {
         if (iri.equals(RDF.NIL) || iri.equals(RDF.DESCRIPTION)) {
             error(qname + IS_NOT_ALLOWED_HERE);
@@ -273,12 +291,22 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
     }
 
     private void processPropertyAttrs(String nsUri, Attributes attrs) throws SAXException {
+        // process resource first
+        int resIdx = attrs.getIndex(RDF.NS, "resource");
+        String propertyRes = null;
+        if (resIdx >= 0) {
+            propertyRes = processPropertyRes(attrs.getValue(resIdx));
+        }
+
         for (int i = 0; i < attrs.getLength(); i++) {
+            if (i == resIdx) {
+                continue;
+            }
             String attr = attrs.getURI(i) + attrs.getLocalName(i);
             if (attrs.getQName(i).startsWith(XMLConstants.XML_NS_PREFIX) || attr.equals(RDF.ID)) {
                 continue;
             }
-            processPropertyTagAttr(nsUri, attr, attrs.getValue(i));
+            processPropertyTagAttr(nsUri, attr, attrs.getValue(i), propertyRes);
         }
     }
 
@@ -304,14 +332,18 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         baseStack.push(base);
     }
 
-    private void processPropertyTagAttr(String nsUri, String attr, String value) throws SAXException {
-        if (attr.equals(RDF.RESOURCE)) {
-            String id = resolveIRI(baseStack.peek(), value);
-            if (id != null) {
-                processNonLiteralTriple(subjRes, predIri, id);
-                captureLiteral = false;
-            }
-        } else if (attr.equals(RDF.DATATYPE)) {
+    private String processPropertyRes(String value) throws SAXException {
+        String propertyRes = resolveIRI(baseStack.peek(), value);
+        if (propertyRes != null) {
+            processNonLiteralTriple(subjRes, predIri, propertyRes);
+            captureLiteral = false;
+        }
+        return propertyRes;
+    }
+
+    private void processPropertyTagAttr(String nsUri, String attr, String value,
+                                        String propertyRes) throws SAXException {
+        if (attr.equals(RDF.DATATYPE)) {
             datatypeIri = resolveIRINoResolve(nsUri, value);
         } else if (attr.equals(RDF.PARSE_TYPE)) {
             parseDepth = 1;
@@ -347,9 +379,9 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
             if (violatesSchema(attr) || attr.equals(RDF.NIL)) {
                 error(attr + IS_NOT_ALLOWED_HERE);
             } else {
-                String bnode = newBnode();
-                processNonLiteralTriple(subjRes, predIri, bnode);
-                sink.addPlainLiteral(bnode, attr, value, langStack.peek());
+                pendingTriples.add(propertyRes);
+                pendingTriples.add(attr);
+                pendingTriples.add(value);
                 captureLiteral = false;
             }
         }
@@ -357,6 +389,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
     @Override
     public void endElement(String namespaceUri, String lname, String qname) throws SAXException {
+        processPendingTriples(false);
         if (parseDepth > 0) {
             parseDepth--;
             if (mode == PARSE_TYPE_LITERAL && parseDepth > 0) {
@@ -589,10 +622,12 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
         nsMappings.clear();
         processedIDs.clear();
         parse = new StringBuilder();
+        pendingTriples.clear();
     }
 
     @Override
     public void characters(char[] buffer, int offset, int length) throws SAXException {
+        processPendingTriples(true);
         if (mode == PARSE_TYPE_LITERAL || captureLiteral) {
             parse.append(String.copyValueOf(buffer, offset, length));
         }
@@ -605,6 +640,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
     @Override
     public void processingInstruction(String target, String data) throws SAXException {
+        processPendingTriples(true);
         if (parseDepth > 0 && mode == PARSE_TYPE_LITERAL) {
             parse.append("<?").append(target).append(" ").append(data).append("?>");
         }
@@ -612,6 +648,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
 
     @Override
     public void comment(char[] buffer, int offset, int length) throws SAXException {
+        processPendingTriples(true);
         if (parseDepth > 0 && mode == PARSE_TYPE_LITERAL) {
             parse.append("<!--");
             parse.append(String.copyValueOf(buffer, offset, length));

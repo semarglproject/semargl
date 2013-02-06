@@ -129,20 +129,15 @@ public final class RdfXmlTestBundle {
                 result = qs.getResource("result").getURI();
             }
 
-            if (    // empty property elements are not supported by streaming parser
-                    input.endsWith("rdfms-empty-property-elements/test013.rdf")
-                    || input.endsWith("rdfms-not-id-and-resource-attr/test002.rdf")
-                    || input.endsWith("rdfms-not-id-and-resource-attr/test005.rdf")
-
-                    // all things fine with this cases, but XMLLiterals can't be compared like plain strings
-                    // correct XMLLiteral comparsion should be implemented first
-                    || input.endsWith("rdfms-xml-literal-namespaces/test002.rdf")
+            // parser produces valid output, but tests fail because
+            // XMLLiterals can't be compared like plain strings
+            if (input.endsWith("rdfms-xml-literal-namespaces/test002.rdf")
                     || input.endsWith("xml-literals/html.rdf")
                     || input.endsWith("xml-literals/reported1.rdf")
                     || input.endsWith("xml-literals/reported2.rdf")
                     || input.endsWith("xml-literals/reported3.rdf")
 
-                    // Jena fails here, but results are right
+                    // validating Jena parser crashes here
                     || input.endsWith("i18n/t9000.rdf")) {
                 continue;
             }
