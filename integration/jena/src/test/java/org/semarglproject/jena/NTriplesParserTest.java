@@ -52,12 +52,13 @@ public final class NTriplesParserTest {
     public void NTriplesTestsJena(String caseName) throws Exception {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     sp.process(input, inputUri);
                 } finally {
                     model.write(output, "TURTLE");
                 }
+                return ".ttl";
             }
         });
     }

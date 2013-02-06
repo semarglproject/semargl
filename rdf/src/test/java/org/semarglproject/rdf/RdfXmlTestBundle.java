@@ -56,7 +56,7 @@ public final class RdfXmlTestBundle {
     public static final String FETCH_RDFXML_TESTS_SPARQL = "fetch_rdfxml_tests.sparql";
 
     public interface SaveToFileCallback {
-        void run(Reader input, String inputUri, Writer output) throws ParseException;
+        String run(Reader input, String inputUri, Writer output) throws ParseException;
     }
 
     public final static class TestCase {
@@ -153,12 +153,13 @@ public final class RdfXmlTestBundle {
         String resultFilePath = getOutputPath(inputUri);
         new File(resultFilePath).getParentFile().mkdirs();
 
+        String fileExt = null;
         boolean invalidRdfXmlFile = false;
         try {
             Reader input = new InputStreamReader(openStreamForResource(inputUri), "UTF-8");
             Writer output = new OutputStreamWriter(new FileOutputStream(resultFilePath), "UTF-8");
             try {
-                callback.run(input, inputUri, output);
+                fileExt = callback.run(input, inputUri, output);
             } finally {
                 IOUtils.closeQuietly(input);
                 IOUtils.closeQuietly(output);
@@ -174,14 +175,14 @@ public final class RdfXmlTestBundle {
                 // in case of invalid input, we should ignore all document
                 inputModel = ModelFactory.createDefaultModel();
             } else {
-                inputModel = createModelFromFile(resultFilePath, inputUri);
+                inputModel = createModelFromFile(resultFilePath, inputUri, fileExt);
             }
             Model expected;
             if (testCase.getResult() == null) {
                 // negative test cases assume no resulting triples
                 expected = ModelFactory.createDefaultModel();
             } else {
-                expected = createModelFromFile(testCase.getResult(), inputUri);
+                expected = createModelFromFile(testCase.getResult(), inputUri, testCase.getResult());
             }
             assertTrue(inputModel.isIsomorphicWith(expected));
         } catch (FileNotFoundException e) {
@@ -196,11 +197,12 @@ public final class RdfXmlTestBundle {
         } else if (uri.startsWith(ARP_TESTSUITE_ROOT)) {
             result = uri.replace(ARP_TESTSUITE_ROOT, FAILURES_DIR + "arp/");
         }
-        return result + ".out.ttl";
+        return result + ".out";
     }
 
-    private static Model createModelFromFile(String filename, String baseUri) throws FileNotFoundException {
-        String fileFormat = detectFileFormat(filename);
+    private static Model createModelFromFile(String filename, String baseUri,
+                                             String fileExt) throws FileNotFoundException {
+        String fileFormat = detectFileFormat(fileExt);
         Model result = ModelFactory.createDefaultModel();
         InputStream inputStream = openStreamForResource(filename);
         try {
@@ -211,13 +213,13 @@ public final class RdfXmlTestBundle {
         return result;
     }
 
-    private static String detectFileFormat(String filename) {
+    private static String detectFileFormat(String fileExt) {
         String fileFormat;
-        if (filename.endsWith(".nt")) {
+        if (fileExt.endsWith(".nt")) {
             fileFormat = "N-TRIPLE";
-        } else if (filename.endsWith(".ttl")) {
+        } else if (fileExt.endsWith(".ttl")) {
             fileFormat = "TURTLE";
-        } else if (filename.endsWith(".rdf")) {
+        } else if (fileExt.endsWith(".rdf")) {
             fileFormat = "RDF/XML";
         } else {
             throw new IllegalArgumentException("Unknown file format");

@@ -56,7 +56,7 @@ public final class NTriplesParserTest {
     public void NTriplesTestsSesame(String caseName) throws Exception {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     sp.process(input, inputUri);
                 } finally {
@@ -71,6 +71,7 @@ public final class NTriplesParserTest {
                         // do nothing
                     }
                 }
+                return ".ttl";
             }
         });
     }

@@ -61,12 +61,13 @@ public final class RdfXmlParserTest {
     public void runW3CWithJenaSink(TestCase testCase) {
         runTestWith(testCase, new SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     streamProcessor.process(input, inputUri);
                 } finally {
                     model.write(output, "TURTLE");
                 }
+                return ".ttl";
             }
         });
     }

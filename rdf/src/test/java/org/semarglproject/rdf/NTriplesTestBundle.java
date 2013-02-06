@@ -49,7 +49,7 @@ public final class NTriplesTestBundle {
     private static final String RDF_TEST_SUITE_ROOT = "http://www.w3.org/2000/10/rdf-tests/rdfcore/";
 
     public interface SaveToFileCallback {
-        void run(Reader input, String inputUri, Writer output) throws ParseException;
+        String run(Reader input, String inputUri, Writer output) throws ParseException;
     }
 
     public static Object[][] getTestFiles() throws IOException {
@@ -89,13 +89,14 @@ public final class NTriplesTestBundle {
     }
 
     public static void runTest(String testUrl, SaveToFileCallback callback) {
-        String resultFileName = testUrl.substring(testUrl.lastIndexOf('/') + 1).replace(".nt", ".ttl");
+        String resultFileName = testUrl.substring(testUrl.lastIndexOf('/') + 1).replace(".nt", ".out");
         String resultFilePath = FAILURES_DIR + resultFileName;
+        String fileExt = null;
         try {
             Reader input = new InputStreamReader(openStreamForResource(testUrl), "UTF-8");
             Writer output = new OutputStreamWriter(new FileOutputStream(resultFilePath), "UTF-8");
             try {
-                callback.run(input, testUrl, output);
+                fileExt = callback.run(input, testUrl, output);
             } finally {
                 IOUtils.closeQuietly(input);
                 IOUtils.closeQuietly(output);
@@ -107,16 +108,16 @@ public final class NTriplesTestBundle {
         }
 
         try {
-            Model result = createModelFromFile(resultFilePath, testUrl);
-            Model expected = createModelFromFile(testUrl, testUrl);
+            Model result = createModelFromFile(resultFilePath, testUrl, fileExt);
+            Model expected = createModelFromFile(testUrl, testUrl, testUrl);
             assertTrue(result.isIsomorphicWith(expected));
         } catch (FileNotFoundException e) {
             fail();
         }
     }
 
-    private static Model createModelFromFile(String filename, String baseUri) throws FileNotFoundException {
-        String fileFormat = detectFileFormat(filename);
+    private static Model createModelFromFile(String filename, String baseUri, String fileExt) throws FileNotFoundException {
+        String fileFormat = detectFileFormat(fileExt);
         Model result = ModelFactory.createDefaultModel();
         InputStream inputStream = openStreamForResource(filename);
         try {
@@ -127,13 +128,13 @@ public final class NTriplesTestBundle {
         return result;
     }
 
-    private static String detectFileFormat(String filename) {
+    private static String detectFileFormat(String fileExt) {
         String fileFormat;
-        if (filename.endsWith(".nt")) {
+        if (fileExt.endsWith(".nt")) {
             fileFormat = "N-TRIPLE";
-        } else if (filename.endsWith(".ttl")) {
+        } else if (fileExt.endsWith(".ttl")) {
             fileFormat = "TURTLE";
-        } else if (filename.endsWith(".rdf")) {
+        } else if (fileExt.endsWith(".rdf")) {
             fileFormat = "RDF/XML";
         } else {
             throw new IllegalArgumentException("Unknown file format");

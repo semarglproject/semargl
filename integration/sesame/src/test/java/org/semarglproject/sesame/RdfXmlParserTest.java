@@ -65,7 +65,7 @@ public final class RdfXmlParserTest {
     public void runW3CWithSesameSink(TestCase testCase) {
         runTestWith(testCase, new SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     streamProcessor.process(input, inputUri);
                 } finally {
@@ -80,6 +80,7 @@ public final class RdfXmlParserTest {
                         // do nothing
                     }
                 }
+                return ".ttl";
             }
         });
     }

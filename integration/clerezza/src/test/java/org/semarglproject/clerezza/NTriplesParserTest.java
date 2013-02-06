@@ -65,7 +65,7 @@ public final class NTriplesParserTest {
     public void NTriplesTestsClerezza(String caseName) throws Exception {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     sp.process(input, inputUri);
                 } finally {
@@ -77,6 +77,7 @@ public final class NTriplesParserTest {
                         IOUtils.closeQuietly(outputStream);
                     }
                 }
+                return ".ttl";
             }
         });
     }

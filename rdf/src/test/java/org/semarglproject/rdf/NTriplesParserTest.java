@@ -47,9 +47,10 @@ public final class NTriplesParserTest {
     public void runWithTurtleSink(String caseName) throws Exception {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 charOutputSink.connect(output);
                 streamProcessorTtl.process(input, inputUri);
+                return ".ttl";
             }
         });
     }
@@ -58,9 +59,10 @@ public final class NTriplesParserTest {
     public void runWithNTriplesSink(String caseName) throws Exception {
         NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
             @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            public String run(Reader input, String inputUri, Writer output) throws ParseException {
                 charOutputSink.connect(output);
                 streamProcessorNt.process(input, inputUri);
+                return ".nt";
             }
         });
     }
