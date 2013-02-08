@@ -34,11 +34,6 @@ public final class NTriplesSerializer extends Pipe<CharSink> implements TripleSi
 
     private static final char SPACE = ' ';
 
-    private static final short BATCH_SIZE = 10;
-
-    private StringBuilder builder;
-    private short step;
-
     private NTriplesSerializer(CharSink sink) {
         super(sink);
     }
@@ -54,48 +49,44 @@ public final class NTriplesSerializer extends Pipe<CharSink> implements TripleSi
 
     @Override
     public void addNonLiteral(String subj, String pred, String obj) {
-        startTriple(subj, pred);
-        if (obj.startsWith(RDF.BNODE_PREFIX)) {
-            builder.append(obj);
-        } else {
-            serializeUri(obj);
+        try {
+            startTriple(subj, pred);
+            if (obj.startsWith(RDF.BNODE_PREFIX)) {
+                sink.process(obj);
+            } else {
+                serializeUri(obj);
+            }
+            sink.process(DOT_EOL);
+        } catch (ParseException e) {
+            // ignore
         }
-        endTriple();
     }
 
     @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
-        startTriple(subj, pred);
-        addContent(content);
-        if (lang != null) {
-            builder.append('@').append(lang);
+        try {
+            startTriple(subj, pred);
+            addContent(content);
+            if (lang != null) {
+                sink.process('@').process(lang);
+            }
+            sink.process(DOT_EOL);
+        } catch (ParseException e) {
+            // ignore
         }
-        endTriple();
     }
 
     @Override
     public void addTypedLiteral(String subj, String pred, String content, String type) {
-        startTriple(subj, pred);
-        addContent(content);
-        builder.append("^^");
-        serializeUri(type);
-        endTriple();
-    }
-
-    @Override
-    public void startStream() throws ParseException {
-        builder = new StringBuilder();
-        step = 0;
-        super.startStream();
-    }
-
-    @Override
-    public void endStream() throws ParseException {
-        super.endStream();
-        if (builder != null) {
-            sink.process(builder.toString());
+        try {
+            startTriple(subj, pred);
+            addContent(content);
+            sink.process("^^");
+            serializeUri(type);
+            sink.process(DOT_EOL);
+        } catch (ParseException e) {
+            // ignore
         }
-        builder = null;
     }
 
     @Override
@@ -108,40 +99,23 @@ public final class NTriplesSerializer extends Pipe<CharSink> implements TripleSi
         // ignore
     }
 
-    private void startTriple(String subj, String pred) {
-        if (builder == null) {
-            builder = new StringBuilder();
-        }
+    private void startTriple(String subj, String pred) throws ParseException {
         if (subj.startsWith(RDF.BNODE_PREFIX)) {
-            builder.append(subj).append(SPACE);
+            sink.process(subj).process(SPACE);
         } else {
             serializeUri(subj);
         }
         serializeUri(pred);
     }
 
-    private void serializeUri(String uri) {
+    private void serializeUri(String uri) throws ParseException {
         String escapedUri = uri.replace("\\", "\\\\").replace(">", "\\u003E");
-        builder.append(URI_START).append(escapedUri).append(URI_END).append(SPACE);
+        sink.process(URI_START).process(escapedUri).process(URI_END).process(SPACE);
     }
 
-    private void endTriple() {
-        builder.append(DOT_EOL);
-        if (step == BATCH_SIZE) {
-            try {
-                sink.process(builder.toString());
-            } catch (ParseException e) {
-                // do nothing
-            }
-            builder = null;
-            step = 0;
-        }
-        step++;
-    }
-
-    private void addContent(String content) {
+    private void addContent(String content) throws ParseException {
         String escapedContent = content.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
-        builder.append(QUOTE).append(escapedContent).append(QUOTE);
+        sink.process(QUOTE).process(escapedContent).process(QUOTE);
     }
 
 }

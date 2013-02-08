@@ -39,6 +39,10 @@ public final class CharOutputSink implements CharSink {
     private boolean closeOnEndStream;
     private final Charset charset;
 
+    private static final short BATCH_SIZE = 256;
+    private StringBuilder buffer;
+    private short bufferSize;
+
     /**
      * Creates class instance with default charset encoding..
      */
@@ -96,11 +100,34 @@ public final class CharOutputSink implements CharSink {
     }
 
     @Override
-    public void process(String line) throws ParseException {
-        try {
-            writer.write(line);
-        } catch (IOException e) {
-            throw new ParseException(e);
+    public CharOutputSink process(String str) throws ParseException {
+        buffer.append(str);
+        bufferSize += str.length();
+        writeBuffer();
+        return this;
+    }
+
+    @Override
+    public CharOutputSink process(char ch) throws ParseException {
+        buffer.append(ch);
+        bufferSize++;
+        writeBuffer();
+        return this;
+    }
+
+    private void writeBuffer() {
+        if (bufferSize >= BATCH_SIZE) {
+            try {
+                try {
+                    writer.write(buffer.toString());
+                } catch (IOException e) {
+                    throw new ParseException(e);
+                }
+            } catch (ParseException e) {
+                // do nothing
+            }
+            buffer = new StringBuilder(BATCH_SIZE);
+            bufferSize = 0;
         }
     }
 
@@ -110,6 +137,8 @@ public final class CharOutputSink implements CharSink {
 
     @Override
     public void startStream() throws ParseException {
+        buffer = new StringBuilder();
+        bufferSize = 0;
         if (writer == null) {
             if (file != null) {
                 try {
@@ -125,6 +154,9 @@ public final class CharOutputSink implements CharSink {
 
     @Override
     public void endStream() throws ParseException {
+        buffer.append("\n");
+        bufferSize = BATCH_SIZE;
+        writeBuffer();
         try {
             writer.flush();
         } catch (IOException e) {

@@ -47,13 +47,8 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
     private static final char RDF_TYPE_ABBR = 'a';
     private static final String INDENT = "    ";
 
-    private static final short BATCH_SIZE = 10;
-
-    private StringBuilder builder;
-
     private String prevSubj;
     private String prevPred;
-    private short step;
     private final Queue<String> bnodeStack = new LinkedList<String>();
     private final Set<String> namedBnodes = new HashSet<String>();
     private String baseUri;
@@ -73,72 +68,72 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
 
     @Override
     public void addNonLiteral(String subj, String pred, String obj) {
-        startTriple(subj, pred);
-        if (obj.startsWith(RDF.BNODE_PREFIX)) {
-            if (!namedBnodes.contains(obj) && obj.endsWith(RDF.SHORTENABLE_BNODE_SUFFIX)) {
-                openBnode(obj);
+        try {
+            startTriple(subj, pred);
+            if (obj.startsWith(RDF.BNODE_PREFIX)) {
+                if (!namedBnodes.contains(obj) && obj.endsWith(RDF.SHORTENABLE_BNODE_SUFFIX)) {
+                    openBnode(obj);
+                } else {
+                    sink.process(obj);
+                }
             } else {
-                builder.append(obj);
+                serializeUri(obj);
             }
-        } else {
-            serializeUri(obj);
+        } catch (ParseException e) {
+            // ignore
         }
-        endTriple();
     }
 
     @Override
     public void addPlainLiteral(String subj, String pred, String content, String lang) {
-        startTriple(subj, pred);
-        addContent(content);
-        if (lang != null) {
-            builder.append('@').append(lang);
+        try {
+            startTriple(subj, pred);
+            addContent(content);
+            if (lang != null) {
+                sink.process('@').process(lang);
+            }
+        } catch (ParseException e) {
+            // ignore
         }
-        endTriple();
     }
 
     @Override
     public void addTypedLiteral(String subj, String pred, String content, String type) {
-        startTriple(subj, pred);
-        addContent(content);
-        builder.append("^^");
-        serializeUri(type);
-        endTriple();
+        try {
+            startTriple(subj, pred);
+            addContent(content);
+            sink.process("^^");
+            serializeUri(type);
+        } catch (ParseException e) {
+            // ignore
+        }
     }
 
     @Override
     public void startStream() throws ParseException {
+        super.startStream();
         prevSubj = null;
         prevPred = null;
-        builder = new StringBuilder();
         if (baseUri != null) {
-            builder.append("@base ").append(URI_START).append(baseUri).append(URI_END).append(DOT_EOL);
+            sink.process("@base ").process(URI_START).process(baseUri).process(URI_END).process(DOT_EOL);
         }
-        builder.append("@prefix rdf: ").append(URI_START).append(RDF.NS).append(URI_END).append(DOT_EOL);
-        step = 0;
+        sink.process("@prefix rdf: ").process(URI_START).process(RDF.NS).process(URI_END).process(DOT_EOL);
         bnodeStack.clear();
         namedBnodes.clear();
-        super.startStream();
     }
 
     @Override
     public void endStream() throws ParseException {
-        super.endStream();
-        if (builder == null) {
-            builder = new StringBuilder();
-        }
         while (!bnodeStack.isEmpty()) {
             closeBnode();
         }
         if (prevPred != null) {
-            builder.append(DOT_EOL);
+            sink.process(DOT_EOL);
         } else {
-            builder.append(EOL);
+            sink.process(EOL);
         }
-        if (builder != null) {
-            sink.process(builder.toString());
-        }
-        builder = null;
         baseUri = null;
+        super.endStream();
     }
 
     @Override
@@ -151,16 +146,13 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
         this.baseUri = baseUri.substring(0, baseUri.length() - 1);
     }
 
-    private void startTriple(String subj, String pred) {
-        if (builder == null) {
-            builder = new StringBuilder();
-        }
+    private void startTriple(String subj, String pred) throws ParseException {
         if (subj.equals(prevSubj)) {
             if (pred.equals(prevPred)) {
-                builder.append(COMMA_EOL);
+                sink.process(COMMA_EOL);
                 indent(2);
             } else if (prevPred != null) {
-                builder.append(SEMICOLON_EOL);
+                sink.process(SEMICOLON_EOL);
                 indent(1);
                 serializePredicate(pred);
             } else {
@@ -173,13 +165,13 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
                 startTriple(subj, pred);
                 return;
             } else if (prevSubj != null) {
-                builder.append(DOT_EOL);
+                sink.process(DOT_EOL);
             }
             if (subj.startsWith(RDF.BNODE_PREFIX)) {
                 if (subj.endsWith(RDF.SHORTENABLE_BNODE_SUFFIX)) {
                     openBnode(subj);
                 } else {
-                    builder.append(subj).append(SPACE);
+                    sink.process(subj).process(SPACE);
                     namedBnodes.add(subj);
                 }
             } else {
@@ -191,68 +183,55 @@ public final class TurtleSerializer extends Pipe<CharSink> implements TripleSink
         prevPred = pred;
     }
 
-    private void serializePredicate(String pred) {
+    private void serializePredicate(String pred) throws ParseException {
         if (RDF.TYPE.equals(pred)) {
-            builder.append(RDF_TYPE_ABBR).append(SPACE);
+            sink.process(RDF_TYPE_ABBR).process(SPACE);
         } else {
             serializeUri(pred);
         }
     }
 
-    private void serializeUri(String uri) {
+    private void serializeUri(String uri) throws ParseException {
         String escapedUri = uri.replace("\\", "\\\\").replace(">", "\\u003E");
         if (escapedUri.startsWith(RDF.NS)) {
-            builder.append("rdf:").append(escapedUri.substring(RDF.NS.length()));
+            sink.process("rdf:").process(escapedUri.substring(RDF.NS.length()));
         } else if (baseUri != null && escapedUri.startsWith(baseUri)) {
-            builder.append(URI_START).append(escapedUri.substring(baseUri.length())).append(URI_END);
+            sink.process(URI_START).process(escapedUri.substring(baseUri.length())).process(URI_END);
         } else {
-            builder.append(URI_START).append(escapedUri).append(URI_END);
+            sink.process(URI_START).process(escapedUri).process(URI_END);
         }
-        builder.append(SPACE);
+        sink.process(SPACE);
     }
 
-    private void indent(int additionalIndent) {
+    private void indent(int additionalIndent) throws ParseException {
         for (int i = 0; i < bnodeStack.size() + additionalIndent; i++) {
-            builder.append(INDENT);
+            sink.process(INDENT);
         }
     }
 
-    private void endTriple() {
-        if (step == BATCH_SIZE) {
-            try {
-                sink.process(builder.toString());
-            } catch (ParseException e) {
-                // do nothing
-            }
-            builder = null;
-            step = 0;
-        }
-        step++;
-    }
-
-    private void addContent(String content) {
+    private void addContent(String content) throws ParseException {
         String escapedContent = content.replace("\\", "\\\\").replace("\"", "\\\"");
         if (escapedContent.contains(EOL)) {
-            builder.append(MULTILINE_QUOTE).append(escapedContent).append(MULTILINE_QUOTE);
+            sink.process(MULTILINE_QUOTE).process(escapedContent).process(MULTILINE_QUOTE);
         } else {
-            builder.append(SINGLE_LINE_QUOTE).append(escapedContent).append(SINGLE_LINE_QUOTE);
+            sink.process(SINGLE_LINE_QUOTE).process(escapedContent).process(SINGLE_LINE_QUOTE);
         }
     }
 
-    private void openBnode(String obj) {
-        builder.append(BNODE_START);
+    private void openBnode(String obj) throws ParseException {
+        sink.process(BNODE_START);
         bnodeStack.offer(obj);
         prevSubj = obj;
         prevPred = null;
     }
 
-    private void closeBnode() {
-        builder.append(BNODE_END);
+    private void closeBnode() throws ParseException {
+        sink.process(BNODE_END);
         bnodeStack.poll();
         prevSubj = bnodeStack.peek();
         prevPred = null;
         if (prevSubj == null) {
-            builder.append(DOT_EOL);
+            sink.process(DOT_EOL);
         }
     }
 

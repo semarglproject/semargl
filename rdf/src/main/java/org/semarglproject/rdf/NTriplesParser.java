@@ -15,6 +15,7 @@
  */
 package org.semarglproject.rdf;
 
+import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;
@@ -91,14 +92,14 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
     }
 
     @Override
-    public void process(String line) throws ParseException {
-        if (isEntirelyWhitespaceOrEmpty(line)) {
-            return;
+    public NTriplesParser process(String str) throws ParseException {
+        if (isEntirelyWhitespaceOrEmpty(str)) {
+            return this;
         }
-        this.buffer = line;
+        this.buffer = str;
 
         pos = 0;
-        limit = line.length();
+        limit = str.length();
 
         subj = null;
         pred = null;
@@ -109,7 +110,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
             skipWhitespace();
 
             String value;
-            switch (line.charAt(pos)) {
+            switch (str.charAt(pos)) {
                 case '<':
                     pos++;
                     value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.GT));
@@ -122,27 +123,33 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
                 case '"':
                     pos++;
                     value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.QUOTE));
-                    while (line.charAt(pos - 2) == '\\') {
+                    while (str.charAt(pos - 2) == '\\') {
                         value += '"' + unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.QUOTE));
                     }
                     if (subj == null || pred == null) {
                         error("Literal before subject or predicate");
-                        return;
+                        return this;
                     }
                     parseLiteral(subj, pred, value);
                     nextLine = true;
                     break;
                 case '#':
-                    return;
+                    return this;
                 default:
-                    error("Unknown token '" + line.charAt(pos) + "' in line '" + line + "'");
-                    return;
+                    error("Unknown token '" + str.charAt(pos) + "' in line '" + str + "'");
+                    return this;
             }
         }
         skipWhitespace();
-        if (pos != limit && line.charAt(pos) != '#' && line.charAt(pos) != '.') {
+        if (pos != limit && str.charAt(pos) != '#' && str.charAt(pos) != '.') {
             error("Error parsing triple");
         }
+        return this;
+    }
+
+    @Override
+    public CharOutputSink process(char ch) throws ParseException {
+        return null;
     }
 
     private boolean processNonLiteral(String value) {

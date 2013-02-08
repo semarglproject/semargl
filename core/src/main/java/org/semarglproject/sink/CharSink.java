@@ -23,9 +23,19 @@ import org.semarglproject.rdf.ParseException;
 public interface CharSink extends DataSink {
 
     /**
-     * Callback for line-by-line text processing
-     * @param line line for processing
+     * Callback for string processing
+     *
+     * @param str string for processing
      * @throws ParseException
      */
-    void process(String line) throws ParseException;
+    CharSink process(String str) throws ParseException;
+
+    /**
+     * Callback for char processing
+     *
+     * @param ch char for processing
+     * @throws ParseException
+     */
+    CharSink process(char ch) throws ParseException;
+
 }
