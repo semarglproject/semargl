@@ -22,6 +22,8 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.RDFaParserSettings;
+import org.openrdf.rio.helpers.RDFaVersion;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaTestBundle;
@@ -49,8 +51,8 @@ public class SesameRdfaReaderTest {
         public void run(Reader input, String inputUri, Writer output, short rdfaVersion) throws ParseException {
             try {
                 RDFParser rdfParser = Rio.createParser(RDFFormat.RDFA);
-                rdfParser.getParserConfig().set(SemarglParserSettings.RDFA_COMPATIBILITY, RDFa.VERSION_11);
-                rdfParser.getParserConfig().set(SemarglParserSettings.VOCAB_EXPANSION_ENABLED, true);
+                rdfParser.getParserConfig().set(RDFaParserSettings.RDFA_COMPATIBILITY, RDFaVersion.RDFA_1_1);
+                rdfParser.getParserConfig().set(RDFaParserSettings.VOCAB_EXPANSION_ENABLED, true);
                 rdfParser.getParserConfig().set(SemarglParserSettings.PROCESSOR_GRAPH_ENABLED, true);
                 rdfParser.setRDFHandler(model);
                 rdfParser.parse(input, inputUri);
