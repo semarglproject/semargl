@@ -75,7 +75,7 @@
         <version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
         <version.jena>2.7.4</version.jena>
         <version.jena.arq>2.9.4</version.jena.arq>
-        <version.sesame>2.7.0-beta2</version.sesame>
+        <version.sesame>2.7.0</version.sesame>
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
