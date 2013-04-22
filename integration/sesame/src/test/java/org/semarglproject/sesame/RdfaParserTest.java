@@ -60,7 +60,7 @@ public final class RdfaParserTest {
                     }
                     rdfWriter.endRDF();
                 } catch(RDFHandlerException e) {
-                    // do nothing
+                    throw new ParseException(e);
                 }
             }
         }
