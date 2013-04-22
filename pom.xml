@@ -8,7 +8,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>org.semarglproject</groupId>
+    <groupId>com.github.ansell.semargl</groupId>
     <artifactId>semargl-parent</artifactId>
     <version>0.5</version>
     <packaging>pom</packaging>
@@ -26,6 +26,11 @@
             <name>Lev Khomich</name>
             <email>levkhomich@gmail.com</email>
             <url>http://levkhomich.ru</url>
+        </developer>
+        <developer>
+            <name>Peter Ansell</name>
+            <email>p_ansell@yahoo.com</email>
+            <url>https://github.com/ansell</url>
         </developer>
     </developers>
 
