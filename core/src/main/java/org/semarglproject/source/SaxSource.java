@@ -1,5 +1,6 @@
 /**
  * Copyright 2012-2013 Lev Khomich
+ * Copyright 2012-2013 Peter Ansell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +45,9 @@ final class SaxSource extends AbstractSource<SaxSink> {
             throw new ParseException("Can not instantinate XMLReader", e);
         }
         try {
+            if(baseUri == null || baseUri.trim().isEmpty()) {
+                baseUri = "urn:default:base:uri:";
+            }
             sink.setBaseUri(baseUri);
             xmlReader.parse(new InputSource(reader));
         } catch (SAXException e) {
