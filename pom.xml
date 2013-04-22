@@ -136,10 +136,10 @@
                             <owner>Lev Khomich</owner>
                             <year>2012-2013</year>
                         </properties>
-                        <quiet>false</quiet>
-                        <failIfMissing>true</failIfMissing>
-                        <aggregate>true</aggregate>
-                        <strictCheck>true</strictCheck>
+                        <quiet>true</quiet>
+                        <failIfMissing>false</failIfMissing>
+                        <aggregate>false</aggregate>
+                        <strictCheck>false</strictCheck>
                         <excludes>
                             <exclude>**/.*/**</exclude>
                             <exclude>**/checkstyle/**/*</exclude>
