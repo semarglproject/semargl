@@ -1,5 +1,6 @@
 /**
  * Copyright 2012-2013 Lev Khomich
+ * Copyright 2012-2013 Peter Ansell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +69,7 @@ public final class NTriplesParserTest {
                         }
                         rdfWriter.endRDF();
                     } catch(RDFHandlerException e) {
-                        // do nothing
+                        throw new ParseException(e);
                     }
                 }
                 return ".ttl";

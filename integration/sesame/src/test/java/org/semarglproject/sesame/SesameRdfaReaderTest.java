@@ -1,5 +1,6 @@
 /**
  * Copyright 2012-2013 Lev Khomich
+ * Copyright 2012-2013 Peter Ansell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,10 +58,9 @@ public class SesameRdfaReaderTest {
                 rdfParser.setRDFHandler(model);
                 rdfParser.parse(input, inputUri);
             } catch (OpenRDFException e) {
-                // do nothing
-                // FIXME: Why not fail quickly here?
+                throw new ParseException(e);
             } catch (IOException e) {
-                // do nothing
+                throw new ParseException(e);
             } finally {
                 RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                 try {
@@ -70,7 +70,7 @@ public class SesameRdfaReaderTest {
                     }
                     rdfWriter.endRDF();
                 } catch (RDFHandlerException e) {
-                    // do nothing
+                    throw new ParseException(e);
                 }
             }
         }
