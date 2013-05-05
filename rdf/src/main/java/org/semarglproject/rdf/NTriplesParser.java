@@ -15,12 +15,10 @@
  */
 package org.semarglproject.rdf;
 
-import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.xml.XmlUtils;
 
 import java.util.BitSet;
 
@@ -41,18 +39,40 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
      */
     public static final String ERROR = "http://semarglproject.org/ntriples/Error";
 
-    private static final short MODE_SAVE_UNTIL = 1;
-    private static final short MODE_SAVE_WHILE = 2;
+    private static final short PARSING_OUTSIDE = 0;
+    private static final short PARSING_URI = 1;
+    private static final short PARSING_BNODE = 2;
+    private static final short PARSING_LITERAL = 3;
+    private static final short PARSING_AFTER_LITERAL = 4;
+    private static final short PARSING_LITERAL_TYPE = 5;
+    private static final short PARSING_COMMENT = 6;
+
+    /**
+     * NTriples whitespace char checker
+     */
+    private static final BitSet WHITESPACE = new BitSet();
+
+    static {
+        WHITESPACE.set('\t');
+        WHITESPACE.set(' ');
+        WHITESPACE.set('\r');
+        WHITESPACE.set('\n');
+    }
 
     private String subj = null;
     private String pred = null;
-
-    private String buffer = null;
-    private int pos = -1;
-    private int limit = -1;
+    private String literalObj = null;
 
     private ProcessorGraphHandler processorGraphHandler = null;
     private boolean ignoreErrors = false;
+    private boolean skipSentence = false;
+
+    private short parsingState;
+
+    private int tokenStartPos;
+    private short charsToEscape = 0;
+    private boolean waitingForSentenceEnd = false;
+    private StringBuilder addBuffer = null;
 
     private NTriplesParser(TripleSink sink) {
         super(sink);
@@ -73,147 +93,241 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
         }
         if (!ignoreErrors) {
             throw new ParseException(msg);
-        }
-    }
-
-    private static boolean isEntirelyWhitespaceOrEmpty(String s) {
-        for (char c : s.toCharArray()) {
-            if (!Character.isWhitespace(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void skipWhitespace() {
-        while (pos < limit && XmlUtils.WHITESPACE.get(buffer.charAt(pos))) {
-            pos++;
+        } else {
+            resetTriple();
+            skipSentence = true;
+            parsingState = PARSING_OUTSIDE;
         }
     }
 
     @Override
     public NTriplesParser process(String str) throws ParseException {
-        if (isEntirelyWhitespaceOrEmpty(str)) {
-            return this;
+        return process(str.toCharArray(), 0, str.length());
+    }
+
+    @Override
+    public NTriplesParser process(char ch) throws ParseException {
+        char[] buffer = new char[1];
+        buffer[0] = ch;
+        return process(buffer, 0, 1);
+    }
+
+    @Override
+    public NTriplesParser process(char[] buffer, int start, int count) throws ParseException {
+        if (tokenStartPos != -1) {
+            tokenStartPos = start;
         }
-        this.buffer = str;
+        int end = start + count;
 
-        pos = 0;
-        limit = str.length();
+        for (int pos = start; pos < end; pos++) {
+            if (skipSentence && buffer[pos] != '.') {
+                continue;
+            } else {
+                skipSentence = false;
+            }
 
-        subj = null;
-        pred = null;
-
-        boolean nextLine = false;
-
-        for (; pos < limit && !nextLine; pos++) {
-            skipWhitespace();
-
-            String value;
-            switch (str.charAt(pos)) {
-                case '<':
-                    pos++;
-                    value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.GT));
-                    nextLine = processNonLiteral(value);
-                    break;
-                case '_':
-                    value = unescape(getToken(MODE_SAVE_WHILE, XmlUtils.ID));
-                    nextLine = processNonLiteral(value);
-                    break;
-                case '"':
-                    pos++;
-                    value = unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.QUOTE));
-                    while (str.charAt(pos - 2) == '\\') {
-                        value += '"' + unescape(getToken(MODE_SAVE_UNTIL, XmlUtils.QUOTE));
-                    }
-                    if (subj == null || pred == null) {
-                        error("Literal before subject or predicate");
-                        return this;
-                    }
-                    parseLiteral(subj, pred, value);
-                    nextLine = true;
-                    break;
-                case '#':
-                    return this;
-                default:
-                    error("Unknown token '" + str.charAt(pos) + "' in line '" + str + "'");
-                    return this;
+            if (parsingState == PARSING_OUTSIDE) {
+                processOutsideChar(buffer, pos);
+            } else if (parsingState == PARSING_COMMENT) {
+                if (buffer[pos] == '\n' || buffer[pos] == '\r') {
+                    parsingState = PARSING_OUTSIDE;
+                }
+            } else if (parsingState == PARSING_URI) {
+                if (buffer[pos] == '>') {
+                    onNonLiteral(unescape(extractToken(buffer, pos, 1)));
+                    parsingState = PARSING_OUTSIDE;
+                }
+            } else if (parsingState == PARSING_BNODE) {
+                if (WHITESPACE.get(buffer[pos]) || buffer[pos] == '.') {
+                    onNonLiteral(extractToken(buffer, pos, 0));
+                    parsingState = PARSING_OUTSIDE;
+                }
+            } else if (parsingState == PARSING_LITERAL) {
+                processLiteralChar(buffer, pos);
+            } else if (parsingState == PARSING_AFTER_LITERAL) {
+                if (buffer[pos] == '@' || buffer[pos] == '^') {
+                    tokenStartPos = pos;
+                    parsingState = PARSING_LITERAL_TYPE;
+                } else if (WHITESPACE.get(buffer[pos])) {
+                    onPlainLiteral(literalObj, null);
+                    parsingState = PARSING_OUTSIDE;
+                    processOutsideChar(buffer, pos);
+                } else {
+                    error("Unexpected character '" + buffer[pos] + "' after literal");
+                }
+            } else if (parsingState == PARSING_LITERAL_TYPE) {
+                processLiteralTypeChar(buffer, pos);
             }
         }
-        skipWhitespace();
-        if (pos != limit && str.charAt(pos) != '#' && str.charAt(pos) != '.') {
-            error("Error parsing triple");
+        if (tokenStartPos != -1) {
+            if (addBuffer == null) {
+                addBuffer = new StringBuilder();
+            }
+            addBuffer.append(buffer, tokenStartPos, end - tokenStartPos);
         }
         return this;
     }
 
-    @Override
-    public CharOutputSink process(char ch) throws ParseException {
-        return null;
-    }
-
-    private boolean processNonLiteral(String value) {
-        boolean nextLine = false;
-        if (subj == null) {
-            subj = value;
-        } else if (pred == null) {
-            pred = value;
+    private void processLiteralChar(char[] buffer, int pos) throws ParseException {
+        if (charsToEscape == 9 && buffer[pos] == 'u') {
+            charsToEscape -= 5;
+        } else if (charsToEscape == 9 && buffer[pos] != 'U') {
+            charsToEscape = 0;
+        } else if (charsToEscape > 0) {
+            charsToEscape--;
         } else {
-            sink.addNonLiteral(subj, pred, value);
-            nextLine = true;
-        }
-        return nextLine;
-    }
-
-    private void parseLiteral(String subj, String pred, String value) {
-        if (pos + 2 >= limit - 1) {
-            sink.addPlainLiteral(subj, pred, value, null);
-        } else if (buffer.charAt(pos) == '^' && buffer.charAt(pos + 1) == '^'
-                && buffer.charAt(pos + 2) == '<') {
-            pos += 3;
-            String type = getToken(MODE_SAVE_UNTIL, XmlUtils.GT);
-            sink.addTypedLiteral(subj, pred, value, type);
-        } else if (buffer.charAt(pos) == '@') {
-            pos++;
-            String lang = getToken(MODE_SAVE_UNTIL, XmlUtils.WHITESPACE);
-            sink.addPlainLiteral(subj, pred, value, lang);
-        } else {
-            sink.addPlainLiteral(subj, pred, value, null);
-        }
-    }
-
-    private String getToken(short mode, BitSet checker) {
-        int savedLength = 0;
-        int startPos = pos;
-
-    loop:
-        for (; pos < limit; pos++) {
-            switch (mode) {
-                case MODE_SAVE_WHILE:
-                    if (!checker.get(buffer.charAt(pos))) {
-                        break loop;
-                    }
-                    savedLength++;
-                    if (pos == limit - 1) {
-                        break loop;
-                    }
-                    break;
-                case MODE_SAVE_UNTIL:
-                    if (checker.get(buffer.charAt(pos))) {
-                        pos++;
-                        break loop;
-                    }
-                    savedLength++;
-                    if (pos == limit - 1) {
-                        pos++;
-                        break loop;
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown mode = " + mode);
+            if (buffer[pos] == '\"') {
+                literalObj = unescape(extractToken(buffer, pos, 1));
+                parsingState = PARSING_AFTER_LITERAL;
+            } else if (buffer[pos] == '\\') {
+                charsToEscape = 9;
             }
         }
-        return buffer.substring(startPos, startPos + savedLength);
+    }
+
+    private void processLiteralTypeChar(char[] buffer, int pos) throws ParseException {
+        if (WHITESPACE.get(buffer[pos])) {
+            String type = extractToken(buffer, pos, 0);
+            int trimSize = type.charAt(type.length() - 1) == '.' ? 1 : 0;
+            if (type.charAt(0) == '@') {
+                onPlainLiteral(literalObj, type.substring(1, type.length() - 1 - trimSize));
+            } else if (type.startsWith("^^<") && type.charAt(type.length() - 2) == '>') {
+                onTypedLiteral(literalObj, type.substring(3, type.length() - 2 - trimSize));
+            } else {
+                error("Literal type '" + type + "' can not be parsed");
+            }
+            parsingState = PARSING_OUTSIDE;
+            if (trimSize > 0) {
+                finishSentence();
+            }
+        }
+    }
+
+    private void processOutsideChar(char[] buffer, int pos) throws ParseException {
+        switch (buffer[pos]) {
+            case '\"':
+                parsingState = PARSING_LITERAL;
+                tokenStartPos = pos;
+                break;
+            case '<':
+                parsingState = PARSING_URI;
+                tokenStartPos = pos;
+                break;
+            case '_':
+                parsingState = PARSING_BNODE;
+                tokenStartPos = pos;
+                break;
+            case '#':
+                parsingState = PARSING_COMMENT;
+                break;
+            case '.':
+                finishSentence();
+                break;
+            default:
+                if (!WHITESPACE.get(buffer[pos])) {
+                    error("Unexpected character '" + buffer[pos] + "'");
+                }
+        }
+    }
+
+    private void finishSentence() throws ParseException {
+        if (waitingForSentenceEnd) {
+            waitingForSentenceEnd = false;
+        } else {
+            error("Unexpected end of sentence");
+        }
+    }
+
+    private void onNonLiteral(String uri) throws ParseException {
+        if (waitingForSentenceEnd) {
+            error("End of sentence expected");
+        }
+        if (subj == null) {
+            subj = uri;
+        } else if (pred == null) {
+            pred = uri;
+        } else {
+            sink.addNonLiteral(subj, pred, uri);
+            resetTriple();
+        }
+    }
+
+    private void onPlainLiteral(String value, String lang) throws ParseException {
+        if (subj == null || pred == null) {
+            if (waitingForSentenceEnd) {
+                error("End of sentence expected");
+            } else {
+                error("Literal is not an object");
+            }
+        }
+        sink.addPlainLiteral(subj, pred, value, lang);
+        resetTriple();
+    }
+
+    private void onTypedLiteral(String value, String type) throws ParseException {
+        if (subj == null || pred == null) {
+            if (waitingForSentenceEnd) {
+                error("End of sentence expected");
+            } else {
+                error("Literal is not an object");
+            }
+        }
+        sink.addTypedLiteral(subj, pred, value, type);
+        resetTriple();
+    }
+
+    @Override
+    public void setBaseUri(String baseUri) {
+    }
+
+    @Override
+    protected boolean setPropertyInternal(String key, Object value) {
+        if (StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key) && value instanceof ProcessorGraphHandler) {
+            processorGraphHandler = (ProcessorGraphHandler) value;
+        } else if (StreamProcessor.ENABLE_ERROR_RECOVERY.equals(key) && value instanceof Boolean) {
+            ignoreErrors = (Boolean) value;
+        }
+        return false;
+    }
+
+    private String extractToken(char[] buffer, int tokenEndPos, int trimSize) throws ParseException {
+        String saved;
+        if (addBuffer != null) {
+            if (tokenEndPos - trimSize >= tokenStartPos) {
+                addBuffer.append(buffer, tokenStartPos, tokenEndPos - tokenStartPos - trimSize + 1);
+            }
+            addBuffer.delete(0, trimSize);
+            saved = addBuffer.toString();
+            addBuffer = null;
+        } else {
+            saved = String.valueOf(buffer, tokenStartPos + trimSize, tokenEndPos - tokenStartPos + 1 - 2 * trimSize);
+        }
+        tokenStartPos = -1;
+        return saved;
+    }
+
+    @Override
+    public void startStream() throws ParseException {
+        super.startStream();
+        resetTriple();
+        waitingForSentenceEnd = false;
+        parsingState = PARSING_OUTSIDE;
+    }
+
+    private void resetTriple() {
+        addBuffer = null;
+        tokenStartPos = -1;
+        subj = null;
+        pred = null;
+        waitingForSentenceEnd = true;
+    }
+
+    @Override
+    public void endStream() throws ParseException {
+        if (tokenStartPos != -1 || waitingForSentenceEnd) {
+            error("Unexpected end of stream");
+        }
+        super.endStream();
     }
 
     private String unescape(String str) throws ParseException {
@@ -253,16 +367,21 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
                     result.append('\t');
                     break;
                 case 'u':
-                    if (i + 4 >= limit) {
-                        error("Error parsing escaped char");
+                case 'U':
+                    int sequenceLength = ch == 'u' ? 4 : 8;
+                    if (i + sequenceLength >= limit) {
+                        error("Error parsing escape sequence '\\" + ch + "'");
                     }
-                    String code = str.substring(i + 1, i + 5);
-                    i += 4;
+                    String code = str.substring(i + 1, i + 1 + sequenceLength);
+                    i += sequenceLength;
+
                     try {
                         int value = Integer.parseInt(code, 16);
                         result.append((char) value);
                     } catch (NumberFormatException nfe) {
-                        error("Error parsing escaped char");
+                        error("Error parsing escape sequence '\\" + ch + "'");
+
+
                     }
                     break;
                 default:
@@ -273,17 +392,4 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
         return result.toString();
     }
 
-    @Override
-    public void setBaseUri(String baseUri) {
-    }
-
-    @Override
-    protected boolean setPropertyInternal(String key, Object value) {
-        if (StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key) && value instanceof ProcessorGraphHandler) {
-            processorGraphHandler = (ProcessorGraphHandler) value;
-        } else if (StreamProcessor.ENABLE_ERROR_RECOVERY.equals(key) && value instanceof Boolean) {
-            ignoreErrors = (Boolean) value;
-        }
-        return false;
-    }
 }

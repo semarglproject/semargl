@@ -38,4 +38,13 @@ public interface CharSink extends DataSink {
      */
     CharSink process(char ch) throws ParseException;
 
+    /**
+     * Callback for buffer processing
+     *
+     * @param buffer char buffer for processing
+     * @param start position to start
+     * @param count count of chars to process
+     * @throws ParseException
+     */
+    CharSink process(char[] buffer, int start, int count) throws ParseException;
 }

@@ -115,6 +115,14 @@ public final class CharOutputSink implements CharSink {
         return this;
     }
 
+    @Override
+    public CharOutputSink process(char[] buffer, int start, int count) throws ParseException {
+        this.buffer.append(buffer, start, count);
+        bufferSize += count;
+        writeBuffer();
+        return this;
+    }
+
     private void writeBuffer() {
         if (bufferSize >= BATCH_SIZE) {
             try {

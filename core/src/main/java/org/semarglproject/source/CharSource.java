@@ -36,9 +36,10 @@ final class CharSource extends AbstractSource<CharSink> {
         BufferedReader bufferedReader = new BufferedReader(reader);
         try {
             sink.setBaseUri(baseUri);
-            String buffer;
-            while ((buffer = bufferedReader.readLine()) != null) {
-                sink.process(buffer);
+            char[] buffer = new char[512];
+            int read;
+            while ((read = bufferedReader.read(buffer)) != -1) {
+                sink.process(buffer, 0, read);
             }
         } catch (IOException e) {
             throw new ParseException(e);
