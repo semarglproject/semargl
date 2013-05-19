@@ -16,7 +16,7 @@
 package org.semarglproject.sink;
 
 /**
- * Interface for handling events from {@link org.semarglproject.source.SaxSource}
+ * Interface for triple consuming.
  */
 public interface TripleSink extends DataSink {
 
