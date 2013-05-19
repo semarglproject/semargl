@@ -16,7 +16,7 @@
 package org.semarglproject.source;
 
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.sink.SaxSink;
+import org.semarglproject.sink.XmlSink;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -28,11 +28,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-final class SaxSource extends AbstractSource<SaxSink> {
+final class XmlSource extends AbstractSource<XmlSink> {
 
     private XMLReader xmlReader = null;
 
-    SaxSource(SaxSink sink) {
+    XmlSource(XmlSink sink) {
         super(sink);
     }
 

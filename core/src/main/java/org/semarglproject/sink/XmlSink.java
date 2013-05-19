@@ -21,9 +21,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 
 /**
- * Sink interface for streaming XML processors. Forces
+ * Sink interface for streaming XML processors.
  */
-public interface SaxSink extends DataSink, ContentHandler, LexicalHandler {
+public interface XmlSink extends DataSink, ContentHandler, LexicalHandler {
 
     /**
      * Unwraps underlying ParseException from SAXException or

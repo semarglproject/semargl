@@ -18,7 +18,7 @@ package org.semarglproject.rdf;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.Pipe;
-import org.semarglproject.sink.SaxSink;
+import org.semarglproject.sink.XmlSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.vocab.RDF;
@@ -40,7 +40,7 @@ import java.util.*;
  *     </ul>
  * </p>
  */
-public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
+public final class RdfXmlParser extends Pipe<TripleSink> implements XmlSink {
 
     /**
      * Class URI for errors produced by a parser
@@ -113,7 +113,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements SaxSink {
      * @param sink sink to be connected to
      * @return instance of RdfXmlParser
      */
-    public static SaxSink connect(TripleSink sink) {
+    public static XmlSink connect(TripleSink sink) {
         return new RdfXmlParser(sink);
     }
 

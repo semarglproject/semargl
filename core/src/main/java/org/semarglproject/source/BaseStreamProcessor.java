@@ -18,7 +18,7 @@ package org.semarglproject.source;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.DataSink;
-import org.semarglproject.sink.SaxSink;
+import org.semarglproject.sink.XmlSink;
 
 import java.io.Closeable;
 import java.io.File;
@@ -178,8 +178,8 @@ public abstract class BaseStreamProcessor {
     protected static AbstractSource createSourceForSink(DataSink sink) {
         if (sink instanceof CharSink) {
             return new CharSource((CharSink) sink);
-        } else if (sink instanceof SaxSink) {
-            return new SaxSource((SaxSink) sink);
+        } else if (sink instanceof XmlSink) {
+            return new XmlSource((XmlSink) sink);
         }
         return null;
     }

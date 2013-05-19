@@ -90,10 +90,10 @@ public final class StreamProcessor extends BaseStreamProcessor {
     @Override
     public boolean setProperty(String key, Object value) {
         boolean result = false;
-        if (XML_READER_PROPERTY.equals(key) && value instanceof XMLReader && source instanceof SaxSource) {
+        if (XML_READER_PROPERTY.equals(key) && value instanceof XMLReader && source instanceof XmlSource) {
             try {
                 if (value != null) {
-                    ((SaxSource) source).setXmlReader((XMLReader) value);
+                    ((XmlSource) source).setXmlReader((XMLReader) value);
                     result = true;
                 }
             } catch(SAXException e) {

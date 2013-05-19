@@ -22,7 +22,7 @@ import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.Pipe;
-import org.semarglproject.sink.SaxSink;
+import org.semarglproject.sink.XmlSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.vocab.RDF;
@@ -60,7 +60,7 @@ import java.util.NoSuchElementException;
  *     </ul>
  * </p>
  */
-public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, TripleSink, ProcessorGraphHandler {
+public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, TripleSink, ProcessorGraphHandler {
 
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.
@@ -149,7 +149,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
     private ProcessorGraphHandler processorGraphHandler = null;
 
     private boolean rdfXmlInline = false;
-    private SaxSink rdfXmlParser = null;
+    private XmlSink rdfXmlParser = null;
 
     private Map<String, List<String>> patternProps = new HashMap<String, List<String>>();
     private List<String> copyingPairs = new ArrayList<String>();
@@ -171,7 +171,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements SaxSink, Tripl
      * @param sink sink to be connected to
      * @return instance of RdfaParser
      */
-    public static SaxSink connect(TripleSink sink) {
+    public static XmlSink connect(TripleSink sink) {
         return new RdfaParser(sink);
     }
 
