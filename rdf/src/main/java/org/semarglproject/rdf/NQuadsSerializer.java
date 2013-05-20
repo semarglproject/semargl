@@ -16,24 +16,16 @@
 package org.semarglproject.rdf;
 
 import org.semarglproject.sink.CharSink;
-import org.semarglproject.sink.Pipe;
-import org.semarglproject.sink.TripleSink;
+import org.semarglproject.sink.QuadSink;
 import org.semarglproject.vocab.RDF;
 
 /**
  * Implementation of {@link org.semarglproject.sink.TripleSink} which serializes triples to
  * {@link org.semarglproject.sink.CharSink} using <a href="">NTriples</a> syntax. *
  */
-public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
+public class NQuadsSerializer extends NTriplesSerializer implements QuadSink {
 
-    protected static final String DOT_EOL = ".\n";
-    protected static final String SPACE = " ";
-
-    private static final String QUOTE = "\"";
-    private static final String URI_START = "<";
-    private static final String URI_END = ">";
-
-    protected NTriplesSerializer(CharSink sink) {
+    private NQuadsSerializer(CharSink sink) {
         super(sink);
     }
 
@@ -42,12 +34,12 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
      * @param sink sink to be connected to
      * @return instance of TurtleSerializer
      */
-    public static TripleSink connect(CharSink sink) {
-        return new NTriplesSerializer(sink);
+    public static QuadSink connect(CharSink sink) {
+        return new NQuadsSerializer(sink);
     }
 
     @Override
-    public void addNonLiteral(String subj, String pred, String obj) {
+    public void addNonLiteral(String subj, String pred, String obj, String graph) {
         try {
             startTriple(subj, pred);
             if (obj.startsWith(RDF.BNODE_PREFIX)) {
@@ -55,6 +47,9 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
             } else {
                 serializeUri(obj);
             }
+            if (graph != null) {
+                serializeUri(graph);
+            }
             sink.process(DOT_EOL);
         } catch (ParseException e) {
             // ignore
@@ -62,26 +57,17 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
     }
 
     @Override
-    public void addPlainLiteral(String subj, String pred, String content, String lang) {
+    public void addPlainLiteral(String subj, String pred, String content, String lang, String graph) {
         try {
             startTriple(subj, pred);
             addContent(content);
             if (lang != null) {
                 sink.process('@').process(lang);
             }
-            sink.process(SPACE).process(DOT_EOL);
-        } catch (ParseException e) {
-            // ignore
-        }
-    }
-
-    @Override
-    public void addTypedLiteral(String subj, String pred, String content, String type) {
-        try {
-            startTriple(subj, pred);
-            addContent(content);
-            sink.process("^^");
-            serializeUri(type);
+            sink.process(SPACE);
+            if (graph != null) {
+                serializeUri(graph);
+            }
             sink.process(DOT_EOL);
         } catch (ParseException e) {
             // ignore
@@ -89,32 +75,19 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
     }
 
     @Override
-    protected boolean setPropertyInternal(String key, Object value) {
-        return false;
-    }
-
-    @Override
-    public void setBaseUri(String baseUri) {
-        // ignore
-    }
-
-    protected void startTriple(String subj, String pred) throws ParseException {
-        if (subj.startsWith(RDF.BNODE_PREFIX)) {
-            sink.process(subj).process(SPACE);
-        } else {
-            serializeUri(subj);
+    public void addTypedLiteral(String subj, String pred, String content, String type, String graph) {
+        try {
+            startTriple(subj, pred);
+            addContent(content);
+            sink.process("^^");
+            serializeUri(type);
+            if (graph != null) {
+                serializeUri(graph);
+            }
+            sink.process(DOT_EOL);
+        } catch (ParseException e) {
+            // ignore
         }
-        serializeUri(pred);
-    }
-
-    protected void serializeUri(String uri) throws ParseException {
-        String escapedUri = uri.replace("\\", "\\\\").replace(">", "\\u003E");
-        sink.process(URI_START).process(escapedUri).process(URI_END).process(SPACE);
-    }
-
-    protected void addContent(String content) throws ParseException {
-        String escapedContent = content.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
-        sink.process(QUOTE).process(escapedContent).process(QUOTE);
     }
 
 }
