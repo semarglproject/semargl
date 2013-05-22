@@ -1,8 +1,12 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="RDF parsers" verbose="1">
-    <test name="NTriples Semargl Turtle Test">
+    <test name="RDF/XML Test">
         <classes>
             <class name="org.semarglproject.rdf.RdfXmlParserTest" />
+        </classes>
+    </test>
+    <test name="NTriples Test">
+        <classes>
             <class name="org.semarglproject.rdf.NTriplesParserTest" />
         </classes>
     </test>

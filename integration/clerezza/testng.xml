@@ -18,9 +18,9 @@
 <suite name="Integration tests" verbose="1">
     <test name="Clerezza integration tests">
         <classes>
-            <class name="org.semarglproject.clerezza.RdfXmlParserTest" />
-            <class name="org.semarglproject.clerezza.NTriplesParserTest" />
-            <class name="org.semarglproject.clerezza.RdfaParserTest" />
+            <class name="org.semarglproject.clerezza.ClerezzaRdfXmlParserTest" />
+            <class name="org.semarglproject.clerezza.ClerezzaNTriplesParserTest" />
+            <class name="org.semarglproject.clerezza.ClerezzaRdfaParserTest" />
         </classes>
     </test>
 </suite>

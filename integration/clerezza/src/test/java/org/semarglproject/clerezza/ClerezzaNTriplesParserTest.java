@@ -22,41 +22,38 @@ import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
-import org.semarglproject.source.StreamProcessor;
+import org.semarglproject.rdf.NTriplesParser;
+import org.semarglproject.rdf.NTriplesParserTest;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.RdfXmlParser;
-import org.semarglproject.rdf.RdfXmlTestBundle;
-import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
+import org.semarglproject.source.StreamProcessor;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import static org.semarglproject.rdf.RdfXmlTestBundle.SaveToFileCallback;
-import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
-
-public final class RdfXmlParserTest {
+public final class ClerezzaNTriplesParserTest {
 
     private MGraph graph;
-    private StreamProcessor streamProcessor;
+    private StreamProcessor sp;
+    private NTriplesParserTest nTriplesParserTest;
 
     @BeforeClass
-    public void init() throws SAXException {
-        RdfXmlTestBundle.prepareTestDir();
+    public void init() {
+        nTriplesParserTest = new NTriplesParserTest();
+        nTriplesParserTest.init();
 
         UriRef graphUri = new UriRef("http://example.com/");
-        TcManager MANAGER = TcManager.getInstance();
-        if (MANAGER.listMGraphs().contains(graphUri)) {
-            MANAGER.deleteTripleCollection(graphUri);
+        TcManager tcManager = TcManager.getInstance();
+        if (tcManager.listMGraphs().contains(graphUri)) {
+            tcManager.deleteTripleCollection(graphUri);
         }
-        graph = MANAGER.createMGraph(graphUri);
-
-        streamProcessor = new StreamProcessor(RdfXmlParser.connect(ClerezzaSink.connect(graph)));
+        graph = tcManager.createMGraph(graphUri);
+        sp = new StreamProcessor(NTriplesParser.connect(ClerezzaSink.connect(graph)));
     }
 
     @BeforeMethod
@@ -67,17 +64,17 @@ public final class RdfXmlParserTest {
     }
 
     @DataProvider
-    public static Object[][] getTestSuite() {
-        return RdfXmlTestBundle.getTestFiles();
+    public Object[][] getTestSuite() throws IOException {
+        return nTriplesParserTest.getTestSuite();
     }
 
     @Test(dataProvider = "getTestSuite")
-    public void runW3CWithClerezzaSink(TestCase testCase) {
-        runTestWith(testCase, new SaveToFileCallback() {
+    public void runTestSuite(NTriplesParserTest.TestCase testCase) throws Exception {
+        nTriplesParserTest.runTest(testCase, new NTriplesParserTest.SaveToFileCallback() {
             @Override
-            public String run(Reader input, String inputUri, Writer output) throws ParseException {
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    streamProcessor.process(input, inputUri);
+                    sp.process(input, inputUri);
                 } finally {
                     OutputStream outputStream = new WriterOutputStream(output, "UTF-8");
                     try {
@@ -87,9 +84,12 @@ public final class RdfXmlParserTest {
                         IOUtils.closeQuietly(outputStream);
                     }
                 }
-                return ".ttl";
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "ttl";
             }
         });
     }
-
 }

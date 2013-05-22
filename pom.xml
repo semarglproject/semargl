@@ -85,6 +85,7 @@
         <module>core</module>
         <module>rdf</module>
         <module>rdfa</module>
+        <module>json</module>
         <module>integration</module>
     </modules>
 
@@ -292,17 +293,17 @@
             <!-- OpenRDF Sesame -->
             <dependency>
                 <groupId>org.openrdf.sesame</groupId>
-                <artifactId>sesame-model</artifactId>
-                <version>${version.sesame}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openrdf.sesame</groupId>
                 <artifactId>sesame-rio-api</artifactId>
                 <version>${version.sesame}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrdf.sesame</groupId>
-                <artifactId>sesame-rio-turtle</artifactId>
+                <artifactId>sesame-rio-compliance</artifactId>
+                <version>${version.sesame}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-queryparser-sparql</artifactId>
                 <version>${version.sesame}</version>
             </dependency>
 
@@ -312,6 +313,7 @@
                 <artifactId>commons-io</artifactId>
                 <version>${version.apache.commons}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

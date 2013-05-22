@@ -35,11 +35,6 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*Test.class</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -56,6 +51,7 @@
     </build>
 
     <dependencies>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>semargl-core</artifactId>
@@ -63,14 +59,15 @@
         </dependency>
 
         <!--Testing-->
+
         <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-core</artifactId>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-arq</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-compliance</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -78,10 +75,15 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Semargl -->
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>semargl-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 </project>

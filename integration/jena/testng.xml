@@ -18,9 +18,9 @@
 <suite name="Integration tests" verbose="1">
     <test name="Jena integration tests">
         <classes>
-            <class name="org.semarglproject.jena.RdfXmlParserTest" />
-            <class name="org.semarglproject.jena.NTriplesParserTest" />
-            <class name="org.semarglproject.jena.RdfaParserTest" />
+            <class name="org.semarglproject.jena.JenaRdfXmlParserTest" />
+            <class name="org.semarglproject.jena.JenaNTriplesParserTest" />
+            <class name="org.semarglproject.jena.JenaRdfaParserTest" />
             <class name="org.semarglproject.jena.JenaRdfaReaderTest" />
         </classes>
     </test>

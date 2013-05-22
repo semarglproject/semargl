@@ -18,31 +18,31 @@ package org.semarglproject.jena;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
-import org.semarglproject.rdf.RdfXmlTestBundle;
-import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
+import org.semarglproject.rdf.RdfXmlParserTest;
+import org.semarglproject.source.StreamProcessor;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-import static org.semarglproject.rdf.RdfXmlTestBundle.SaveToFileCallback;
-import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
+import static org.semarglproject.rdf.RdfXmlParserTest.SaveToFileCallback;
 
-public final class RdfXmlParserTest {
+public final class JenaRdfXmlParserTest {
 
     private Model model;
     private StreamProcessor streamProcessor;
+    private RdfXmlParserTest rdfXmlParserTest;
 
     @BeforeClass
-    public void init() throws SAXException {
-        RdfXmlTestBundle.prepareTestDir();
+    public void init() {
+        rdfXmlParserTest = new RdfXmlParserTest();
+        rdfXmlParserTest.init();
         model = ModelFactory.createDefaultModel();
         streamProcessor = new StreamProcessor(RdfXmlParser.connect(JenaSink.connect(model)));
     }
@@ -53,21 +53,25 @@ public final class RdfXmlParserTest {
     }
 
     @DataProvider
-    public static Object[][] getTestSuite() {
-        return RdfXmlTestBundle.getTestFiles();
+    public Object[][] getTestSuite() throws IOException {
+        return rdfXmlParserTest.getTestSuite();
     }
 
     @Test(dataProvider = "getTestSuite")
-    public void runW3CWithJenaSink(TestCase testCase) {
-        runTestWith(testCase, new SaveToFileCallback() {
+    public void runTestSuite(RdfXmlParserTest.TestCase testCase) {
+        rdfXmlParserTest.runTest(testCase, new SaveToFileCallback() {
             @Override
-            public String run(Reader input, String inputUri, Writer output) throws ParseException {
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     streamProcessor.process(input, inputUri);
                 } finally {
                     model.write(output, "TURTLE");
                 }
-                return ".ttl";
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "ttl";
             }
         });
     }

@@ -22,10 +22,10 @@ import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
-import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.rdf.NTriplesParser;
-import org.semarglproject.rdf.NTriplesTestBundle;
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.RdfXmlParser;
+import org.semarglproject.rdf.RdfXmlParserTest;
+import org.semarglproject.source.StreamProcessor;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -36,22 +36,25 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-public final class NTriplesParserTest {
+public final class ClerezzaRdfXmlParserTest {
 
     private MGraph graph;
-    private StreamProcessor sp;
+    private StreamProcessor streamProcessor;
+    private RdfXmlParserTest rdfXmlParserTest;
 
     @BeforeClass
     public void init() {
-        NTriplesTestBundle.prepareTestDir();
+        rdfXmlParserTest = new RdfXmlParserTest();
+        rdfXmlParserTest.init();
 
         UriRef graphUri = new UriRef("http://example.com/");
-        TcManager tcManager = TcManager.getInstance();
-        if (tcManager.listMGraphs().contains(graphUri)) {
-            tcManager.deleteTripleCollection(graphUri);
+        TcManager MANAGER = TcManager.getInstance();
+        if (MANAGER.listMGraphs().contains(graphUri)) {
+            MANAGER.deleteTripleCollection(graphUri);
         }
-        graph = tcManager.createMGraph(graphUri);
-        sp = new StreamProcessor(NTriplesParser.connect(ClerezzaSink.connect(graph)));
+        graph = MANAGER.createMGraph(graphUri);
+
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(ClerezzaSink.connect(graph)));
     }
 
     @BeforeMethod
@@ -61,13 +64,18 @@ public final class NTriplesParserTest {
         }
     }
 
-    @Test(dataProvider = "getTestFiles")
-    public void NTriplesTestsClerezza(String caseName) throws Exception {
-        NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
+    @DataProvider
+    public Object[][] getTestSuite() throws IOException {
+        return rdfXmlParserTest.getTestSuite();
+    }
+
+    @Test(dataProvider = "getTestSuite")
+    public void runTestSuite(RdfXmlParserTest.TestCase testCase) {
+        rdfXmlParserTest.runTest(testCase, new RdfXmlParserTest.SaveToFileCallback() {
             @Override
-            public String run(Reader input, String inputUri, Writer output) throws ParseException {
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    sp.process(input, inputUri);
+                    streamProcessor.process(input, inputUri);
                 } finally {
                     OutputStream outputStream = new WriterOutputStream(output, "UTF-8");
                     try {
@@ -77,13 +85,13 @@ public final class NTriplesParserTest {
                         IOUtils.closeQuietly(outputStream);
                     }
                 }
-                return ".ttl";
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "ttl";
             }
         });
     }
 
-    @DataProvider
-    public Object[][] getTestFiles() throws IOException {
-        return NTriplesTestBundle.getTestFiles();
-    }
 }

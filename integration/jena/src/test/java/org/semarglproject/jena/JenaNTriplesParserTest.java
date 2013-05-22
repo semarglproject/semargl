@@ -18,10 +18,10 @@ package org.semarglproject.jena;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.NTriplesParser;
-import org.semarglproject.rdf.NTriplesTestBundle;
+import org.semarglproject.rdf.NTriplesParserTest;
 import org.semarglproject.rdf.ParseException;
+import org.semarglproject.source.StreamProcessor;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -31,14 +31,16 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-public final class NTriplesParserTest {
+public final class JenaNTriplesParserTest {
 
     private Model model;
     private StreamProcessor sp;
+    private NTriplesParserTest nTriplesParserTest;
 
     @BeforeClass
     public void init() {
-        NTriplesTestBundle.prepareTestDir();
+        nTriplesParserTest = new NTriplesParserTest();
+        nTriplesParserTest.init();
         model = ModelFactory.createDefaultModel();
         sp = new StreamProcessor(NTriplesParser.connect(JenaSink.connect(model)));
     }
@@ -48,23 +50,28 @@ public final class NTriplesParserTest {
         model.removeAll();
     }
 
-    @Test(dataProvider = "getTestFiles")
-    public void NTriplesTestsJena(String caseName) throws Exception {
-        NTriplesTestBundle.runTest(caseName, new NTriplesTestBundle.SaveToFileCallback() {
+    @DataProvider
+    public Object[][] getTestSuite() throws IOException {
+        return nTriplesParserTest.getTestSuite();
+    }
+
+    @Test(dataProvider = "getTestSuite")
+    public void runTestSuite(NTriplesParserTest.TestCase testCase) throws Exception {
+        nTriplesParserTest.runTest(testCase, new NTriplesParserTest.SaveToFileCallback() {
             @Override
-            public String run(Reader input, String inputUri, Writer output) throws ParseException {
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
                     sp.process(input, inputUri);
                 } finally {
                     model.write(output, "TURTLE");
                 }
-                return ".ttl";
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "ttl";
             }
         });
     }
 
-    @DataProvider
-    public Object[][] getTestFiles() throws IOException {
-        return NTriplesTestBundle.getTestFiles();
-    }
 }

@@ -18,9 +18,9 @@
 <suite name="Integration tests" verbose="1">
     <test name="Sesame integration tests">
         <classes>
-            <class name="org.semarglproject.sesame.RdfXmlParserTest" />
-            <class name="org.semarglproject.sesame.NTriplesParserTest" />
-            <class name="org.semarglproject.sesame.RdfaParserTest" />
+            <class name="org.semarglproject.sesame.SesameRdfXmlParserTest" />
+            <class name="org.semarglproject.sesame.SesameNTriplesParserTest" />
+            <class name="org.semarglproject.sesame.SesameRdfaParserTest" />
             <class name="org.semarglproject.sesame.SesameRdfaReaderTest" />
         </classes>
     </test>

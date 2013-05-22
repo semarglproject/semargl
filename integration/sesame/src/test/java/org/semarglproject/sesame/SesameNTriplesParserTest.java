@@ -21,34 +21,32 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.semarglproject.source.StreamProcessor;
+import org.semarglproject.rdf.NTriplesParser;
+import org.semarglproject.rdf.NTriplesParserTest;
 import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.RdfXmlParser;
-import org.semarglproject.rdf.RdfXmlTestBundle;
-import org.semarglproject.rdf.RdfXmlTestBundle.TestCase;
 import org.semarglproject.sesame.core.sink.SesameSink;
+import org.semarglproject.source.StreamProcessor;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-import static org.semarglproject.rdf.RdfXmlTestBundle.SaveToFileCallback;
-import static org.semarglproject.rdf.RdfXmlTestBundle.runTestWith;
-
-public final class RdfXmlParserTest {
+public final class SesameNTriplesParserTest {
 
     private StatementCollector model;
-    private StreamProcessor streamProcessor;
+    private StreamProcessor sp;
+    private NTriplesParserTest nTriplesParserTest;
 
     @BeforeClass
-    public void init() throws SAXException {
-        RdfXmlTestBundle.prepareTestDir();
+    public void init() {
+        nTriplesParserTest = new NTriplesParserTest();
+        nTriplesParserTest.init();
         model = new StatementCollector();
-        streamProcessor = new StreamProcessor(RdfXmlParser.connect(SesameSink.connect(model)));
+        sp = new StreamProcessor(NTriplesParser.connect(SesameSink.connect(model)));
     }
 
     @BeforeMethod
@@ -57,17 +55,17 @@ public final class RdfXmlParserTest {
     }
 
     @DataProvider
-    public static Object[][] getTestSuite() {
-        return RdfXmlTestBundle.getTestFiles();
+    public Object[][] getTestSuite() throws IOException {
+        return nTriplesParserTest.getTestSuite();
     }
 
     @Test(dataProvider = "getTestSuite")
-    public void runW3CWithSesameSink(TestCase testCase) {
-        runTestWith(testCase, new SaveToFileCallback() {
+    public void runTestSuite(NTriplesParserTest.TestCase testCase) throws Exception {
+        nTriplesParserTest.runTest(testCase, new NTriplesParserTest.SaveToFileCallback() {
             @Override
-            public String run(Reader input, String inputUri, Writer output) throws ParseException {
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
                 try {
-                    streamProcessor.process(input, inputUri);
+                    sp.process(input, inputUri);
                 } finally {
                     RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                     try {
@@ -80,7 +78,11 @@ public final class RdfXmlParserTest {
                         // do nothing
                     }
                 }
-                return ".ttl";
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "ttl";
             }
         });
     }

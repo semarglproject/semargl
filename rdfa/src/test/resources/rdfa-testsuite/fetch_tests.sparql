@@ -1,7 +1,7 @@
 prefix test: <http://www.w3.org/2006/03/test-description#>
 prefix rdfatest: <http://rdfa.info/vocabs/rdfa-test#>
 
-select ?test_case ?exp_result ?descr ?input ?result {
+select (?test_case as ?name) ?expectedResult ?input ?result {
 	?test_case a test:TestCase;
 		rdfatest:rdfaVersion ?rdfa_version;
 		rdfatest:hostLanguage !host_lang;
@@ -9,7 +9,8 @@ select ?test_case ?exp_result ?descr ?input ?result {
 		test:informationResourceInput ?input;
 		test:informationResourceResults ?result.
 	optional {
-	    ?test_case test:expectedResults ?exp_result
+	    ?test_case test:expectedResults ?expectedResult
 	}
 	filter (regex(?rdfa_version, !rdfa_version))
+	filter (!regex(str(?test_case), "0294")) # there is no way to detect rdfa version for this document
 } order by ?input

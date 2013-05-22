@@ -15,23 +15,21 @@
  */
 package org.semarglproject.rdf.rdfa;
 
+import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.TurtleSerializer;
+import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.SaveToFileCallback;
+import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.TestCase;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.rdfa.RdfaTestBundle.SaveToFileCallback;
-import org.semarglproject.rdf.rdfa.RdfaTestBundle.TestCase;
 import org.semarglproject.vocab.RDFa;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import org.xml.sax.SAXException;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 
-import static org.semarglproject.rdf.rdfa.RdfaTestBundle.runTestBundle;
+import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.runTestBundle;
 
 public final class RdfaParserTest {
 
@@ -44,12 +42,17 @@ public final class RdfaParserTest {
             streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaVersion);
             streamProcessor.process(input, inputUri);
         }
+
+        @Override
+        public String getOutputFileExt() {
+            return "ttl";
+        }
     };
 
     @BeforeClass
     public void init() throws SAXException, InterruptedException {
-        RdfaTestBundle.prepareTestDir();
-//        RdfaTestBundle.downloadAllTests(2);
+//        RdfaTestSuiteHelper.prepareTestDir();
+//        RdfaTestSuiteHelper.downloadAllTests(2);
 
         charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(RdfaParser.connect(TurtleSerializer.connect(charOutputSink)));
@@ -58,37 +61,37 @@ public final class RdfaParserTest {
 
     @DataProvider
     public static Object[][] getRdfa10Xhtml1TestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.0", "xhtml1"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "xhtml1"));
     }
 
     @DataProvider
     public static Object[][] getRdfa10SvgTestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.0", "svg"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "svg"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11Html4TestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.1", "html4"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html4"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11Xhtml1TestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.1", "xhtml1"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xhtml1"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11Html5TestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.1", "html5"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html5"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11XmlTestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.1", "xml"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xml"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11SvgTestSuite() {
-        return convertToDataProvider(RdfaTestBundle.getTestCases("rdfa1.1", "svg"));
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "svg"));
     }
 
     private static Object[][] convertToDataProvider(Collection<TestCase> tests) {
