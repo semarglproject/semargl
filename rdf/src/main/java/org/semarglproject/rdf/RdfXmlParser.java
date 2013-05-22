@@ -371,7 +371,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements XmlSink {
             if (!XmlUtils.isValidNCName(value)) {
                 error("Invalid nodeID");
             } else {
-                String id = RDF.BNODE_PREFIX + value.hashCode();
+                String id = RDF.BNODE_PREFIX + 'n' + value.hashCode();
                 processNonLiteralTriple(subjRes, predIri, id);
                 captureLiteral = false;
             }
@@ -540,7 +540,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements XmlSink {
         }
         attrValue = attrs.getValue(RDF.NS, NODE_ID_ATTR);
         if (attrValue != null) {
-            result = RDF.BNODE_PREFIX + attrValue.hashCode();
+            result = RDF.BNODE_PREFIX + 'n' + attrValue.hashCode();
             count++;
         }
         if (count == 0) {
@@ -555,7 +555,7 @@ public final class RdfXmlParser extends Pipe<TripleSink> implements XmlSink {
 
     private String newBnode() {
         bnodeId++;
-        return RDF.BNODE_PREFIX + bnodeId;
+        return RDF.BNODE_PREFIX + 'n' + bnodeId;
     }
 
     /**
