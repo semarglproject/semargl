@@ -167,7 +167,7 @@ public final class RdfaTestSuiteHelper {
 
         @Override
         public String toString() {
-            return name;
+            return input;
         }
     }
 
