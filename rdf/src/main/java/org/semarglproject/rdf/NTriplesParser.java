@@ -139,7 +139,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
                 }
             } else if (parsingState == PARSING_BNODE) {
                 if (WHITESPACE.get(buffer[pos]) || buffer[pos] == '.') {
-                    onNonLiteral(extractToken(buffer, pos, 0));
+                    onNonLiteral(extractToken(buffer, pos - 1, 0));
                     parsingState = PARSING_OUTSIDE;
                 }
             } else if (parsingState == PARSING_LITERAL) {
@@ -380,8 +380,6 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
                         result.append((char) value);
                     } catch (NumberFormatException nfe) {
                         error("Error parsing escape sequence '\\" + ch + "'");
-
-
                     }
                     break;
                 default:
