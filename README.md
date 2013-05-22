@@ -6,8 +6,8 @@ from structured documents. The main goal of the project is to provide lightweigh
 and performant tool without excess dependencies.
 
 At this moment Semargl offers high-performant streaming parsers for RDF/XML,
-[RDFa](http://en.wikipedia.org/wiki/Rdfa), N-Triples,
-streaming serializer for Turtle and integration with Jena, Clerezza and Sesame.
+[RDFa](http://en.wikipedia.org/wiki/Rdfa), N-Triples, JSON-LD,
+streaming serializers for Turtle, NTriples, NQuads and integration with Jena, Clerezza and Sesame.
 
 Small memory footprint, and CPU requirements allow framework to be embedded in any system.
 It runs seamlessly on Android and GAE.
@@ -52,4 +52,4 @@ serializers and easily extendable API. See more info and usage examples at
 Build
 =====
 
-To build framework just run `mvn install`.
+To build framework just run `mvn clean install`. RDFa tests require direct Internet connection.
