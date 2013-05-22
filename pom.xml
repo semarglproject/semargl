@@ -85,7 +85,7 @@
         <module>core</module>
         <module>rdf</module>
         <module>rdfa</module>
-        <module>json</module>
+        <module>jsonld</module>
         <module>integration</module>
     </modules>
 

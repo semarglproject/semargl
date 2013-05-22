@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="RDFa parser" verbose="1">
+    <test name="Semargl JSON-LD Tests">
+        <classes>
+            <class name="org.semarglproject.jsonld.JsonLdParserTest" />
+        </classes>
+    </test>
+</suite>
