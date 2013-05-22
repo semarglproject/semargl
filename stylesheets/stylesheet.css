@@ -78,6 +78,9 @@ body {
     margin: 20px 0;
 }
 
+.muted {
+    font-size: 10px;
+}
 #github-badge {
     position: absolute;
     top: 0;
