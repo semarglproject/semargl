@@ -18,21 +18,27 @@ package org.semarglproject.test;
 
 import org.apache.commons.io.FileUtils;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.util.ModelUtil;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQueryResultHandlerBase;
-import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.QueryResults;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.resultio.helpers.QueryResultCollector;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sail.SailTupleQuery;
 import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.sail.memory.MemoryStore;
+
+import info.aduna.iteration.Iterations;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,17 +69,11 @@ public class SesameTestHelper {
     }
 
     public static RDFFormat detectFileFormat(String filename) {
-        if (filename.endsWith(".nt")) {
-            return RDFFormat.NTRIPLES;
-        } else if (filename.endsWith(".nq")) {
-            return RDFFormat.NQUADS;
-        }  else if (filename.endsWith(".ttl")) {
-            return RDFFormat.TURTLE;
-        } else if (filename.endsWith(".rdf")) {
-            return RDFFormat.RDFXML;
-        } else {
+        RDFFormat result = Rio.getParserFormatForFileName(filename);
+        if(result == null) {
             throw new IllegalArgumentException("Unknown file format");
         }
+        return result;
     }
 
     public InputStream openStreamForResource(String uri)
@@ -110,54 +110,43 @@ public class SesameTestHelper {
         return result;
     }
 
-    public Collection<Statement> createModelFromFile(String filename, String baseUri) throws IOException {
-        if (filename == null) {
-            return new ArrayList<Statement>();
-        }
-        final Collection<Statement> result = new ArrayList<Statement>();
-        RDFParser rdfParser = Rio.createParser(SesameTestHelper.detectFileFormat(filename));
-        rdfParser.setRDFHandler(new RDFHandlerBase() {
-            @Override
-            public void handleStatement(Statement statement) throws RDFHandlerException {
-                result.add(statement);
+    public Model createModelFromFile(String filename, String baseUri) throws IOException {
+        Model model = new LinkedHashModel();
+        if (filename != null) {
+            try {
+                model = Rio.parse(openStreamForResource(filename), baseUri, SesameTestHelper.detectFileFormat(filename));
+            } catch (OpenRDFException e) {
+                System.err.println(e.getMessage());
+                //e.printStackTrace();
             }
-        });
-        try {
-            rdfParser.parse(openStreamForResource(filename), baseUri);
-        } catch (OpenRDFException e) {
-            e.printStackTrace();
         }
-        return result;
+        return model;
     }
 
     public <E> List<E> getTestCases(final String manifestUri, String queryStr, final Class<E> template) {
-        SailRepository repository =  new SailRepository(new MemoryStore());
+        Repository repository =  new SailRepository(new MemoryStore());
         final List<E> testCases = new ArrayList<E>();
         try {
             repository.initialize();
             repository.getConnection().add(openStreamForResource(manifestUri),
                     manifestUri, SesameTestHelper.detectFileFormat(manifestUri));
-            SailTupleQuery query = repository.getConnection().prepareTupleQuery(QueryLanguage.SPARQL, queryStr, manifestUri);
-            query.evaluate(new TupleQueryResultHandlerBase() {
-                @Override
-                public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
+            TupleQuery query = repository.getConnection().prepareTupleQuery(QueryLanguage.SPARQL, queryStr, manifestUri);
+            final TupleQueryResult queryResults = query.evaluate();
+            final QueryResultCollector collector = new QueryResultCollector();
+            QueryResults.report(queryResults, collector);
+            
+            for(BindingSet bindingSet : collector.getBindingSets())
+            {
+                Object testCase = template.newInstance();
+                for (String fieldName : bindingSet.getBindingNames()) {
                     try {
-                        Object testCase = template.newInstance();
-                        for (String fieldName : bindingSet.getBindingNames()) {
-                            try {
-                                template.getDeclaredField(fieldName).set(testCase,
-                                        bindingSet.getBinding(fieldName).getValue().stringValue());
-                            } catch (NoSuchFieldException e) {
-                            }
-                        }
-                        testCases.add((E) testCase);
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        template.getDeclaredField(fieldName).set(testCase,
+                                bindingSet.getBinding(fieldName).getValue().stringValue());
+                    } catch (NoSuchFieldException e) {
                     }
                 }
-            });
+                testCases.add((E) testCase);
+            }
             return testCases;
         } catch (Exception e) {
             return null;
@@ -166,24 +155,53 @@ public class SesameTestHelper {
 
     public boolean areModelsEqual(String producedModelPath, String expectedModelPath, String baseUri) {
         try {
-            Collection<Statement> inputModel = createModelFromFile(producedModelPath, baseUri);
-            Collection<Statement> expected = createModelFromFile(expectedModelPath, baseUri);
+            Model inputModel = createModelFromFile(producedModelPath, baseUri);
+            Model expected = createModelFromFile(expectedModelPath, baseUri);
             return ModelUtil.equals(inputModel, expected);
         } catch (IOException e) {
             return false;
         }
     }
 
-    public boolean askModel(String resultFilePath, String queryStr, String inputUri) {
-        SailRepository repository =  new SailRepository(new MemoryStore());
+    public boolean askModel(String resultFilePath, String queryStr, String inputUri, boolean expectedResult) {
+        Repository repository =  new SailRepository(new MemoryStore());
+        RepositoryConnection conn = null;
         try {
             repository.initialize();
-            repository.getConnection().add(openStreamForResource(resultFilePath),
+            conn = repository.getConnection();
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_DATATYPE_VALUES);
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_LANGUAGE_TAGS);
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_RELATIVE_URIS);
+            conn.add(openStreamForResource(resultFilePath),
                     inputUri, SesameTestHelper.detectFileFormat(resultFilePath));
             BooleanQuery query = repository.getConnection().prepareBooleanQuery(QueryLanguage.SPARQL, queryStr, inputUri);
-            return query.evaluate();
+            boolean result = query.evaluate();
+            
+            if(result != expectedResult) {
+                System.err.println("Test failed for: " + inputUri);
+                System.err.println("Expected ["+expectedResult+"] but found ["+result+"]");
+                System.err.println("Query: "+queryStr);
+                System.err.println("Statements");
+                System.err.println("===============================");
+                for(Statement nextStatement : Iterations.asSet(conn.getStatements(null, null, null, true))) {
+                    System.err.println(nextStatement);
+                }
+                System.err.println("===============================");
+            }
+            
+            return result;
         } catch (Exception e) {
-            return false;
+            e.printStackTrace();
+            return !expectedResult;
+        }
+        finally {
+            if(conn != null) {
+                try {
+                    conn.close();
+                } catch(RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
