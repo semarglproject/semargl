@@ -16,7 +16,6 @@
 
 package org.semarglproject.jsonld;
 
-import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.sink.QuadSink;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.XSD;
@@ -26,27 +25,23 @@ import java.util.LinkedList;
 
 final class JsonLdContentHandler {
 
-    private static final String CONTEXT = "@context";
-    private static final String GRAPH = "@graph";
-    private static final String LIST = "@list";
-    private static final String ID = "@id";
-    private static final String TYPE = "@type";
-    private static final String CONTAINER = "@container";
-    private static final String REVERSE = "@reverse";
-    private static final String LANGUAGE = "@language";
-    private static final String VALUE = "@value";
-    private static final String CONTAINER_LIST = "@container@list";
-
-    private final QuadSink sink;
+    static final String CONTEXT = "@context";
+    static final String GRAPH = "@graph";
+    static final String LIST = "@list";
+    static final String ID = "@id";
+    static final String TYPE = "@type";
+    static final String CONTAINER = "@container";
+    static final String REVERSE = "@reverse";
+    static final String LANGUAGE = "@language";
+    static final String VALUE = "@value";
+    static final String CONTAINER_LIST = "@container@list";
 
     private Deque<EvalContext> contextStack = new LinkedList<EvalContext>();
-    private final DocumentContext dh;
+    private final DocumentContext dh = new DocumentContext();
     private EvalContext currentContext;
 
     public JsonLdContentHandler(QuadSink sink) {
-        this.sink = sink;
-        dh = new DocumentContext();
-        currentContext = EvalContext.createInitialContext(dh);
+        currentContext = EvalContext.createInitialContext(dh, sink);
     }
 
     public void onObjectStart() {
@@ -56,35 +51,39 @@ final class JsonLdContentHandler {
             String graph = currentContext.subject;
             contextStack.push(currentContext);
             currentContext = currentContext.initChildContext();
-            if (!graph.startsWith(RDF.BNODE_PREFIX)) {
+            if (graph != null && !graph.startsWith(RDF.BNODE_PREFIX)) {
                 currentContext.graph = graph;
             }
         } else {
             contextStack.push(currentContext);
             currentContext = currentContext.initChildContext();
+            currentContext.subject = dh.createBnode(false);
+            if (contextStack.size() == 1) {
+                currentContext.updateState(EvalContext.PARENT_SAFE);
+            }
         }
     }
 
     public void onObjectEnd() {
         if (currentContext.objectLit != null) {
             if (currentContext.objectLitDt != null) {
-                addTypedLiteral(contextStack.peek(), currentContext.objectLit, currentContext.objectLitDt);
+                contextStack.peek().addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
             } else {
-                addPlainLiteral(contextStack.peek(), currentContext.objectLit);
+                contextStack.peek().addPlainLiteral(currentContext.objectLit, currentContext.lang);
             }
         } else if (!currentContext.parsingContext) {
             addSubjectTypeDefinition(currentContext.objectLitDt);
-            if (contextStack.size() > 1 && contextStack.peek().predicate != null) {
-                addSubjectTypeDefinition(contextStack.peek().getPredicateDtMapping());
-                addNonLiteral(contextStack.peek(), currentContext.subject);
+            if (contextStack.size() > 1) {
+                // TODO: check for property reordering issues
+                addSubjectTypeDefinition(contextStack.peek().getDtMapping(contextStack.peek().predicate));
+                contextStack.peek().addNonLiteral(contextStack.peek().predicate, currentContext.subject);
             }
         }
-        if (currentContext.parsingContext) {
+        if (currentContext.parsingContext && !contextStack.peek().parsingContext) {
+            currentContext.updateState(EvalContext.CONTEXT_DECLARED);
             currentContext.parsingContext = false;
-            if (contextStack.peek().parsingContext) {
-                currentContext = contextStack.pop();
-            }
         } else {
+            currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
             currentContext = contextStack.pop();
         }
     }
@@ -97,46 +96,48 @@ final class JsonLdContentHandler {
         currentContext.parsingArray = false;
         if (LIST.equals(currentContext.predicate)) {
             if (currentContext.listTail != null) {
-                sink.addNonLiteral(currentContext.listTail, RDF.REST, RDF.NIL, currentContext.graph);
+                currentContext.addListRest(RDF.NIL);
             } else {
                 currentContext.subject = RDF.NIL;
             }
-            String dt = contextStack.peek().getPredicateDtMapping();
+            // TODO: check for property reordering issues
+            String dt = contextStack.peek().getDtMapping(contextStack.peek().predicate);
             if (CONTAINER_LIST.equals(dt)) {
                 onObjectEnd();
             }
         }
     }
 
+    public void onKey(String key) {
+        currentContext.predicate = key;
+    }
+
     public void onString(String value) {
         if (currentContext.parsingContext) {
             if (contextStack.peek().parsingContext) {
                 if (ID.equals(currentContext.predicate)) {
-                    contextStack.peek().defineTerm(value);
+                    contextStack.peek().defineIriMappingForPredicate(value);
                 } else if (TYPE.equals(currentContext.predicate)) {
-                    contextStack.peek().setPredicateDtMapping(value);
+                    contextStack.peek().defineDtMappingForPredicate(value);
                 } else if (CONTAINER.equals(currentContext.predicate)) {
-                    contextStack.peek().setPredicateDtMapping(CONTAINER + value);
+                    contextStack.peek().defineDtMappingForPredicate(CONTAINER + value);
                 } else if (REVERSE.equals(currentContext.predicate)) {
                 }
                 return;
             } else if (!currentContext.isPredicateKeyword()) {
-                currentContext.addIriMapping(currentContext.predicate, value);
+                currentContext.defineIriMappingForPredicate(value);
                 return;
             }
         } else if (!currentContext.isPredicateKeyword() && currentContext.predicate != null) {
-            String dt = currentContext.getPredicateDtMapping();
-            if (ID.equals(dt)) {
-                addNonLiteral(currentContext, value);
-            } else if (CONTAINER_LIST.equals(dt)) {
+            // TODO: check for property reordering issues
+            String dt = currentContext.getDtMapping(currentContext.predicate);
+            if (CONTAINER_LIST.equals(dt)) {
                 onObjectStart();
                 onKey(LIST);
                 onArrayStart();
                 onString(value);
-            } else if (dt != null && dt.charAt(0) != '@') {
-                addTypedLiteral(currentContext, value, dt);
             } else {
-                addPlainLiteral(currentContext, value);
+                currentContext.addPlainLiteral(value, LANGUAGE);
             }
             return;
         }
@@ -150,37 +151,19 @@ final class JsonLdContentHandler {
             } else if (LANGUAGE.equals(currentContext.predicate)) {
                 currentContext.lang = value;
             } else if (ID.equals(currentContext.predicate)) {
-                try {
-                    currentContext.subject = currentContext.resolveAboutOrResource(value);
-                } catch (MalformedIriException e) {
-                }
+                currentContext.subject = value;
+                currentContext.updateState(EvalContext.ID_DECLARED);
             } else if (VALUE.equals(currentContext.predicate)) {
                 currentContext.objectLit = value;
             } else if (LIST.equals(currentContext.predicate)) {
-                addToList(value);
+                if (currentContext.listTail == null) {
+                    currentContext.listTail = currentContext.subject;
+                    currentContext.addListFirst(value);
+                } else {
+                    currentContext.addListRest(dh.createBnode(false));
+                    currentContext.addListFirst(value);
+                }
             }
-        }
-    }
-
-    private void addToList(String value) {
-        if (currentContext.listTail == null) {
-            currentContext.listTail = currentContext.subject;
-            sink.addPlainLiteral(currentContext.listTail, RDF.FIRST, value, currentContext.lang, currentContext.graph);
-        } else {
-            String prevNode = currentContext.listTail;
-            currentContext.listTail = dh.createBnode(false);
-            sink.addNonLiteral(prevNode, RDF.REST, currentContext.listTail, currentContext.graph);
-            sink.addPlainLiteral(currentContext.listTail, RDF.FIRST, value, currentContext.lang, currentContext.graph);
-        }
-    }
-
-    public void onKey(String key) {
-        currentContext.setPredicate(key);
-    }
-
-    private void addNonLiteral(EvalContext context, String object) {
-        if (context.isPredicateValid()) {
-            sink.addNonLiteral(context.subject, context.predicate, object, currentContext.graph);
         }
     }
 
@@ -188,31 +171,11 @@ final class JsonLdContentHandler {
         if (dt == null || dt.charAt(0) == '@') {
             return;
         }
-        try {
-            sink.addNonLiteral(currentContext.subject, RDF.TYPE,
-                    currentContext.resolvePredOrDatatype(dt), currentContext.graph);
-        } catch (MalformedIriException e) {
-        }
-    }
-
-    private void addPlainLiteral(EvalContext context, String object) {
-        if (context.isPredicateValid()) {
-            sink.addPlainLiteral(context.subject, context.predicate, object, currentContext.lang, currentContext.graph);
-        }
-    }
-
-    private void addTypedLiteral(EvalContext context, String object, String dt) {
-        try {
-            if (context.isPredicateValid()) {
-                sink.addTypedLiteral(context.subject, context.predicate,
-                        object, currentContext.resolvePredOrDatatype(dt), currentContext.graph);
-            }
-        } catch (MalformedIriException e) {
-        }
+        currentContext.addNonLiteral(RDF.TYPE, dt);
     }
 
     public void onBoolean(boolean value) {
-        addTypedLiteral(currentContext, Boolean.toString(value), XSD.BOOLEAN);
+        currentContext.addTypedLiteral(Boolean.toString(value), XSD.BOOLEAN);
     }
 
     public void onNull() {
@@ -220,11 +183,11 @@ final class JsonLdContentHandler {
     }
 
     public void onNumber(double value) {
-        addTypedLiteral(currentContext, Double.toString(value), XSD.DOUBLE);
+        currentContext.addTypedLiteral(Double.toString(value), XSD.DOUBLE);
     }
 
     public void onNumber(int value) {
-        addTypedLiteral(currentContext, Integer.toString(value), XSD.INTEGER);
+        currentContext.addTypedLiteral(Integer.toString(value), XSD.INTEGER);
     }
 
     public void clear() {

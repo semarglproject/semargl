@@ -18,9 +18,14 @@ package org.semarglproject.jsonld;
 import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
+import org.semarglproject.sink.QuadSink;
+import org.semarglproject.vocab.RDF;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -28,7 +33,10 @@ final class EvalContext {
 
     private static final Pattern TERM_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+", Pattern.DOTALL);
 
-    private static final String CAN_NOT_RESOLVE_TERM = "Can't resolve term ";
+    static final int ID_DECLARED = 1;
+    static final int CONTEXT_DECLARED = 2;
+    static final int PARENT_SAFE = 4;
+    static final int SAFE_TO_SINK_TRIPLES = ID_DECLARED | CONTEXT_DECLARED | PARENT_SAFE;
 
     String graph;
     String subject;
@@ -40,83 +48,219 @@ final class EvalContext {
     boolean parsingContext;
     boolean parsingArray;
 
+    private final QuadSink sink;
     private final DocumentContext documentContext;
     private final Map<String, String> iriMappings;
     private final Map<String, String> dtMappings;
-    private final Map<String, String> terms;
 
-    private EvalContext(DocumentContext documentContext) {
+    private final EvalContext parent;
+    private Collection<EvalContext> children = new ArrayList<EvalContext>();
+
+    private int state;
+
+    private Queue<String> nonLiteralQueue = new LinkedList<String>();
+    private Queue<String> plainLiteralQueue = new LinkedList<String>();
+    private Queue<String> typedLiteralQueue = new LinkedList<String>();
+
+    private EvalContext(DocumentContext documentContext, QuadSink sink, EvalContext parent) {
         iriMappings = new TreeMap<String, String>();
         dtMappings = new TreeMap<String, String>();
-        terms = new HashMap<String, String>();
+        this.sink = sink;
+        this.parent = parent;
         this.documentContext = documentContext;
     }
 
-    static EvalContext createInitialContext(DocumentContext documentContext) {
-        EvalContext initialContext = new EvalContext(documentContext);
+    static EvalContext createInitialContext(DocumentContext documentContext, QuadSink sink) {
+        EvalContext initialContext = new EvalContext(documentContext, sink, null);
         initialContext.subject = documentContext.base;
+        initialContext.state = SAFE_TO_SINK_TRIPLES;
         return initialContext;
     }
 
     EvalContext initChildContext() {
-        EvalContext child = new EvalContext(documentContext);
-        child.subject = documentContext.createBnode(false);
-        child.iriMappings.putAll(iriMappings);
-        child.dtMappings.putAll(dtMappings);
-        child.terms.putAll(terms);
+        EvalContext child = new EvalContext(documentContext, sink, this);
         child.parsingContext = this.parsingContext;
         child.lang = this.lang;
+        children.add(child);
         return child;
     }
 
-    /**
-     * Resolves @predicate or @datatype
-     *
-     * @param value value of attribute
-     * @return resource IRI
-     * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
-     */
-    String resolvePredOrDatatype(String value) throws MalformedIriException {
+    boolean isPredicateKeyword() {
+        return predicate.charAt(0) == '@';
+    }
+
+    void defineIriMappingForPredicate(String value) {
+        iriMappings.put(predicate, value);
+    }
+
+    void defineDtMappingForPredicate(String value) {
+        dtMappings.put(predicate, value);
+    }
+
+    String getDtMapping(String value) {
+        if (dtMappings.containsKey(value)) {
+            return dtMappings.get(value);
+        }
+        if (parent != null) {
+            return parent.getDtMapping(value);
+        }
+        return null;
+    }
+
+    void updateState(int state) {
+        this.state |= state;
+        if (this.state == SAFE_TO_SINK_TRIPLES) {
+            for (EvalContext child : children.toArray(new EvalContext[children.size()])) {
+                child.updateState(PARENT_SAFE);
+            }
+            if (children.isEmpty()) {
+                sinkUnsafeTriples();
+            }
+        }
+    }
+
+    private void sinkUnsafeTriples() {
+        try {
+            if (subject == null || !subject.startsWith(RDF.BNODE_PREFIX)) {
+                subject = resolveCurieOrIri(subject, false);
+            }
+            if (graph != null) {
+                graph = resolve(graph);
+            }
+        } catch (MalformedIriException e) {
+            nonLiteralQueue.clear();
+            plainLiteralQueue.clear();
+            typedLiteralQueue.clear();
+        }
+        while (!nonLiteralQueue.isEmpty()) {
+            addNonLiteralUnsafe(nonLiteralQueue.poll(), nonLiteralQueue.poll());
+        }
+        while (!plainLiteralQueue.isEmpty()) {
+            addPlainLiteralUnsafe(plainLiteralQueue.poll(), plainLiteralQueue.poll(), plainLiteralQueue.poll());
+        }
+        while (!typedLiteralQueue.isEmpty()) {
+            addTypedLiteralUnsafe(typedLiteralQueue.poll(), typedLiteralQueue.poll(), typedLiteralQueue.poll());
+        }
+        if (parent != null) {
+            parent.children.remove(this);
+        }
+    }
+
+    // TODO: check for property reordering issues
+    public void addListFirst(String object) {
+        if (listTail.equals(subject)) {
+            if (state == SAFE_TO_SINK_TRIPLES) {
+                addPlainLiteralUnsafe(RDF.FIRST, object, lang);
+            } else {
+                plainLiteralQueue.offer(RDF.FIRST);
+                plainLiteralQueue.offer(object);
+                plainLiteralQueue.offer(lang);
+            }
+        } else {
+            sink.addPlainLiteral(listTail, RDF.FIRST, object, lang, graph);
+        }
+    }
+
+    // TODO: check for property reordering issues
+    public void addListRest(String object) {
+        if (listTail.equals(subject)) {
+            if (state == SAFE_TO_SINK_TRIPLES) {
+                addNonLiteralUnsafe(RDF.REST, object);
+            } else {
+                nonLiteralQueue.offer(RDF.REST);
+                nonLiteralQueue.offer(object);
+            }
+        } else {
+            sink.addNonLiteral(listTail, RDF.REST, object, graph);
+        }
+        listTail = object;
+    }
+
+    void addNonLiteral(String predicate, String object) {
+        if (state == SAFE_TO_SINK_TRIPLES) {
+            addNonLiteralUnsafe(predicate, object);
+        } else {
+            nonLiteralQueue.offer(predicate);
+            nonLiteralQueue.offer(object);
+        }
+    }
+
+    private void addNonLiteralUnsafe(String predicate, String object) {
+        try {
+            if (!object.startsWith(RDF.BNODE_PREFIX)) {
+                object = resolve(object);
+            }
+            sink.addNonLiteral(subject, resolve(predicate), object, graph);
+        } catch (MalformedIriException e) {
+        }
+
+    }
+
+    void addPlainLiteral(String object, String lang) {
+        if (state == SAFE_TO_SINK_TRIPLES) {
+            addPlainLiteralUnsafe(predicate, object, lang);
+        } else {
+            plainLiteralQueue.offer(predicate);
+            plainLiteralQueue.offer(object);
+            plainLiteralQueue.offer(lang);
+        }
+    }
+
+    private void addPlainLiteralUnsafe(String predicate, String object, String lang) {
+        try {
+            String dt = getDtMapping(predicate);
+            if (dt != null) {
+                if (JsonLdContentHandler.ID.equals(dt)) {
+                    addNonLiteralUnsafe(predicate, object);
+                    return;
+                } else if (!dt.startsWith("@")) {
+                    addTypedLiteralUnsafe(predicate, object, dt);
+                    return;
+                }
+            }
+            if (JsonLdContentHandler.LANGUAGE.equals(lang)) {
+                lang = this.lang;
+            }
+            sink.addPlainLiteral(subject, resolve(predicate), object, lang, graph);
+        } catch (MalformedIriException e) {
+        }
+    }
+
+    void addTypedLiteral(String object, String dt) {
+        if (state == SAFE_TO_SINK_TRIPLES) {
+            addTypedLiteralUnsafe(predicate, object, dt);
+        } else {
+            typedLiteralQueue.offer(predicate);
+            typedLiteralQueue.offer(object);
+            typedLiteralQueue.offer(dt);
+        }
+    }
+
+    private void addTypedLiteralUnsafe(String predicate, String object, String dt) {
+        try {
+            sink.addTypedLiteral(subject, resolve(predicate), object, resolve(dt), graph);
+        } catch (MalformedIriException e) {
+        }
+    }
+
+    private String resolve(String value) throws MalformedIriException {
         if (value == null || value.isEmpty()) {
             throw new MalformedIriException("Empty predicate or datatype found");
         }
-        return resolveTermOrCurieOrAbsIri(value);
-    }
-
-    /**
-     * Resolves @about or @resource
-     *
-     * @param value value of attribute
-     * @return resource IRI
-     * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
-     */
-    String resolveAboutOrResource(String value) throws MalformedIriException {
-        String result = documentContext.resolveBNode(value);
-        if (result != null) {
-            return result;
-        }
-        return resolveCurieOrIri(value, false);
-    }
-
-    /**
-     * Resolves TERMorCURIEorAbsIRI
-     * @param value value to be resolved
-     * @return resource IRI
-     * @throws org.semarglproject.ri.MalformedIriException if IRI can not be resolved
-     */
-    private String resolveTermOrCurieOrAbsIri(String value) throws MalformedIriException {
         if (TERM_PATTERN.matcher(value).matches()) {
-            if (terms.containsKey(value)) {
-                return terms.get(value);
-            } else {
-                throw new MalformedIriException(CAN_NOT_RESOLVE_TERM + value);
-            }
+            return resolveCurieOrIri(resolveMapping(value), false);
         }
-        try {
-            return resolveCurieOrIri(value, true);
-        } catch (MalformedCurieException e) {
-            throw new MalformedIriException(e.getMessage());
+        return resolveCurieOrIri(value, true);
+    }
+
+    private String resolveMapping(String value) throws MalformedIriException {
+        if (iriMappings.containsKey(value)) {
+            return iriMappings.get(value);
         }
+        if (parent != null) {
+            return parent.resolveMapping(value);
+        }
+        throw new MalformedIriException("Can't resolve term " + value);
     }
 
     private String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIriException {
@@ -132,81 +276,19 @@ final class EvalContext {
             return documentContext.resolveIri(curie);
         }
 
-        String result = resolveMapping(curie, delimPos);
-        if (RIUtils.isIri(result)) {
-            return result;
-        }
-        throw new MalformedIriException("Malformed IRI: " + curie);
-    }
-
-    private String resolveMapping(String curie, int delimPos) throws MalformedCurieException {
-        String localName = curie.substring(delimPos + 1);
         String prefix = curie.substring(0, delimPos);
-
         if (prefix.equals("_")) {
             throw new MalformedCurieException("CURIE with invalid prefix (" + curie + ") found");
         }
 
-        if (!iriMappings.containsKey(prefix)) {
+        try {
+            return resolveMapping(prefix) + curie.substring(delimPos + 1);
+        } catch (MalformedIriException e) {
             if (RIUtils.isIri(curie)) {
                 return curie;
             }
-            throw new MalformedCurieException("CURIE with unresolvable prefix found (" + curie + ")");
         }
-        return iriMappings.get(prefix) + localName;
+        throw new MalformedIriException("Malformed IRI: " + curie);
     }
 
-    void setPredicate(String predicate) {
-        if (predicate.charAt(0) != '@') {
-            try {
-                this.predicate = resolvePredOrDatatype(predicate);
-            } catch (MalformedIriException e) {
-                if (!parsingContext) {
-                    if (iriMappings.containsKey(predicate)) {
-                        this.predicate = iriMappings.get(predicate);
-                    } else {
-                        this.predicate = null;
-                    }
-                } else {
-                    this.predicate = predicate;
-                }
-            }
-        } else {
-            this.predicate = predicate;
-        }
-    }
-
-    boolean isPredicateValid() {
-        return predicate != null && predicate.charAt(0) != '@';
-    }
-
-    boolean isPredicateKeyword() {
-        return predicate.charAt(0) == '@';
-    }
-
-    void setPredicateDtMapping(String value) {
-        try {
-            if (value.charAt(0) != '@') {
-                value = resolvePredOrDatatype(value);
-            }
-            dtMappings.put(predicate, value);
-        } catch (MalformedIriException e) {
-        }
-    }
-
-    String getPredicateDtMapping() {
-        if (dtMappings.containsKey(predicate)) {
-            return dtMappings.get(predicate);
-        }
-        return null;
-    }
-
-    void defineTerm(String uri) {
-        terms.put(predicate, uri);
-        predicate = uri;
-    }
-
-    void addIriMapping(String key, String iri) {
-        iriMappings.put(key, iri);
-    }
 }
