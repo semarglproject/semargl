@@ -15,8 +15,8 @@
  */
 package org.semarglproject.sesame.rdf.rdfa;
 
-import org.openrdf.rio.ParserSetting;
-import org.openrdf.rio.helpers.ParserSettingImpl;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.helpers.RioSettingImpl;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.vocab.RDFa;
@@ -36,7 +36,7 @@ public final class SemarglParserSettings {
      * Defaults to false
      * @since 0.5
      */
-    public static final ParserSetting<Boolean> VOCAB_EXPANSION_ENABLED = new ParserSettingImpl<Boolean>(
+    public static final RioSetting<Boolean> VOCAB_EXPANSION_ENABLED = new RioSettingImpl<Boolean>(
             RdfaParser.ENABLE_VOCAB_EXPANSION, "Vocabulary Expansion", Boolean.FALSE);
 
     /**
@@ -45,7 +45,7 @@ public final class SemarglParserSettings {
      * Defaults to false
      * @since 0.5
      */
-    public static final ParserSetting<Boolean> PROCESSOR_GRAPH_ENABLED = new ParserSettingImpl<Boolean>(
+    public static final RioSetting<Boolean> PROCESSOR_GRAPH_ENABLED = new RioSettingImpl<Boolean>(
             RdfaParser.ENABLE_PROCESSOR_GRAPH, "Vocabulary Expansion", Boolean.FALSE);
 
     /**
@@ -54,7 +54,7 @@ public final class SemarglParserSettings {
      * Defaults to 1.1
      * @since 0.5
      */
-    public static final ParserSetting<Short> RDFA_COMPATIBILITY = new ParserSettingImpl<Short>(
+    public static final RioSetting<Short> RDFA_COMPATIBILITY = new RioSettingImpl<Short>(
             RdfaParser.RDFA_VERSION_PROPERTY, "RDFa Version Compatibility", RDFa.VERSION_11);
 
     /**
@@ -63,7 +63,7 @@ public final class SemarglParserSettings {
      * Defaults to null
      * @since 0.5
      */
-    public static final ParserSetting<XMLReader> CUSTOM_XML_READER = new ParserSettingImpl<XMLReader>(
+    public static final RioSetting<XMLReader> CUSTOM_XML_READER = new RioSettingImpl<XMLReader>(
             StreamProcessor.XML_READER_PROPERTY, "Custom XML Reader", null);
 
     private SemarglParserSettings() {

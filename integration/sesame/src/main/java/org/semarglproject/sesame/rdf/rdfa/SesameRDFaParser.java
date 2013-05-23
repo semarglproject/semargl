@@ -19,7 +19,7 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.rio.ParseErrorListener;
 import org.openrdf.rio.ParseLocationListener;
 import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.ParserSetting;
+import org.openrdf.rio.RioSetting;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
@@ -140,8 +140,8 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
     }
 
     @Override
-    public Collection<ParserSetting<?>> getSupportedSettings() {
-        Collection<ParserSetting<?>> result = new ArrayList<ParserSetting<?>>(5);
+    public Collection<RioSetting<?>> getSupportedSettings() {
+        Collection<RioSetting<?>> result = new ArrayList<RioSetting<?>>(5);
 
         result.add(BasicParserSettings.PRESERVE_BNODE_IDS);
         result.add(SemarglParserSettings.PROCESSOR_GRAPH_ENABLED);
