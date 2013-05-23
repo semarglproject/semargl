@@ -66,9 +66,9 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
      * the {@link ParserConfig} object returned from the {@link #getParserConfig()} method.
      */
     public SesameRDFaParser() {
-        setParserConfig(new ParserConfig());
         streamProcessor = new StreamProcessor(RdfaParser.connect(SesameSink.connect(null)));
         streamProcessor.setProperty(StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY, this);
+        setParserConfig(new ParserConfig());
         // by default this would be set to false if not set here
         setPreserveBNodeIDs(true);
         parseErrorListener = null;
