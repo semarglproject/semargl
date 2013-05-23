@@ -26,11 +26,14 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.helpers.BasicParserSettings;
+import org.openrdf.rio.helpers.RDFaParserSettings;
+import org.openrdf.rio.helpers.RDFaVersion;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.ProcessorGraphHandler;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.sesame.core.sink.SesameSink;
+import org.semarglproject.vocab.RDFa;
 import org.xml.sax.XMLReader;
 
 import java.io.IOException;
@@ -146,8 +149,8 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
 
         result.add(BasicParserSettings.PRESERVE_BNODE_IDS);
         result.add(SemarglParserSettings.PROCESSOR_GRAPH_ENABLED);
-        result.add(SemarglParserSettings.VOCAB_EXPANSION_ENABLED);
-        result.add(SemarglParserSettings.RDFA_COMPATIBILITY);
+        result.add(RDFaParserSettings.VOCAB_EXPANSION_ENABLED);
+        result.add(RDFaParserSettings.RDFA_COMPATIBILITY);
         result.add(SemarglParserSettings.CUSTOM_XML_READER);
 
         return result;
@@ -189,7 +192,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
      * @param vocabExpansionEnabled new value to be set
      */
     public void setVocabExpansionEnabled(boolean vocabExpansionEnabled) {
-        parserConfig.set(SemarglParserSettings.VOCAB_EXPANSION_ENABLED, vocabExpansionEnabled);
+        parserConfig.set(RDFaParserSettings.VOCAB_EXPANSION_ENABLED, vocabExpansionEnabled);
         refreshSettings();
     }
 
@@ -198,7 +201,23 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
      * @param rdfaCompatibility new value to be set
      */
     public void setRdfaCompatibility(short rdfaCompatibility) {
-        parserConfig.set(SemarglParserSettings.RDFA_COMPATIBILITY, rdfaCompatibility);
+        // Map from RDFa short constants to Sesame RDFaVersion
+        RDFaVersion version = RDFaVersion.RDFA_1_1;
+        if(rdfaCompatibility == RDFa.VERSION_10) {
+            version = RDFaVersion.RDFA_1_1;
+        }
+        else if(rdfaCompatibility == RDFa.VERSION_11) {
+            version = RDFaVersion.RDFA_1_1;
+        }
+        setRdfaCompatibility(version);
+    }
+
+    /**
+     * Changes {@link RdfaParser#RDFA_VERSION_PROPERTY} setting
+     * @param version new value to be set
+     */
+    public void setRdfaCompatibility(RDFaVersion version) {
+        parserConfig.set(RDFaParserSettings.RDFA_COMPATIBILITY, version);
         refreshSettings();
     }
 
@@ -215,10 +234,18 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
      * Refreshes the settings on the stream processor using the current values from the parserConfig.
      */
     private void refreshSettings() {
-        streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY,
-                parserConfig.get(SemarglParserSettings.RDFA_COMPATIBILITY));
+        // Map from Sesame RDFaVersion to the RDFa short constants
+        short rdfaCompatibility = RDFa.VERSION_11;
+        RDFaVersion version = parserConfig.get(RDFaParserSettings.RDFA_COMPATIBILITY);
+        if(version == RDFaVersion.RDFA_1_0) {
+            rdfaCompatibility = RDFa.VERSION_10;
+        }
+        else if(version == RDFaVersion.RDFA_1_1) {
+            rdfaCompatibility = RDFa.VERSION_11;
+        }
+        streamProcessor.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, rdfaCompatibility);
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION,
-                parserConfig.get(SemarglParserSettings.VOCAB_EXPANSION_ENABLED));
+                parserConfig.get(RDFaParserSettings.VOCAB_EXPANSION_ENABLED));
         streamProcessor.setProperty(RdfaParser.ENABLE_PROCESSOR_GRAPH,
                 parserConfig.get(SemarglParserSettings.PROCESSOR_GRAPH_ENABLED));
         streamProcessor.setProperty(StreamProcessor.XML_READER_PROPERTY,

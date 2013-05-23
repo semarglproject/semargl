@@ -16,6 +16,7 @@
 package org.semarglproject.sesame.rdf.rdfa;
 
 import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.helpers.RDFaParserSettings;
 import org.openrdf.rio.helpers.RioSettingImpl;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.source.StreamProcessor;
@@ -36,26 +37,8 @@ public final class SemarglParserSettings {
      * Defaults to false
      * @since 0.5
      */
-    public static final RioSetting<Boolean> VOCAB_EXPANSION_ENABLED = new RioSettingImpl<Boolean>(
-            RdfaParser.ENABLE_VOCAB_EXPANSION, "Vocabulary Expansion", Boolean.FALSE);
-
-    /**
-     * TODO: Javadoc this setting
-     * <p>
-     * Defaults to false
-     * @since 0.5
-     */
     public static final RioSetting<Boolean> PROCESSOR_GRAPH_ENABLED = new RioSettingImpl<Boolean>(
             RdfaParser.ENABLE_PROCESSOR_GRAPH, "Vocabulary Expansion", Boolean.FALSE);
-
-    /**
-     * TODO: Javadoc this setting
-     * <p>
-     * Defaults to 1.1
-     * @since 0.5
-     */
-    public static final RioSetting<Short> RDFA_COMPATIBILITY = new RioSettingImpl<Short>(
-            RdfaParser.RDFA_VERSION_PROPERTY, "RDFa Version Compatibility", RDFa.VERSION_11);
 
     /**
      * TODO: Javadoc this setting
