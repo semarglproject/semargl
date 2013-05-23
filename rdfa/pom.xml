@@ -73,7 +73,12 @@
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-compliance</artifactId>
+            <artifactId>sesame-rio-rdfxml</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-turtle</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
