@@ -30,10 +30,15 @@ import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.sail.memory.MemoryStore;
+
+import info.aduna.iteration.Iterations;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -157,16 +162,45 @@ public class SesameTestHelper {
         }
     }
 
-    public boolean askModel(String resultFilePath, String queryStr, String inputUri) {
+    public boolean askModel(String resultFilePath, String queryStr, String inputUri, boolean expectedResult) {
         Repository repository =  new SailRepository(new MemoryStore());
+        RepositoryConnection conn = null;
         try {
             repository.initialize();
-            repository.getConnection().add(openStreamForResource(resultFilePath),
+            conn = repository.getConnection();
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_DATATYPE_VALUES);
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_LANGUAGE_TAGS);
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_RELATIVE_URIS);
+            conn.add(openStreamForResource(resultFilePath),
                     inputUri, SesameTestHelper.detectFileFormat(resultFilePath));
             BooleanQuery query = repository.getConnection().prepareBooleanQuery(QueryLanguage.SPARQL, queryStr, inputUri);
-            return query.evaluate();
+            boolean result = query.evaluate();
+            
+            if(result != expectedResult) {
+                System.err.println("Test failed for: " + inputUri);
+                System.err.println("Expected ["+expectedResult+"] but found ["+result+"]");
+                System.err.println("Query: "+queryStr);
+                System.err.println("Statements");
+                System.err.println("===============================");
+                for(Statement nextStatement : Iterations.asSet(conn.getStatements(null, null, null, true))) {
+                    System.err.println(nextStatement);
+                }
+                System.err.println("===============================");
+            }
+            
+            return result;
         } catch (Exception e) {
-            return false;
+            e.printStackTrace();
+            return !expectedResult;
+        }
+        finally {
+            if(conn != null) {
+                try {
+                    conn.close();
+                } catch(RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
