@@ -290,6 +290,11 @@
                 <artifactId>jena-arq</artifactId>
                 <version>${version.jena}</version>
             </dependency>
+            <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>2.0.2</version>
+            </dependency>
 
             <!-- OpenRDF Sesame -->
             <dependency>
@@ -314,19 +319,19 @@
                 <artifactId>commons-io</artifactId>
                 <version>${version.apache.commons.io}</version>
             </dependency>
-	
-			<!-- SLF4j logging -->
-	        <dependency>
-	            <groupId>org.slf4j</groupId>
-	            <artifactId>slf4j-api</artifactId>
-	            <version>${version.slf4j}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>org.slf4j</groupId>
-	            <artifactId>slf4j-log4j12</artifactId>
-	            <version>${version.slf4j}</version>
-	        </dependency>
-			
+
+            <!-- SLF4j logging -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
