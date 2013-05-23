@@ -6,71 +6,6 @@
 # json-ld.org testsuite
 ########################################################################################
 
-<http://json-ld.org/test-suite/tests/test_0001> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0001-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0001-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0002> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0002-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0002-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0003> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0003-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0003-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0004> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0004-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0004-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0005> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0005-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0005-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0006> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0006-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0006-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0007> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0007-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0007-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0008> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0008-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0008-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0009> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0009-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0009-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0010> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0010-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0010-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0011> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0011-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0011-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0012> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0012-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0012-out.nq> .
-
-<http://json-ld.org/test-suite/tests/test_0013> a test:PositiveParserTest ;
-    test:status "APPROVED" ;
-    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0013-in.jsonld> ;
-    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0013-out.nq> .
-
 <http://json-ld.org/test-suite/tests/test_0014> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0014-in.jsonld> ;
@@ -155,3 +90,23 @@
     test:status "APPROVED" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0031-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0031-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0032> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0032-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0032-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0033> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0033-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0033-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0034> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0034-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0034-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0035> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-out.nq> .
