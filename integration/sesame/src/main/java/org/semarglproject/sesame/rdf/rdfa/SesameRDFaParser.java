@@ -132,6 +132,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
     @Override
     public void setParserConfig(ParserConfig config) {
         this.parserConfig = config;
+        refreshSettings();
     }
 
     @Override
