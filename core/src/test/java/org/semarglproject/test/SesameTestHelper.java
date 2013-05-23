@@ -116,7 +116,8 @@ public class SesameTestHelper {
             try {
                 model = Rio.parse(openStreamForResource(filename), baseUri, SesameTestHelper.detectFileFormat(filename));
             } catch (OpenRDFException e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage());
+                //e.printStackTrace();
             }
         }
         return model;
