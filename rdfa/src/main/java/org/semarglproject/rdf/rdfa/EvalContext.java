@@ -279,11 +279,7 @@ final class EvalContext {
             }
             return term;
         }
-        try {
-            return resolveCurieOrIri(value, true);
-        } catch (MalformedCurieException e) {
-            throw new MalformedIriException(e.getMessage());
-        }
+        return resolveCurieOrIri(value, true);
     }
 
     Iterable<String> expand(String pred) {
