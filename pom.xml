@@ -76,6 +76,7 @@
         <version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
         <version.jena>2.10.1</version.jena>
         <version.sesame>2.7.1</version.sesame>
+        <version.slf4j>1.7.5</version.slf4j>
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
@@ -313,7 +314,19 @@
                 <artifactId>commons-io</artifactId>
                 <version>${version.apache.commons.io}</version>
             </dependency>
-
+	
+			<!-- SLF4j logging -->
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>${version.slf4j}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-log4j12</artifactId>
+	            <version>${version.slf4j}</version>
+	        </dependency>
+			
         </dependencies>
     </dependencyManagement>
 
