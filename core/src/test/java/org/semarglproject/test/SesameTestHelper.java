@@ -18,7 +18,9 @@ package org.semarglproject.test;
 
 import org.apache.commons.io.FileUtils;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.util.ModelUtil;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.BooleanQuery;
@@ -32,6 +34,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.openrdf.rio.helpers.StatementCollector;
 import org.openrdf.sail.memory.MemoryStore;
 
 import java.io.File;
@@ -110,24 +113,16 @@ public class SesameTestHelper {
         return result;
     }
 
-    public Collection<Statement> createModelFromFile(String filename, String baseUri) throws IOException {
-        if (filename == null) {
-            return new ArrayList<Statement>();
-        }
-        final Collection<Statement> result = new ArrayList<Statement>();
-        RDFParser rdfParser = Rio.createParser(SesameTestHelper.detectFileFormat(filename));
-        rdfParser.setRDFHandler(new RDFHandlerBase() {
-            @Override
-            public void handleStatement(Statement statement) throws RDFHandlerException {
-                result.add(statement);
+    public Model createModelFromFile(String filename, String baseUri) throws IOException {
+        Model model = new LinkedHashModel();
+        if (filename != null) {
+            try {
+                model = Rio.parse(openStreamForResource(filename), baseUri, SesameTestHelper.detectFileFormat(filename));
+            } catch (OpenRDFException e) {
+                e.printStackTrace();
             }
-        });
-        try {
-            rdfParser.parse(openStreamForResource(filename), baseUri);
-        } catch (OpenRDFException e) {
-            e.printStackTrace();
         }
-        return result;
+        return model;
     }
 
     public <E> List<E> getTestCases(final String manifestUri, String queryStr, final Class<E> template) {
