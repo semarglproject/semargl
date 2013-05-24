@@ -116,7 +116,8 @@ public class JsonLdParserTest {
             e.printStackTrace();
             fail();
         }
-        assertTrue(sth.areModelsEqual(resultFilePath, testCase.result, testCase.input));
+        assertTrue(sth.areModelsEqual(resultFilePath, testCase.result, testCase.input),
+                String.format("%s (%s) failed", testCase.name, testCase.descr));
     }
 
     public interface SaveToFileCallback {
@@ -127,6 +128,7 @@ public class JsonLdParserTest {
         public String name;
         public String input;
         public String result;
+        public String descr;
 
         @Override
         public String toString() {
