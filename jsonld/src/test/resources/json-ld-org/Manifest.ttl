@@ -209,3 +209,40 @@
     test:description "Tests that generated triples do not depend on order of @language." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0036> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests language associations support." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0036-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0036-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0037> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests keyword aliasing." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0037-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0037-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0038> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests processing of expanded term definition with @type defined by term." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0038-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0038-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0039> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Test term nullifying." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0039-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0039-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0040> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests context nullifying." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0040-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0040-out.nq> .
+
+<http://json-ld.org/test-suite/tests/test_0041> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests term redefinition." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0041-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0041-out.nq> .
+
