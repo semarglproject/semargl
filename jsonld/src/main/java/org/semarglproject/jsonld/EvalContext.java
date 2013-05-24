@@ -47,6 +47,9 @@ final class EvalContext {
     String listTail;
     boolean parsingContext;
     boolean parsingArray;
+    boolean nullified;
+
+    private int state;
 
     private final QuadSink sink;
     private final DocumentContext documentContext;
@@ -55,13 +58,11 @@ final class EvalContext {
     private final Map<String, String> langMappings = new TreeMap<String, String>();
 
     private final EvalContext parent;
-    private Collection<EvalContext> children = new ArrayList<EvalContext>();
+    private final Collection<EvalContext> children = new ArrayList<EvalContext>();
 
-    private int state;
-
-    private Queue<String> nonLiteralQueue = new LinkedList<String>();
-    private Queue<String> plainLiteralQueue = new LinkedList<String>();
-    private Queue<String> typedLiteralQueue = new LinkedList<String>();
+    private final Queue<String> nonLiteralQueue = new LinkedList<String>();
+    private final Queue<String> plainLiteralQueue = new LinkedList<String>();
+    private final Queue<String> typedLiteralQueue = new LinkedList<String>();
 
     private EvalContext(DocumentContext documentContext, QuadSink sink, EvalContext parent) {
         this.sink = sink;
@@ -84,6 +85,14 @@ final class EvalContext {
         return child;
     }
 
+    void nullify() {
+        iriMappings.clear();
+        dtMappings.clear();
+        langMappings.clear();
+        lang = null;
+        nullified = true;
+    }
+
     boolean isPredicateKeyword() {
         return predicate.charAt(0) == '@';
     }
@@ -100,7 +109,7 @@ final class EvalContext {
         if (dtMappings.containsKey(value)) {
             return dtMappings.get(value);
         }
-        if (parent != null) {
+        if (!nullified && parent != null) {
             return parent.getDtMapping(value);
         }
         return null;
@@ -114,7 +123,7 @@ final class EvalContext {
         if (langMappings.containsKey(value)) {
             return langMappings.get(value);
         }
-        if (parent != null) {
+        if (!nullified && parent != null) {
             return parent.getLangMapping(value);
         }
         return null;
@@ -279,7 +288,7 @@ final class EvalContext {
         if (iriMappings.containsKey(value)) {
             return iriMappings.get(value);
         }
-        if (parent != null) {
+        if (!nullified && parent != null) {
             return parent.resolveMapping(value);
         }
         throw new MalformedIriException("Can't resolve term " + value);

@@ -184,6 +184,9 @@ final class JsonLdContentHandler {
     }
 
     public void onNull() {
+        if (CONTEXT.equals(currentContext.predicate)) {
+            currentContext.nullify();
+        }
     }
 
     public void onNumber(double value) {

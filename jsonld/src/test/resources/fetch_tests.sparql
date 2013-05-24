@@ -10,8 +10,7 @@ select ?input ?result (?test_case as ?name) ?descr {
 		a ?type.
 	optional {?test_case test:description ?descr}
 	filter (?status != "OBSOLETE" && ?status != "NOT_APPROVED")
-	filter (!regex(str(?test_case), "0031")) # @reverse is not supported atm
-	filter (!regex(str(?test_case), "0036")) # work in progress
 	filter (!regex(str(?test_case), "0037")) # work in progress
-	filter (!regex(str(?test_case), "0038")) # work in progress
+	filter (!regex(str(?test_case), "0039")) # work in progress
+	filter (!regex(str(?test_case), "0040")) # work in progress
 } order by ?input
