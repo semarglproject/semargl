@@ -114,14 +114,19 @@ final class JsonLdContentHandler {
 
     public void onString(String value) {
         if (currentContext.parsingContext) {
-            if (contextStack.peek().parsingContext) {
+            EvalContext parentContext = contextStack.peek();
+            if (parentContext.parsingContext) {
                 if (ID.equals(currentContext.predicate)) {
-                    contextStack.peek().defineIriMappingForPredicate(value);
+                    parentContext.defineIriMappingForPredicate(value);
                 } else if (TYPE.equals(currentContext.predicate)) {
-                    contextStack.peek().defineDtMappingForPredicate(value);
+                    parentContext.defineDtMappingForPredicate(value);
+                } else if (LANGUAGE.equals(currentContext.predicate)) {
+                    parentContext.defineLangMappingForPredicate(value);
                 } else if (CONTAINER.equals(currentContext.predicate)) {
-                    contextStack.peek().defineDtMappingForPredicate(CONTAINER + value);
+                    parentContext.defineDtMappingForPredicate(CONTAINER + value);
                 } else if (REVERSE.equals(currentContext.predicate)) {
+                    parentContext.defineIriMappingForPredicate(value);
+                    parentContext.defineDtMappingForPredicate(REVERSE);
                 }
                 return;
             } else if (!currentContext.isPredicateKeyword()) {
@@ -179,7 +184,6 @@ final class JsonLdContentHandler {
     }
 
     public void onNull() {
-//        addNonLiteral(currentContext, RDF.NIL);
     }
 
     public void onNumber(double value) {

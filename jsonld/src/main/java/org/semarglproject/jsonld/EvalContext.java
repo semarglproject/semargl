@@ -50,8 +50,9 @@ final class EvalContext {
 
     private final QuadSink sink;
     private final DocumentContext documentContext;
-    private final Map<String, String> iriMappings;
-    private final Map<String, String> dtMappings;
+    private final Map<String, String> iriMappings = new TreeMap<String, String>();
+    private final Map<String, String> dtMappings = new TreeMap<String, String>();
+    private final Map<String, String> langMappings = new TreeMap<String, String>();
 
     private final EvalContext parent;
     private Collection<EvalContext> children = new ArrayList<EvalContext>();
@@ -63,8 +64,6 @@ final class EvalContext {
     private Queue<String> typedLiteralQueue = new LinkedList<String>();
 
     private EvalContext(DocumentContext documentContext, QuadSink sink, EvalContext parent) {
-        iriMappings = new TreeMap<String, String>();
-        dtMappings = new TreeMap<String, String>();
         this.sink = sink;
         this.parent = parent;
         this.documentContext = documentContext;
@@ -103,6 +102,20 @@ final class EvalContext {
         }
         if (parent != null) {
             return parent.getDtMapping(value);
+        }
+        return null;
+    }
+
+    public void defineLangMappingForPredicate(String value) {
+        langMappings.put(predicate, value);
+    }
+
+    String getLangMapping(String value) {
+        if (langMappings.containsKey(value)) {
+            return langMappings.get(value);
+        }
+        if (parent != null) {
+            return parent.getLangMapping(value);
         }
         return null;
     }
@@ -190,7 +203,13 @@ final class EvalContext {
             if (!object.startsWith(RDF.BNODE_PREFIX)) {
                 object = resolve(object);
             }
-            sink.addNonLiteral(subject, resolve(predicate), object, graph);
+            boolean reversed = dtMappings.containsKey(predicate)
+                    && dtMappings.get(predicate).equals(JsonLdContentHandler.REVERSE);
+            if (reversed) {
+                sink.addNonLiteral(object, resolve(predicate), subject, graph);
+            } else {
+                sink.addNonLiteral(subject, resolve(predicate), object, graph);
+            }
         } catch (MalformedIriException e) {
         }
 
@@ -220,6 +239,9 @@ final class EvalContext {
             }
             if (JsonLdContentHandler.LANGUAGE.equals(lang)) {
                 lang = this.lang;
+            }
+            if (lang == null) {
+                lang = getLangMapping(predicate);
             }
             sink.addPlainLiteral(subject, resolve(predicate), object, lang, graph);
         } catch (MalformedIriException e) {
