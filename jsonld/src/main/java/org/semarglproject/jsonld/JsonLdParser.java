@@ -62,12 +62,37 @@ public final class JsonLdParser extends Pipe<TripleSink> implements CharSink {
     private static final short PARSING_ARRAY_BEFORE_COMMA = 9;
 
     private static final BitSet WHITESPACE = new BitSet();
+    private static final BitSet NAMED_LITERAL_CHAR = new BitSet();
 
     static {
         WHITESPACE.set('\t');
         WHITESPACE.set(' ');
         WHITESPACE.set('\r');
         WHITESPACE.set('\n');
+
+        NAMED_LITERAL_CHAR.set('t');
+        NAMED_LITERAL_CHAR.set('r');
+        NAMED_LITERAL_CHAR.set('u');
+        NAMED_LITERAL_CHAR.set('e');
+        NAMED_LITERAL_CHAR.set('f');
+        NAMED_LITERAL_CHAR.set('a');
+        NAMED_LITERAL_CHAR.set('l');
+        NAMED_LITERAL_CHAR.set('s');
+        NAMED_LITERAL_CHAR.set('n');
+        NAMED_LITERAL_CHAR.set('0');
+        NAMED_LITERAL_CHAR.set('1');
+        NAMED_LITERAL_CHAR.set('2');
+        NAMED_LITERAL_CHAR.set('3');
+        NAMED_LITERAL_CHAR.set('4');
+        NAMED_LITERAL_CHAR.set('5');
+        NAMED_LITERAL_CHAR.set('6');
+        NAMED_LITERAL_CHAR.set('7');
+        NAMED_LITERAL_CHAR.set('8');
+        NAMED_LITERAL_CHAR.set('9');
+        NAMED_LITERAL_CHAR.set('.');
+        NAMED_LITERAL_CHAR.set('-');
+        NAMED_LITERAL_CHAR.set('E');
+        NAMED_LITERAL_CHAR.set('+');
     }
 
     private JsonLdContentHandler contentHandler;
@@ -163,7 +188,7 @@ public final class JsonLdParser extends Pipe<TripleSink> implements CharSink {
                     error("Unexpected character '" + buffer[pos] + "'");
                 }
             } else if (parsingState == PARSING_NAMED_LITERAL || parsingState == PARSING_NUMBER) {
-                if (WHITESPACE.get(buffer[pos])) {
+                if (!NAMED_LITERAL_CHAR.get(buffer[pos])) {
                     String value = unescape(extractToken(buffer, pos - 1, 0));
                     if (parsingState == PARSING_NAMED_LITERAL) {
                         if ("true".equals(value)) {
@@ -188,6 +213,7 @@ public final class JsonLdParser extends Pipe<TripleSink> implements CharSink {
                     } else if (parsingState == PARSING_OBJECT_BEFORE_VALUE) {
                         parsingState = PARSING_OBJECT_BEFORE_COMMA;
                     }
+                    pos--;
                 }
             }
         }
