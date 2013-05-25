@@ -81,6 +81,7 @@ final class EvalContext {
         EvalContext child = new EvalContext(documentContext, sink, this);
         child.parsingContext = this.parsingContext;
         child.lang = this.lang;
+        child.subject = documentContext.createBnode(false);
         children.add(child);
         return child;
     }
@@ -143,7 +144,7 @@ final class EvalContext {
 
     private void sinkUnsafeTriples() {
         try {
-            if (subject == null || !subject.startsWith(RDF.BNODE_PREFIX)) {
+            if (!subject.startsWith(RDF.BNODE_PREFIX)) {
                 subject = resolveCurieOrIri(subject, false);
             }
             if (graph != null) {
@@ -209,6 +210,9 @@ final class EvalContext {
 
     private void addNonLiteralUnsafe(String predicate, String object) {
         try {
+            if (object == null) {
+                return;
+            }
             if (!object.startsWith(RDF.BNODE_PREFIX)) {
                 object = resolve(object);
             }

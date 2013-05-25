@@ -57,7 +57,6 @@ final class JsonLdContentHandler {
         } else {
             contextStack.push(currentContext);
             currentContext = currentContext.initChildContext();
-            currentContext.subject = dh.createBnode(false);
             if (contextStack.size() == 1) {
                 currentContext.updateState(EvalContext.PARENT_SAFE);
             }
