@@ -250,280 +250,342 @@
 
 <http://json-ld.org/test-suite/tests/normalize_0001> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "simple id" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0001-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0001-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0002> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "duplicate property iri values" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0002-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0002-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0003> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "bnode" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0003-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0003-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0004> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "bnode plus embed w/subject" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0004-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0004-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0005> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "bnode embed" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0005-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0005-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0006> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "multiple rdf types" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0006-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0006-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0007> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "coerce CURIE value" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0007-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0007-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0008> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "single subject complex" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0008-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0008-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0009> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "multiple subjects - complex" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0009-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0009-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0010> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "type" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0010-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0010-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0011> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "type-coerced type" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0011-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0011-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0012> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "type-coerced type, remove duplicate reference" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0012-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0012-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0013> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "type-coerced type, cycle" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0013-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0013-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0014> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "check types" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0014-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0014-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0015> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "top level context" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0015-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0015-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0016> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - dual link - embed" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0016-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0016-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0017> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - dual link - non-embed" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0017-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0017-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0018> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - self link" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0018-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0018-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0019> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - disjoint self links" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0019-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0019-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0020> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - diamond" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0020-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0020-out.nq> .
 
+<http://json-ld.org/test-suite/tests/normalize_0021> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "blank node - circle of 2" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0021-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0021-out.nq> .
+
 <http://json-ld.org/test-suite/tests/normalize_0022> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 2" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0022-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0022-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0023> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - circle of 3" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0023-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0023-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0024> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 3 (1-2-3)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0024-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0024-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0025> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 3 (1-3-2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0025-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0025-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0026> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 3 (2-1-3)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0026-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0026-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0027> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 3 (2-3-1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0027-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0027-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0028> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 3 (3-2-1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0028-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0028-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0029> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - double circle of 3 (3-1-2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0029-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0029-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0030> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "blank node - point at circle of 3" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0030-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0030-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0031> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "bnode (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0031-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0031-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0032> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "bnode (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0032-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0032-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0033> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "disjoint identical subgraphs (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0033-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0033-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0034> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "disjoint identical subgraphs (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0034-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0034-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0035> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered w/strings (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0035-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0035-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0036> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered w/strings (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0036-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0036-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0037> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered w/strings (3)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0037-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0037-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0038> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered 4 bnodes, reordered 2 properties (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0038-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0038-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0039> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered 4 bnodes, reordered 2 properties (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0039-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0039-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0040> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered 6 bnodes (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0040-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0040-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0041> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered 6 bnodes (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0041-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0041-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0042> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "reordered 6 bnodes (3)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0042-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0042-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0043> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "literal with language" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0043-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0043-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0044> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "evil (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0044-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0044-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0045> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "evil (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0045-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0045-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0046> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "evil (3)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0046-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0046-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0047> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "deep diff (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0047-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0047-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0048> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "deep diff (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0048-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0048-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0049> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "remove null" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0049-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0049-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0050> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "nulls" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0050-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0050-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0051> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "merging subjects" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0051-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0051-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0052> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "alias keywords" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0052-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0052-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0053> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "@list" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0053-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0053-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0054> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "t-graph" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0054-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0054-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0055> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "simple reorder (1)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0055-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0055-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0056> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "simple reorder (2)" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0056-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0056-out.nq> .
 
 <http://json-ld.org/test-suite/tests/normalize_0057> a test:PositiveParserTest ;
     test:status "APPROVED" ;
+    test:description "unnamed graph" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/normalize-0057-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/normalize-0057-out.nq> .
