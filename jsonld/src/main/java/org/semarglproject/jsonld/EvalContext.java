@@ -49,6 +49,7 @@ final class EvalContext {
     boolean parsingArray;
     boolean nullified;
 
+    private EvalContext parent;
     private int state;
 
     private final QuadSink sink;
@@ -57,7 +58,6 @@ final class EvalContext {
     private final Map<String, String> dtMappings = new TreeMap<String, String>();
     private final Map<String, String> langMappings = new TreeMap<String, String>();
 
-    private final EvalContext parent;
     private final Collection<EvalContext> children = new ArrayList<EvalContext>();
 
     private final Queue<String> nonLiteralQueue = new LinkedList<String>();
@@ -166,6 +166,7 @@ final class EvalContext {
         }
         if (parent != null) {
             parent.children.remove(this);
+            parent = null;
         }
     }
 
@@ -317,7 +318,12 @@ final class EvalContext {
         }
 
         try {
-            return resolveMapping(prefix) + curie.substring(delimPos + 1);
+            String prefixUri = resolveMapping(prefix);
+            if (prefixUri != null) {
+                return prefixUri + curie.substring(delimPos + 1);
+            } else if (RIUtils.isIri(curie)) {
+                return curie;
+            }
         } catch (MalformedIriException e) {
             if (RIUtils.isIri(curie)) {
                 return curie;

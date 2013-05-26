@@ -185,6 +185,8 @@ final class JsonLdContentHandler {
     public void onNull() {
         if (CONTEXT.equals(currentContext.predicate)) {
             currentContext.nullify();
+        } else {
+            currentContext.defineIriMappingForPredicate(null);
         }
     }
 
