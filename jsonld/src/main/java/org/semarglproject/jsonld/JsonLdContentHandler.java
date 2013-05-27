@@ -70,6 +70,8 @@ final class JsonLdContentHandler {
             } else {
                 contextStack.peek().addPlainLiteral(currentContext.objectLit, currentContext.lang);
             }
+            // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
+            currentContext.updateState(EvalContext.PARENT_SAFE);
         } else if (!currentContext.parsingContext) {
             addSubjectTypeDefinition(currentContext.objectLitDt);
             if (contextStack.size() > 1) {
