@@ -10,235 +10,235 @@
 # toRdf tests
 ########################################################################################
 
-<http://json-ld.org/test-suite/tests/test_0001> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0001> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests generation of a triple using full URIs and a plain literal.";
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0001-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0001-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0002> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0002> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests generation of a triple using a CURIE defined in the default context." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0002-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0002-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0003> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0003> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that a BNode is created if no explicit subject is set." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0003-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0003-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0004> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0004> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that a plain literal is created with a language tag." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0004-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0004-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0005> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0005> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that a literal may be created using extended characters." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0005-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0005-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0006> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0006> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests creation of a literal with a datatype." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0006-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0006-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0007> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0007> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Verify that 'a' is an alias for rdf:type, and the object is created as an IRI." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0007-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0007-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0008> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0008> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Generate an IRI using a prefix defined within an @context." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0008-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0008-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0009> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0009> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "An empty suffix may be used." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0009-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0009-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0010> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0010> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "A property referencing an associative array gets object from subject of array." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0010-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0010-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0011> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0011> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "If no @ is specified, a BNode is created, and will be used as the object of an enclosing property." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0011-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0011-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0012> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0012> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that Multiple Objects are for a Single Property using array syntax." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0012-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0012-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0013> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0013> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that @list: [] generates an empty list." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0013-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0013-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0014> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0014> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that @list generates a list." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0014-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0014-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0015> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0015> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that list with multiple elements." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0015-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0015-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0016> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0016> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Expanding an empty IRI uses the test file location." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0016-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0016-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0017> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0017> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Expanding a relative IRI uses the test file location." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0017-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0017-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0018> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0018> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Expanding a fragment uses the test file location." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0018-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0018-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0019> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0019> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests coercion of object to anyURI when specified." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0019-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0019-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0020> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0020> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests coercion of object to a typed literal when specified." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0020-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0020-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0022> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0022> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that a decimal value generates a xsd:double typed literal;." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0022-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0022-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0023> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0023> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that a decimal value generates a xsd:integer typed literal." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0023-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0023-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0024> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0024> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that a decimal value generates a xsd:boolean typed literal." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0024-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0024-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0025> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0025> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that an array with a single element on a property with @list coercion creates an RDF Collection." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0025-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0025-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0026> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0026> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that @type with an array of types creates multiple types." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0026-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0026-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0027> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0027> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Using @graph with other keys places triples in a named graph." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0027-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0027-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0028> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0028> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Signing a graph." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0028-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0028-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0029> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0029> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that named graphs containing named graphs flatten to single level of graph naming." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0029-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0029-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0030> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0030> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests graphs containing subject references as strings." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0030-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0030-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0031> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0031> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests conversion of reverse properties." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0031-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0031-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0032> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0032> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that generated triples do not depend on order of @context." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0032-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0032-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0033> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0033> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that generated triples do not depend on order of @id." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0033-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0033-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0034> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0034> a test:PositiveParserTest ;
     test:status "APPROVED" ;
     test:description "Tests that generated triples do not depend on order of properties inside @context." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0034-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0034-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0035> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0035> a test:PositiveParserTest ;
     test:status "NEW" ;
     test:description "Tests that generated triples do not depend on order of @language." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0036> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0036> a test:PositiveParserTest ;
     test:status "NEW" ;
     test:description "Tests language associations support." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0036-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0036-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0038> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0038> a test:PositiveParserTest ;
     test:status "NEW" ;
     test:description "Tests processing of expanded term definition with @type defined by term." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0038-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0038-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0039> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0039> a test:PositiveParserTest ;
     test:status "NEW" ;
     test:description "Test term nullifying." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0039-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0039-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0040> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0040> a test:PositiveParserTest ;
     test:status "NEW" ;
     test:description "Tests context nullifying." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0040-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0040-out.nq> .
 
-<http://json-ld.org/test-suite/tests/test_0041> a test:PositiveParserTest ;
+<http://json-ld.org/test-suite/tests/toRdf_0041> a test:PositiveParserTest ;
     test:status "NEW" ;
     test:description "Tests term redefinition." ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0041-in.jsonld> ;
