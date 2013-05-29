@@ -100,6 +100,12 @@ final class EvalContext {
 
     void defineIriMappingForPredicate(String value) {
         iriMappings.put(predicate, value);
+        if (!dtMappings.containsKey(predicate)) {
+            dtMappings.put(predicate, null);
+        }
+        if (!langMappings.containsKey(predicate)) {
+            langMappings.put(predicate, null);
+        }
     }
 
     void defineDtMappingForPredicate(String value) {
@@ -120,7 +126,7 @@ final class EvalContext {
         langMappings.put(predicate, value);
     }
 
-    String getLangMapping(String value) {
+    private String getLangMapping(String value) {
         if (langMappings.containsKey(value)) {
             return langMappings.get(value);
         }
@@ -218,7 +224,7 @@ final class EvalContext {
                 object = resolve(object);
             }
             boolean reversed = dtMappings.containsKey(predicate)
-                    && dtMappings.get(predicate).equals(JsonLdContentHandler.REVERSE);
+                    && JsonLdContentHandler.REVERSE.equals(dtMappings.get(predicate));
             if (reversed) {
                 sink.addNonLiteral(object, resolve(predicate), subject, graph);
             } else {
