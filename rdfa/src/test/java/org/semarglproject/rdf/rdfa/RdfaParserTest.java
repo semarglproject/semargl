@@ -22,11 +22,14 @@ import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.TestCase;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.vocab.RDFa;
-import org.testng.annotations.*;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.runTestBundle;
@@ -60,38 +63,14 @@ public final class RdfaParserTest {
     }
 
     @DataProvider
-    public static Object[][] getRdfa10Xhtml1TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "xhtml1"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa10SvgTestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "svg"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11Html4TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html4"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11Xhtml1TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xhtml1"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11Html5TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html5"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11XmlTestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xml"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11SvgTestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "svg"));
+    public static Object[][] getTestSuite(Method method) {
+        String methodName = method.getName();
+        String rdfaVersion = "rdfa1.0";
+        if (methodName.startsWith("Rdfa11")) {
+            rdfaVersion = "rdfa1.1";
+        }
+        String fileFormat = methodName.substring(6, methodName.indexOf("Test")).toLowerCase();
+        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite(rdfaVersion, fileFormat));
     }
 
     private static Object[][] convertToDataProvider(Collection<TestCase> tests) {
@@ -103,37 +82,37 @@ public final class RdfaParserTest {
         return result;
     }
 
-    @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa10Xhtml1TestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_10);
     }
 
-    @Test(dataProvider = "getRdfa10SvgTestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa10SvgTestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_10);
     }
 
-    @Test(dataProvider = "getRdfa11Html4TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa11Html4TestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa11Xhtml1TestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11Html5TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa11Html5TestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11XmlTestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa11XmlTestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11SvgTestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void Rdfa11SvgTestsTurtle(TestCase testCase) {
         runTestBundle(testCase, semarglTurtleCallback, RDFa.VERSION_11);
     }
