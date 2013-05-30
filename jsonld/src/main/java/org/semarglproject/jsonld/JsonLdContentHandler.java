@@ -16,6 +16,7 @@
 
 package org.semarglproject.jsonld;
 
+import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.sink.QuadSink;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.XSD;
@@ -110,7 +111,16 @@ final class JsonLdContentHandler {
     }
 
     public void onKey(String key) {
-        currentContext.predicate = key;
+        try {
+            String mapping = currentContext.resolveMapping(key);
+            if (mapping.charAt(0) == '@') {
+                currentContext.predicate = mapping;
+            } else {
+                currentContext.predicate = key;
+            }
+        } catch (MalformedIriException e) {
+            currentContext.predicate = key;
+        }
     }
 
     public void onString(String value) {

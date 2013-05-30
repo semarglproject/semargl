@@ -10,5 +10,4 @@ select ?input ?result (?test_case as ?name) ?descr {
 		a ?type.
 	optional {?test_case test:description ?descr}
 	filter (?status != "OBSOLETE" && ?status != "NOT_APPROVED")
-	filter (!regex(str(?test_case), "normalize_0052")) # not supported
 } order by ?input

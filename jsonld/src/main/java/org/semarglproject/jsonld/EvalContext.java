@@ -295,7 +295,7 @@ final class EvalContext {
         return resolveCurieOrIri(value, true);
     }
 
-    private String resolveMapping(String value) throws MalformedIriException {
+    String resolveMapping(String value) throws MalformedIriException {
         if (iriMappings.containsKey(value)) {
             return iriMappings.get(value);
         }
