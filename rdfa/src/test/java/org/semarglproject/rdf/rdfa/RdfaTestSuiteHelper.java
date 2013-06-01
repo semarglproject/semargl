@@ -15,9 +15,7 @@
  */
 package org.semarglproject.rdf.rdfa;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.openrdf.model.util.ModelUtil;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.test.SesameTestHelper;
 
@@ -28,14 +26,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
@@ -45,7 +39,7 @@ public final class RdfaTestSuiteHelper {
 
     private static final String TEST_OUTPUT_DIR = "target/rdfa-output/";
 
-    private static final String RDFA_TESTSUITE_ROOT = "http://rdfa.info/test-suite/test-cases/";
+    static final String RDFA_TESTSUITE_ROOT = "http://rdfa.info/test-suite/test-cases/";
     private static final String RDFA_TESTSUITE_MANIFEST_URI = RDFA_TESTSUITE_ROOT + "manifest.ttl";
 
     private static final Map<String, String> LOCAL_MIRRORS = new HashMap<String, String>() {{
@@ -110,47 +104,6 @@ public final class RdfaTestSuiteHelper {
             assertEquals(actualResult, expectedResult, testCase.input);
         } catch (IOException e) {
             fail();
-        }
-    }
-
-    public static void downloadAllTests(int parallelism) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(parallelism);
-        executorService.execute(new TestDownloadWorker("rdfa1.0", "xhtml1"));
-        executorService.execute(new TestDownloadWorker("rdfa1.0", "svg"));
-        executorService.execute(new TestDownloadWorker("rdfa1.1", "html4"));
-        executorService.execute(new TestDownloadWorker("rdfa1.1", "xhtml1"));
-        executorService.execute(new TestDownloadWorker("rdfa1.1", "html5"));
-        executorService.execute(new TestDownloadWorker("rdfa1.1", "xml"));
-        executorService.execute(new TestDownloadWorker("rdfa1.1", "svg"));
-        executorService.shutdown();
-        executorService.awaitTermination(10, TimeUnit.MINUTES);
-    }
-
-    private static void downloadMissingTest(String testUrl) throws IOException {
-        File inputFile = new File(testUrl.replace(RDFA_TESTSUITE_ROOT, "src/test/resources/rdfa-testsuite/"));
-        if (!inputFile.exists()) {
-            FileUtils.copyURLToFile(new URL(testUrl), inputFile);
-        }
-    }
-
-    private static final class TestDownloadWorker implements Runnable {
-
-        private Collection<TestCase> tests;
-
-        private TestDownloadWorker(String rdfaVersion, String docFormat) {
-            this.tests = getTestSuite(rdfaVersion, docFormat);
-        }
-
-        @Override
-        public void run() {
-            for (TestCase test : tests) {
-                try {
-                    downloadMissingTest(test.input);
-                    downloadMissingTest(test.result);
-                } catch (IOException e) {
-                    // do nothing
-                }
-            }
         }
     }
 
