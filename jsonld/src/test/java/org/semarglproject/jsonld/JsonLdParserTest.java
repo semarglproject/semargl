@@ -22,6 +22,7 @@ import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.test.SesameTestHelper;
+import org.semarglproject.test.TestNGHelper;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -79,11 +80,7 @@ public class JsonLdParserTest {
             return null;
         }
         List<TestCase> testCases = sth.getTestCases(TESTSUITE_MANIFEST_URI, queryStr, TestCase.class);
-        Object[][] result = new Object[testCases.size()][];
-        for (int i = 0; i < testCases.size(); i++) {
-            result[i] = new Object[] { testCases.get(i) };
-        }
-        return result;
+        return TestNGHelper.toArray(testCases);
     }
 
     @Test(dataProvider = "getTestSuite")

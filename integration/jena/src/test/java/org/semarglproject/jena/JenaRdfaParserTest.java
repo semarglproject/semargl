@@ -18,11 +18,12 @@ package org.semarglproject.jena;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper;
-import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
+import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper;
 import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.TestCase;
+import org.semarglproject.source.StreamProcessor;
+import org.semarglproject.test.TestNGHelper;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -32,7 +33,6 @@ import org.xml.sax.SAXException;
 
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collection;
 
 import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.SaveToFileCallback;
 import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.runTestBundle;
@@ -73,46 +73,37 @@ public final class JenaRdfaParserTest {
 
     @DataProvider
     public static Object[][] getRdfa10Xhtml1TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "xhtml1"));
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "xhtml1"));
     }
 
     @DataProvider
     public static Object[][] getRdfa10SvgTestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "svg"));
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "svg"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11Html4TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html4"));
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html4"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11Xhtml1TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xhtml1"));
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xhtml1"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11Html5TestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html5"));
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html5"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11XmlTestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xml"));
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xml"));
     }
 
     @DataProvider
     public static Object[][] getRdfa11SvgTestSuite() {
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "svg"));
-    }
-
-    private static Object[][] convertToDataProvider(Collection<TestCase> tests) {
-        Object[][] result = new Object[tests.size()][];
-        int i = 0;
-        for (TestCase testCase : tests) {
-            result[i++] = new Object[]{testCase};
-        }
-        return result;
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "svg"));
     }
 
     @Test(dataProvider = "getRdfa10Xhtml1TestSuite")

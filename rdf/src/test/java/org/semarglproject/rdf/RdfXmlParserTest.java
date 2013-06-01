@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.test.SesameTestHelper;
+import org.semarglproject.test.TestNGHelper;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -70,12 +71,7 @@ public final class RdfXmlParserTest {
         String queryStr = IOUtils.toString(sth.openStreamForResource(FETCH_RDFXML_TESTS_SPARQL));
         List<TestCase> testCases = sth.getTestCases(ARP_TESTSUITE_MANIFEST_URI, queryStr, TestCase.class);
         testCases.addAll(sth.getTestCases(W3C_TESTSUITE_MANIFEST_URI, queryStr, TestCase.class));
-
-        Object[][] result = new Object[testCases.size()][];
-        for (int i = 0; i < testCases.size(); i++) {
-            result[i] = new Object[] { testCases.get(i) };
-        }
-        return result;
+        return TestNGHelper.toArray(testCases);
     }
 
     @Test(dataProvider = "getTestSuite")

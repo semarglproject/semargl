@@ -21,6 +21,7 @@ import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.TestCase;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
+import org.semarglproject.test.TestNGHelper;
 import org.semarglproject.vocab.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -30,7 +31,6 @@ import org.xml.sax.SAXException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.runTestBundle;
 
@@ -70,16 +70,7 @@ public final class RdfaParserTest {
             rdfaVersion = "rdfa1.1";
         }
         String fileFormat = methodName.substring(6, methodName.indexOf("Test")).toLowerCase();
-        return convertToDataProvider(RdfaTestSuiteHelper.getTestSuite(rdfaVersion, fileFormat));
-    }
-
-    private static Object[][] convertToDataProvider(Collection<TestCase> tests) {
-        Object[][] result = new Object[tests.size()][];
-        int i = 0;
-        for (TestCase testCase : tests) {
-            result[i++] = new Object[]{testCase};
-        }
-        return result;
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite(rdfaVersion, fileFormat));
     }
 
     @Test(dataProvider = "getTestSuite")
