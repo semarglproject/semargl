@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Method;
 
 import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.SaveToFileCallback;
 import static org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.runTestBundle;
@@ -65,51 +66,27 @@ public class JenaRdfaReaderTest {
     }
 
     @DataProvider
-    public static Object[][] getRdfa10Xhtml1TestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "xhtml1"));
+    public static Object[][] getTestSuite(Method method) {
+        String methodName = method.getName();
+        String rdfaVersion = "rdfa1.0";
+        if (methodName.startsWith("runRdfa11")) {
+            rdfaVersion = "rdfa1.1";
+        }
+        String fileFormat = methodName.substring(9, methodName.indexOf("Tests")).toLowerCase();
+        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite(rdfaVersion, fileFormat));
     }
 
-    @DataProvider
-    public static Object[][] getRdfa10SvgTestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.0", "svg"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11Html4TestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html4"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11Xhtml1TestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xhtml1"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11Html5TestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "html5"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11XmlTestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "xml"));
-    }
-
-    @DataProvider
-    public static Object[][] getRdfa11SvgTestSuite() {
-        return TestNGHelper.toArray(RdfaTestSuiteHelper.getTestSuite("rdfa1.1", "svg"));
-    }
-
-    @Test(dataProvider = "getRdfa10Xhtml1TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa10Xhtml1Tests(RdfaTestSuiteHelper.TestCase testCase) {
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_10);
     }
 
-    @Test(dataProvider = "getRdfa10SvgTestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa10SvgTests(RdfaTestSuiteHelper.TestCase testCase) {
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_10);
     }
 
-    @Test(dataProvider = "getRdfa11Html4TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa11Html4Tests(RdfaTestSuiteHelper.TestCase testCase) {
         // vocabulary expansion is disabled by default
         if (testCase.input.matches(".+024[0-5].+")) {
@@ -118,7 +95,7 @@ public class JenaRdfaReaderTest {
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11Xhtml1TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa11Xhtml1Tests(RdfaTestSuiteHelper.TestCase testCase) {
         // vocabulary expansion is disabled by default
         if (testCase.input.matches(".+024[0-5].+")) {
@@ -127,7 +104,7 @@ public class JenaRdfaReaderTest {
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11Html5TestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa11Html5Tests(RdfaTestSuiteHelper.TestCase testCase) {
         // vocabulary expansion is disabled by default
         if (testCase.input.matches(".+024[0-5].+")) {
@@ -136,7 +113,7 @@ public class JenaRdfaReaderTest {
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11XmlTestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa11XmlTests(RdfaTestSuiteHelper.TestCase testCase) {
         // vocabulary expansion is disabled by default
         if (testCase.input.matches(".+024[0-5].+")) {
@@ -145,7 +122,7 @@ public class JenaRdfaReaderTest {
         runTestBundle(testCase, jenaCallback, RDFa.VERSION_11);
     }
 
-    @Test(dataProvider = "getRdfa11SvgTestSuite")
+    @Test(dataProvider = "getTestSuite")
     public void runRdfa11SvgTests(RdfaTestSuiteHelper.TestCase testCase) {
         // vocabulary expansion is disabled by default
         if (testCase.input.matches(".+024[0-5].+")) {
