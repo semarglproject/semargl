@@ -14,6 +14,8 @@ It runs seamlessly on Android and GAE.
 
 You can check some framework capabilities via [RDFa parser demo](http://demo.semarglproject.org).
 
+[![Build Status](https://travis-ci.org/levkhomich/semargl.png?branch=master)](https://travis-ci.org/levkhomich/semargl)
+
 Why use Semargl?
 ================
 
