@@ -18,6 +18,7 @@ package org.semarglproject.jsonld;
 
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.sink.QuadSink;
+import org.semarglproject.vocab.JsonLd;
 import org.semarglproject.vocab.RDF;
 import org.semarglproject.vocab.XSD;
 
@@ -25,17 +26,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 final class JsonLdContentHandler {
-
-    static final String CONTEXT = "@context";
-    static final String GRAPH = "@graph";
-    static final String LIST = "@list";
-    static final String ID = "@id";
-    static final String TYPE = "@type";
-    static final String CONTAINER = "@container";
-    static final String REVERSE = "@reverse";
-    static final String LANGUAGE = "@language";
-    static final String VALUE = "@value";
-    static final String CONTAINER_LIST = "@container@list";
 
     private Deque<EvalContext> contextStack = new LinkedList<EvalContext>();
     private final DocumentContext dh = new DocumentContext();
@@ -46,9 +36,9 @@ final class JsonLdContentHandler {
     }
 
     public void onObjectStart() {
-        if (CONTEXT.equals(currentContext.predicate)) {
+        if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.parsingContext = true;
-        } else if (GRAPH.equals(currentContext.predicate)) {
+        } else if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)) {
             String graph = currentContext.subject;
             contextStack.push(currentContext);
             currentContext = currentContext.initChildContext();
@@ -96,7 +86,7 @@ final class JsonLdContentHandler {
 
     public void onArrayEnd() {
         currentContext.parsingArray = false;
-        if (LIST.equals(currentContext.predicate)) {
+        if (JsonLd.LIST_KEY.equals(currentContext.predicate)) {
             if (currentContext.listTail != null) {
                 currentContext.addListRest(RDF.NIL);
             } else {
@@ -104,7 +94,7 @@ final class JsonLdContentHandler {
             }
             // TODO: check for property reordering issues
             String dt = contextStack.peek().getDtMapping(contextStack.peek().predicate);
-            if (CONTAINER_LIST.equals(dt)) {
+            if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
                 onObjectEnd();
             }
         }
@@ -127,17 +117,17 @@ final class JsonLdContentHandler {
         if (currentContext.parsingContext) {
             EvalContext parentContext = contextStack.peek();
             if (parentContext.parsingContext) {
-                if (ID.equals(currentContext.predicate)) {
+                if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
                     parentContext.defineIriMappingForPredicate(value);
-                } else if (TYPE.equals(currentContext.predicate)) {
+                } else if (JsonLd.TYPE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineDtMappingForPredicate(value);
-                } else if (LANGUAGE.equals(currentContext.predicate)) {
+                } else if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineLangMappingForPredicate(value);
-                } else if (CONTAINER.equals(currentContext.predicate)) {
-                    parentContext.defineDtMappingForPredicate(CONTAINER + value);
-                } else if (REVERSE.equals(currentContext.predicate)) {
+                } else if (JsonLd.CONTAINER_KEY.equals(currentContext.predicate)) {
+                    parentContext.defineDtMappingForPredicate(JsonLd.CONTAINER_KEY + value);
+                } else if (JsonLd.REVERSE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineIriMappingForPredicate(value);
-                    parentContext.defineDtMappingForPredicate(REVERSE);
+                    parentContext.defineDtMappingForPredicate(JsonLd.REVERSE_KEY);
                 }
                 return;
             } else if (!currentContext.isPredicateKeyword()) {
@@ -147,31 +137,31 @@ final class JsonLdContentHandler {
         } else if (!currentContext.isPredicateKeyword() && currentContext.predicate != null) {
             // TODO: check for property reordering issues
             String dt = currentContext.getDtMapping(currentContext.predicate);
-            if (CONTAINER_LIST.equals(dt)) {
+            if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
                 onObjectStart();
-                onKey(LIST);
+                onKey(JsonLd.LIST_KEY);
                 onArrayStart();
                 onString(value);
             } else {
-                currentContext.addPlainLiteral(value, LANGUAGE);
+                currentContext.addPlainLiteral(value, JsonLd.LANGUAGE_KEY);
             }
             return;
         }
         if (currentContext.isPredicateKeyword()) {
-            if (TYPE.equals(currentContext.predicate)) {
+            if (JsonLd.TYPE_KEY.equals(currentContext.predicate)) {
                 if (currentContext.parsingArray) {
                     addSubjectTypeDefinition(value);
                 } else {
                     currentContext.objectLitDt = value;
                 }
-            } else if (LANGUAGE.equals(currentContext.predicate)) {
+            } else if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                 currentContext.lang = value;
-            } else if (ID.equals(currentContext.predicate)) {
+            } else if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
                 currentContext.subject = value;
                 currentContext.updateState(EvalContext.ID_DECLARED);
-            } else if (VALUE.equals(currentContext.predicate)) {
+            } else if (JsonLd.VALUE_KEY.equals(currentContext.predicate)) {
                 currentContext.objectLit = value;
-            } else if (LIST.equals(currentContext.predicate)) {
+            } else if (JsonLd.LIST_KEY.equals(currentContext.predicate)) {
                 if (currentContext.listTail == null) {
                     currentContext.listTail = currentContext.subject;
                     currentContext.addListFirst(value);
@@ -195,7 +185,7 @@ final class JsonLdContentHandler {
     }
 
     public void onNull() {
-        if (CONTEXT.equals(currentContext.predicate)) {
+        if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.nullify();
         } else {
             currentContext.defineIriMappingForPredicate(null);

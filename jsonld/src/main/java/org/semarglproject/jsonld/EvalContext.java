@@ -19,6 +19,7 @@ import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.QuadSink;
+import org.semarglproject.vocab.JsonLd;
 import org.semarglproject.vocab.RDF;
 
 import java.util.ArrayList;
@@ -224,7 +225,7 @@ final class EvalContext {
                 object = resolve(object);
             }
             boolean reversed = dtMappings.containsKey(predicate)
-                    && JsonLdContentHandler.REVERSE.equals(dtMappings.get(predicate));
+                    && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
             if (reversed) {
                 sink.addNonLiteral(object, resolve(predicate), subject, graph);
             } else {
@@ -249,7 +250,7 @@ final class EvalContext {
         try {
             String dt = getDtMapping(predicate);
             if (dt != null) {
-                if (JsonLdContentHandler.ID.equals(dt)) {
+                if (JsonLd.ID_KEY.equals(dt)) {
                     addNonLiteralUnsafe(predicate, object);
                     return;
                 } else if (!dt.startsWith("@")) {
@@ -257,7 +258,7 @@ final class EvalContext {
                     return;
                 }
             }
-            if (JsonLdContentHandler.LANGUAGE.equals(lang)) {
+            if (JsonLd.LANGUAGE_KEY.equals(lang)) {
                 lang = this.lang;
             }
             if (lang == null) {
