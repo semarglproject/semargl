@@ -54,8 +54,7 @@ public final class RdfaParserTest {
 
     @BeforeClass
     public void init() throws SAXException, InterruptedException {
-//        RdfaTestSuiteHelper.prepareTestDir();
-//        RdfaTestSuiteHelper.downloadAllTests(2);
+//        TestSuiteDownloadHelper.downloadAll(4);
 
         charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(RdfaParser.connect(TurtleSerializer.connect(charOutputSink)));

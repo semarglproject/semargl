@@ -2682,3 +2682,25 @@ white   space
    test:informationResourceResults <test-cases/0329.sparql>;
    test:purpose "Tests recursive triple generation for nested literals.";
    test:specificationReference "N.A." .
+
+<test-cases/0330> dc:contributor "Reece H. Dunn";
+   dc:title "@datatype overrides inherited @lang";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   test:classification test:required;
+   rdfatest:hostLanguage "xml", "xhtml1", "html4", "html5", "xhtml5";
+   test:informationResourceInput <test-cases/0330.html>;
+   test:informationResourceResults <test-cases/0330.sparql>;
+   test:purpose "Tests @datatype is used instead of @lang when @datatype is not empty (e.g. annotating a date).";
+   test:specificationReference "N.A." .
+
+<test-cases/0331> dc:contributor "Reece H. Dunn";
+   dc:title "@datatype overrides inherited @lang, with @content";
+   a test:TestCase;
+   rdfatest:rdfaVersion "rdfa1.1";
+   test:classification test:required;
+   rdfatest:hostLanguage "xml", "xhtml1", "html4", "html5", "xhtml5";
+   test:informationResourceInput <test-cases/0331.html>;
+   test:informationResourceResults <test-cases/0331.sparql>;
+   test:purpose "Tests @datatype is used instead of @lang when @datatype is not empty, and @content is used for the value (e.g. annotating a language with human and machine readable text).";
+   test:specificationReference "N.A." .
