@@ -56,6 +56,7 @@ public final class RdfXmlParserTest {
     private CharOutputSink charOutputSink;
     private StreamProcessor streamProcessorTtl;
     private StreamProcessor streamProcessorNt;
+    private StreamProcessor streamProcessorNq;
     private SesameTestHelper sth;
 
     @BeforeClass
@@ -64,6 +65,7 @@ public final class RdfXmlParserTest {
         charOutputSink = new CharOutputSink("UTF-8");
         streamProcessorTtl = new StreamProcessor(RdfXmlParser.connect(TurtleSerializer.connect(charOutputSink)));
         streamProcessorNt = new StreamProcessor(RdfXmlParser.connect(NTriplesSerializer.connect(charOutputSink)));
+        streamProcessorNq = new StreamProcessor(RdfXmlParser.connect(NQuadsSerializer.connect(charOutputSink)));
     }
 
     @DataProvider
@@ -102,6 +104,22 @@ public final class RdfXmlParserTest {
             @Override
             public String getOutputFileExt() {
                 return "nt";
+            }
+        });
+    }
+
+    @Test(dataProvider = "getTestSuite")
+    public void runWithNQuadsSink(TestCase testCase) {
+        runTest(testCase, new SaveToFileCallback() {
+            @Override
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+                charOutputSink.connect(output);
+                streamProcessorNq.process(input, inputUri);
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "nq";
             }
         });
     }

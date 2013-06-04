@@ -52,6 +52,7 @@ public final class NTriplesParserTest {
     private CharOutputSink charOutputSink;
     private StreamProcessor streamProcessorTtl;
     private StreamProcessor streamProcessorNt;
+    private StreamProcessor streamProcessorNq;
     private SesameTestHelper sth;
 
     @BeforeClass
@@ -60,6 +61,7 @@ public final class NTriplesParserTest {
         charOutputSink = new CharOutputSink("UTF-8");
         streamProcessorTtl = new StreamProcessor(NTriplesParser.connect(TurtleSerializer.connect(charOutputSink)));
         streamProcessorNt = new StreamProcessor(NTriplesParser.connect(NTriplesSerializer.connect(charOutputSink)));
+        streamProcessorNq = new StreamProcessor(NTriplesParser.connect(NQuadsSerializer.connect(charOutputSink)));
     }
 
     @DataProvider
@@ -97,6 +99,22 @@ public final class NTriplesParserTest {
             @Override
             public String getOutputFileExt() {
                 return "nt";
+            }
+        });
+    }
+
+    @Test(dataProvider = "getTestSuite")
+    public void runWithNQuadsSink(TestCase caseName) throws Exception {
+        runTest(caseName, new SaveToFileCallback() {
+            @Override
+            public void run(Reader input, String inputUri, Writer output) throws ParseException {
+                charOutputSink.connect(output);
+                streamProcessorNq.process(input, inputUri);
+            }
+
+            @Override
+            public String getOutputFileExt() {
+                return "nq";
             }
         });
     }
