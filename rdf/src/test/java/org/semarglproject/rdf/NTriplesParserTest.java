@@ -73,50 +73,17 @@ public final class NTriplesParserTest {
 
     @Test(dataProvider = "getTestSuite")
     public void runWithTurtleSink(TestCase caseName) throws Exception {
-        runTest(caseName, new SaveToFileCallback() {
-            @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                charOutputSink.connect(output);
-                streamProcessorTtl.process(input, inputUri);
-            }
-
-            @Override
-            public String getOutputFileExt() {
-                return "ttl";
-            }
-        });
+        runTest(caseName, new TestCallback(charOutputSink, streamProcessorTtl, "ttl"));
     }
 
     @Test(dataProvider = "getTestSuite")
     public void runWithNTriplesSink(TestCase caseName) throws Exception {
-        runTest(caseName, new SaveToFileCallback() {
-            @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                charOutputSink.connect(output);
-                streamProcessorNt.process(input, inputUri);
-            }
-
-            @Override
-            public String getOutputFileExt() {
-                return "nt";
-            }
-        });
+        runTest(caseName, new TestCallback(charOutputSink, streamProcessorNt, "nt"));
     }
 
     @Test(dataProvider = "getTestSuite")
     public void runWithNQuadsSink(TestCase caseName) throws Exception {
-        runTest(caseName, new SaveToFileCallback() {
-            @Override
-            public void run(Reader input, String inputUri, Writer output) throws ParseException {
-                charOutputSink.connect(output);
-                streamProcessorNq.process(input, inputUri);
-            }
-
-            @Override
-            public String getOutputFileExt() {
-                return "nq";
-            }
-        });
+        runTest(caseName, new TestCallback(charOutputSink, streamProcessorNq, "nq"));
     }
 
     public void runTest(TestCase testCase, SaveToFileCallback callback) {
@@ -137,6 +104,30 @@ public final class NTriplesParserTest {
             fail();
         }
         assertTrue(sth.areModelsEqual(resultFilePath, testCase.result, testCase.input));
+    }
+
+    private static class TestCallback implements SaveToFileCallback {
+
+        private final CharOutputSink charOutputSink;
+        private final StreamProcessor streamProcessor;
+        private final String fileExt;
+
+        private TestCallback(CharOutputSink charOutputSink, StreamProcessor streamProcessor, String fileExt) {
+            this.charOutputSink = charOutputSink;
+            this.streamProcessor = streamProcessor;
+            this.fileExt = fileExt;
+        }
+
+        @Override
+        public void run(Reader input, String inputUri, Writer output) throws ParseException {
+            charOutputSink.connect(output);
+            streamProcessor.process(input, inputUri);
+        }
+
+        @Override
+        public String getOutputFileExt() {
+            return fileExt;
+        }
     }
 
     public interface SaveToFileCallback {
