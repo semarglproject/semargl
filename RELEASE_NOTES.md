@@ -1,12 +1,12 @@
-Release Notes - Semargl - Version 0.5
-=====================================
+Version 0.5
+-----------
 
 * `NTriplesSerializer`
 * better Sesame RIO support
 * RDFa Property Copying support
 
-Release Notes - Semargl - Version 0.4
-=====================================
+Version 0.4
+-----------
 
 Stabilized API. Published to Maven Central.
 
@@ -18,8 +18,8 @@ Stabilized API. Published to Maven Central.
 * improved performance and greatly reduced memory consumption for `RdfaParser`
 * new project's page and complete javadocs
 
-Release Notes - Semargl - Version 0.3
-=====================================
+Version 0.3
+-----------
 
 First wave of API stabilization.
 
@@ -29,8 +29,8 @@ First wave of API stabilization.
 * API simplification
 * usage examples (RDF/XML and RDFa benchmarks, RDFa endpoint)
 
-Release Notes - Semargl - Version 0.2
-=====================================
+Version 0.2
+-----------
 
 Initial release.
 
