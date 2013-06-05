@@ -86,6 +86,14 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
+
+            <!-- Exclude to use dependency from clerezza - rdf.core - utils -->
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -153,6 +161,18 @@
             <groupId>org.apache.clerezza</groupId>
             <artifactId>rdf.jena.sparql</artifactId>
             <scope>test</scope>
+
+            <!-- Exclude to be compatible with jena-2.6.4 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>

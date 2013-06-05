@@ -41,8 +41,8 @@
         <connection>scm:git:git@github.com:levkhomich/semargl.git</connection>
         <developerConnection>scm:git:git@github.com:levkhomich/semargl.git</developerConnection>
         <url>https://github.com/levkhomich/semargl.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <issueManagement>
         <system>github</system>
@@ -57,6 +57,13 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- Plugins -->
+        <version.clean.plugin>2.4.1</version.clean.plugin>
+        <version.resources.plugin>2.5</version.resources.plugin>
+        <version.compiler.plugin>2.3.2</version.compiler.plugin>
+        <version.deploy.plugin>2.7</version.deploy.plugin>
+        <version.install.plugin>2.3.1</version.install.plugin>
+        <version.site.plugin>3.0</version.site.plugin>
+        <version.jar.plugin>2.3.2</version.jar.plugin>
         <version.dependency.plugin>2.8</version.dependency.plugin>
         <version.license.plugin>1.9.0</version.license.plugin>
         <version.checkstyle.plugin>2.10</version.checkstyle.plugin>
@@ -66,6 +73,7 @@
         <version.javadoc.plugin>2.9</version.javadoc.plugin>
         <version.jar.plugin>2.4</version.jar.plugin>
         <version.gpg.plugin>1.4</version.gpg.plugin>
+        <version.enforcer.plugin>1.2</version.enforcer.plugin>
 
         <!-- External dependencies -->
         <version.testng>6.8.5</version.testng>
@@ -77,7 +85,7 @@
         <version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
         <version.jena>2.10.1</version.jena>
         <version.sesame>2.7.1</version.sesame>
-        <version.slf4j>1.7.5</version.slf4j>
+        <version.slf4j>1.6.4</version.slf4j>
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
@@ -93,19 +101,71 @@
 
     <build>
         <plugins>
-            <!-- License Headers -->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${version.clean.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${version.resources.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.compiler.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${version.deploy.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${version.install.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${version.site.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${version.jar.plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.surefire.plugin}</version>
+            </plugin>
+
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
             </plugin>
 
-            <!-- Checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version.enforcer.plugin}</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
 
-            <!-- Sources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -166,6 +226,33 @@
                             <goals>
                                 <goal>check</goal>
                             </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>enforce</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireMavenVersion>
+                                        <version>2.0.6</version>
+                                    </requireMavenVersion>
+                                    <DependencyConvergence/>
+                                    <requirePluginVersions>
+                                        <banLatest>true</banLatest>
+                                        <banRelease>true</banRelease>
+                                        <banSnapshots>true</banSnapshots>
+                                        <phases>clean,deploy</phases>
+                                    </requirePluginVersions>
+                                </rules>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
