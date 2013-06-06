@@ -1,1 +1,4 @@
-_:n0 <http://example.org/label> "@language reordering"@en .
+_:b0 <http://example.com/double> "1.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b0 <http://example.com/double> "2.2"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b0 <http://example.com/integer> "8"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:b0 <http://example.com/integer> "9.9"^^<http://www.w3.org/2001/XMLSchema#integer> .

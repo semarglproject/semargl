@@ -209,8 +209,8 @@
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0034-out.nq> .
 
 <http://json-ld.org/test-suite/tests/toRdf_0035> a test:PositiveParserTest ;
-    test:status "NEW" ;
-    test:description "Tests that generated triples do not depend on order of @language." ;
+    test:status "APPROVED" ;
+    test:description "xsd:double's canonical lexical is used when converting numbers without fraction that are coerced to xsd:double" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0035-out.nq> .
 
@@ -239,10 +239,452 @@
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0040-out.nq> .
 
 <http://json-ld.org/test-suite/tests/toRdf_0041> a test:PositiveParserTest ;
-    test:status "NEW" ;
-    test:description "Tests term redefinition." ;
+    test:status "APPROVED" ;
+    test:description "drop free-floating nodes" ;
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0041-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0041-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0042> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "basic" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0042-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0042-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0043> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "drop null and unmapped properties" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0043-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0043-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0044> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "optimize @set, keep empty arrays" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0044-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0044-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0045> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "do not expand aliased @id/@type" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0045-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0045-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0046> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "alias keywords" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0046-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0046-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0047> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "date type-coercion" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0047-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0047-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0048> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "@value with @language" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0048-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0048-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0049> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "@graph with terms" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0049-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0049-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0050> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "native types" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0050-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0050-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0051> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "coerced @id" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0051-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0051-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0052> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "@graph with embed" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0052-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0052-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0053> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "expand already expanded" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0053-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0053-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0054> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "@set of @value objects with keyword aliases" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0054-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0054-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0055> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "collapse set of sets, keep empty lists" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0055-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0055-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0056> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "context reset" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0056-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0056-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0057> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "@graph and @id aliased" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0057-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0057-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0058> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "override default @language in terms; only language-tag strings" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0058-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0058-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0059> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "remove @value = null" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0059-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0059-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0060> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "do not remove @graph if not at top-level" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0060-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0060-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0061> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "do not remove @graph at top-level if not only property" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0061-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0061-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0062> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "expand value with default language" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0062-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0062-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0063> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expanding lists and sets with properties having coercion coerces list/set values" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0063-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0063-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0064> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Multiple contexts" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0064-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0064-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0065> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Problematic IRI expansion tests" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0065-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0065-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0066> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expanding term mapping to @type uses @type syntax" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0066-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0066-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0067> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Keep duplicate values in @list and @set" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0067-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0067-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0068> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Use @vocab in properties and @type but not in @id" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0068-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0068-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0069> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Relative IRIs" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0069-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0069-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0070> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Language maps" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0070-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0070-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0071> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "type-coercion of native types" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0071-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0071-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0072> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Mapping a term to null decouples it from @vocab" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0072-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0072-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0073> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Using @vocab with with type-coercion" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0073-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0073-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0074> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Multiple properties expanding to the same IRI" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0074-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0074-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0075> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Using language maps with @vocab, a default language, and a colliding property" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0075-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0075-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0076> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expanding @index" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0076-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0076-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0077> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expanding @reverse" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0077-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0077-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0078> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Blank nodes are not relabeled during expansion." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0078-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0078-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0079> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Using terms in a reverse-maps" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0079-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0079-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0080> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Only invoke language and index map expansion if the value is a JSON object" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0080-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0080-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0081> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Reset the default language" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0081-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0081-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0082> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expanding reverse properties" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0082-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0082-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0083> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Using reverse properties inside a @reverse-container" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0083-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0083-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0084> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Ensure index maps use language mapping" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0084-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0084-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0085> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Top-level value objects are removed" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0085-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0085-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0086> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Free-floating nodes are removed" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0086-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0086-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0087> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Free-floating values in sets are removed, free-floating lists are removed completely" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0087-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0087-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0088> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Terms are ignored in @id" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0088-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0088-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0089> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Using strings as value of a reverse property" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0089-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0089-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0090> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Context definitions using compact IRIs don't inherit the definitions of the prefix" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0090-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0090-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0091> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expansion of keyword aliases in term definitions" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0091-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0091-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0092> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "@vocab-relative IRIs in term definitions" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0092-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0092-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0093> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand absolute IRI with @type: @vocab" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0093-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0093-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0094> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand term with @type: @vocab" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0094-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0094-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0095> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand @vocab-relative term with @type: @vocab" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0095-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0095-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0096> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Use terms with @type: @vocab but not with @type: @id" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0096-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0096-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0097> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand relative IRI with @type: @vocab" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0097-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0097-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0098> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand compact IRI with @type: @vocab" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0098-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0098-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0099> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Reset @vocab by setting it to null" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0099-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0099-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0100> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Overwrite document base with @base and reset it again" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0100-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0100-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0101> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Coercing native types to arbitrary datatypes" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0101-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0101-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0102> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Various relative IRIs with with @base" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0102-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0102-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0103> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand a reverse property with an index-container" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0103-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0103-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0104> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Expand reverse property whose values are unlabeled blank nodes" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0104-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0104-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0105> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Keys that are not mapped to an IRI in a reverse-map are dropped" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0105-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0105-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0106> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Use @vocab to expand keys in reverse-maps" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0106-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0106-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0107> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "prefix:suffix values are not interpreted as compact IRIs if suffix begins with two slashes" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0107-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0107-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0108> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "prefix:suffix values are not interpreted as compact IRIs if prefix is an underscore" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0108-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0108-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0109> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Redefine compact IRI to define type mapping using the compact IRI itself as value of @id" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0109-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0109-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0110> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Redefine compact IRI to define type mapping using the compact IRI itself as string value" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0110-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0110-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0111> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Redefine terms looking like compact IRIs" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0111-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0111-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0112> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Redefine term using @vocab, not itself" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0112-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0112-out.nq> .
+
+########################################################################################
+# other tests
+########################################################################################
+
+<http://json-ld.org/test-suite/tests/toRdf_1001_alt> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests that generated triples do not depend on order of @language." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-1001-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-1001-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_1002> a test:PositiveParserTest ;
+    test:status "NEW" ;
+    test:description "Tests term redefinition." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-1002-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-1002-out.nq> .
 
 ########################################################################################
 # normalize tests
