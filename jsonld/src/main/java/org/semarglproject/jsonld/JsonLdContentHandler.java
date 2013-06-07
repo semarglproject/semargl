@@ -187,8 +187,19 @@ final class JsonLdContentHandler {
     public void onNull() {
         if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.nullify();
-        } else {
-            currentContext.defineIriMappingForPredicate(null);
+        } else if (currentContext.parsingContext) {
+            EvalContext parentContext = contextStack.peek();
+            if (parentContext.parsingContext) {
+                if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
+                    parentContext.defineLangMappingForPredicate(JsonLd.NULL);
+                }
+            } else {
+                if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
+                    currentContext.lang = null;
+                } else {
+                    currentContext.defineIriMappingForPredicate(null);
+                }
+            }
         }
     }
 

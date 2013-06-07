@@ -258,13 +258,16 @@ final class EvalContext {
                     return;
                 }
             }
+            String resolvedLang = lang;
             if (JsonLd.LANGUAGE_KEY.equals(lang)) {
-                lang = this.lang;
+                resolvedLang = getLangMapping(predicate);
+                if (JsonLd.NULL.equals(resolvedLang)) {
+                    resolvedLang = null;
+                } else if (resolvedLang == null) {
+                    resolvedLang = this.lang;
+                }
             }
-            if (lang == null) {
-                lang = getLangMapping(predicate);
-            }
-            sink.addPlainLiteral(subject, resolve(predicate), object, lang, graph);
+            sink.addPlainLiteral(subject, resolve(predicate), object, resolvedLang, graph);
         } catch (MalformedIriException e) {
         }
     }

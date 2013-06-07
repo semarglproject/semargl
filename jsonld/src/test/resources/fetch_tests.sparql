@@ -14,7 +14,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 	# known bugs
 	filter (!regex(str(?test_case), "toRdf_0035"))
 	filter (!regex(str(?test_case), "toRdf_0048"))
-	filter (!regex(str(?test_case), "toRdf_0058"))
 	filter (!regex(str(?test_case), "toRdf_0059"))
 	filter (!regex(str(?test_case), "toRdf_0060"))
 	filter (!regex(str(?test_case), "toRdf_0061"))
@@ -22,8 +21,8 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0065"))
 	filter (!regex(str(?test_case), "toRdf_0068"))
 	filter (!regex(str(?test_case), "toRdf_0069"))
-	filter (!regex(str(?test_case), "toRdf_007[0-9]"))
-	filter (!regex(str(?test_case), "toRdf_0081"))
+	filter (!regex(str(?test_case), "toRdf_007[1-4]"))
+	filter (!regex(str(?test_case), "toRdf_007[6-9]"))
 	filter (!regex(str(?test_case), "toRdf_0083"))
 	filter (!regex(str(?test_case), "toRdf_0085"))
 	filter (!regex(str(?test_case), "toRdf_0088"))
@@ -33,6 +32,10 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_010[5-8]"))
 	filter (!regex(str(?test_case), "toRdf_0111"))
 	filter (!regex(str(?test_case), "toRdf_0112"))
+
+    # @container = @language is not supported yet
+	filter (!regex(str(?test_case), "toRdf_0070"))
+	filter (!regex(str(?test_case), "toRdf_0075"))
 
     # @set is not supported yet
 	filter (!regex(str(?test_case), "toRdf_0044"))

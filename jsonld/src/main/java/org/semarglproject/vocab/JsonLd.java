@@ -27,7 +27,9 @@ public final class JsonLd {
     public static final String REVERSE_KEY = "@reverse";
     public static final String LANGUAGE_KEY = "@language";
     public static final String VALUE_KEY = "@value";
+
     public static final String CONTAINER_LIST_KEY = "@container@list";
+    public static final String NULL = "@@null";
 
     private JsonLd() {
     }
