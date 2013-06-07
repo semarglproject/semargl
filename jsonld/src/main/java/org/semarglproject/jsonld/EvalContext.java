@@ -152,7 +152,7 @@ final class EvalContext {
                 subject = resolveCurieOrIri(subject, false);
             }
             if (graph != null) {
-                graph = resolve(graph);
+                graph = resolve(graph, false);
             }
         } catch (MalformedIriException e) {
             nonLiteralQueue.clear();
@@ -219,14 +219,15 @@ final class EvalContext {
                 return;
             }
             if (!object.startsWith(RDF.BNODE_PREFIX)) {
-                object = resolve(object);
+                object = resolve(object, false);
             }
             boolean reversed = dtMappings.containsKey(predicate)
                     && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
+            String resolvedPredicate = resolve(predicate, true);
             if (reversed) {
-                sink.addNonLiteral(object, resolve(predicate), subject, graph);
+                sink.addNonLiteral(object, resolvedPredicate, subject, graph);
             } else {
-                sink.addNonLiteral(subject, resolve(predicate), object, graph);
+                sink.addNonLiteral(subject, resolvedPredicate, object, graph);
             }
         } catch (MalformedIriException e) {
         }
@@ -264,7 +265,7 @@ final class EvalContext {
                     resolvedLang = this.lang;
                 }
             }
-            sink.addPlainLiteral(subject, resolve(predicate), object, resolvedLang, graph);
+            sink.addPlainLiteral(subject, resolve(predicate, true), object, resolvedLang, graph);
         } catch (MalformedIriException e) {
         }
     }
@@ -281,12 +282,12 @@ final class EvalContext {
 
     private void addTypedLiteralUnsafe(String predicate, String object, String dt) {
         try {
-            sink.addTypedLiteral(subject, resolve(predicate), object, resolve(dt), graph);
+            sink.addTypedLiteral(subject, resolve(predicate, true), object, resolve(dt, true), graph);
         } catch (MalformedIriException e) {
         }
     }
 
-    private String resolve(String value) throws MalformedIriException {
+    private String resolve(String value, boolean ignoreRelIri) throws MalformedIriException {
         if (value == null || value.isEmpty()) {
             throw new MalformedIriException("Empty predicate or datatype found");
         }
@@ -297,7 +298,7 @@ final class EvalContext {
             }
         } catch (MalformedIriException e) {
         }
-        return resolveCurieOrIri(value, true);
+        return resolveCurieOrIri(value, ignoreRelIri);
     }
 
     String resolveMapping(String value) throws MalformedIriException {

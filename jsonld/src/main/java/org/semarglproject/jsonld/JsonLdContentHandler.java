@@ -24,8 +24,11 @@ import org.semarglproject.vocab.XSD;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.regex.Pattern;
 
 final class JsonLdContentHandler {
+
+    private static final Pattern TERM_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+", Pattern.DOTALL);
 
     private Deque<EvalContext> contextStack = new LinkedList<EvalContext>();
     private final DocumentContext dh = new DocumentContext();
@@ -157,7 +160,12 @@ final class JsonLdContentHandler {
             } else if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                 currentContext.lang = value;
             } else if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
-                currentContext.subject = value;
+                if (TERM_PATTERN.matcher(value).matches()) {
+                    // force terms to be not considered in @id
+                    currentContext.subject = "./" + value;
+                } else {
+                    currentContext.subject = value;
+                }
                 currentContext.updateState(EvalContext.ID_DECLARED);
             } else if (JsonLd.VALUE_KEY.equals(currentContext.predicate)) {
                 currentContext.objectLit = value;
