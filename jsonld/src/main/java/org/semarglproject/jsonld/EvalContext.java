@@ -265,7 +265,13 @@ final class EvalContext {
                     resolvedLang = this.lang;
                 }
             }
-            sink.addPlainLiteral(subject, resolve(predicate, true), object, resolvedLang, graph);
+            boolean reversed = dtMappings.containsKey(predicate)
+                    && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
+            if (reversed) {
+                sink.addNonLiteral(object, resolve(predicate, true), subject, graph);
+            } else {
+                sink.addPlainLiteral(subject, resolve(predicate, true), object, resolvedLang, graph);
+            }
         } catch (MalformedIriException e) {
         }
     }
@@ -282,7 +288,13 @@ final class EvalContext {
 
     private void addTypedLiteralUnsafe(String predicate, String object, String dt) {
         try {
-            sink.addTypedLiteral(subject, resolve(predicate, true), object, resolve(dt, true), graph);
+            boolean reversed = dtMappings.containsKey(predicate)
+                    && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
+            if (reversed) {
+                sink.addNonLiteral(object, resolve(predicate, true), subject, graph);
+            } else {
+                sink.addTypedLiteral(subject, resolve(predicate, true), object, resolve(dt, true), graph);
+            }
         } catch (MalformedIriException e) {
         }
     }
