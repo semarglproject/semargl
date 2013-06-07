@@ -106,7 +106,7 @@ final class JsonLdContentHandler {
     public void onKey(String key) {
         try {
             String mapping = currentContext.resolveMapping(key);
-            if (mapping.charAt(0) == '@') {
+            if (mapping != null && mapping.charAt(0) == '@') {
                 currentContext.predicate = mapping;
             } else {
                 currentContext.predicate = key;
