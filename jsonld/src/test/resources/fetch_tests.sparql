@@ -18,7 +18,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0060"))
 	filter (!regex(str(?test_case), "toRdf_0061"))
 	filter (!regex(str(?test_case), "toRdf_0064"))
-	filter (!regex(str(?test_case), "toRdf_0065"))
 	filter (!regex(str(?test_case), "toRdf_0068"))
 	filter (!regex(str(?test_case), "toRdf_0069"))
 	filter (!regex(str(?test_case), "toRdf_007[1-4]"))

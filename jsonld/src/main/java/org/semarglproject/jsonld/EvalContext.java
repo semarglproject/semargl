@@ -28,11 +28,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 final class EvalContext {
-
-    private static final Pattern TERM_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+", Pattern.DOTALL);
 
     static final int ID_DECLARED = 1;
     static final int CONTEXT_DECLARED = 2;
@@ -293,8 +290,12 @@ final class EvalContext {
         if (value == null || value.isEmpty()) {
             throw new MalformedIriException("Empty predicate or datatype found");
         }
-        if (TERM_PATTERN.matcher(value).matches()) {
-            return resolveCurieOrIri(resolveMapping(value), false);
+        try {
+            String mapping = resolveMapping(value);
+            if (mapping != null && mapping.charAt(0) != '@') {
+                return resolveCurieOrIri(mapping, false);
+            }
+        } catch (MalformedIriException e) {
         }
         return resolveCurieOrIri(value, true);
     }
