@@ -55,7 +55,9 @@ final class JsonLdContentHandler {
             if (currentContext.objectLitDt != null) {
                 currentContext.parent.addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
             } else {
-                currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
+                if (!JsonLd.NULL.equals(currentContext.objectLit)) {
+                    currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
+                }
             }
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
             currentContext.updateState(EvalContext.PARENT_SAFE);
@@ -65,7 +67,8 @@ final class JsonLdContentHandler {
                 // TODO: check for property reordering issues
                 addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate),
                         currentContext.parent.base);
-                currentContext.parent.addNonLiteral(currentContext.parent.predicate, currentContext.subject, currentContext.base);
+                currentContext.parent.addNonLiteral(currentContext.parent.predicate,
+                        currentContext.subject, currentContext.base);
             }
         }
         if (currentContext.isParsingContext()) {
@@ -190,6 +193,8 @@ final class JsonLdContentHandler {
     public void onNull() {
         if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.nullify();
+        } else if (JsonLd.VALUE_KEY.equals(currentContext.predicate)) {
+            currentContext.objectLit = JsonLd.NULL;
         } else if (currentContext.isParsingContext()) {
             EvalContext parentContext = currentContext.parent;
             if (parentContext.isParsingContext()) {

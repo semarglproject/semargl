@@ -14,7 +14,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 	# known bugs
 	filter (!regex(str(?test_case), "toRdf_0035"))
 	filter (!regex(str(?test_case), "toRdf_0048"))
-	filter (!regex(str(?test_case), "toRdf_0059"))
 	filter (!regex(str(?test_case), "toRdf_0060"))
 	filter (!regex(str(?test_case), "toRdf_0061"))
 	filter (!regex(str(?test_case), "toRdf_0068"))
