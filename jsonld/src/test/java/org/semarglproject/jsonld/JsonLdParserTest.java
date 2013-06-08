@@ -17,6 +17,8 @@
 package org.semarglproject.jsonld;
 
 import org.apache.commons.io.IOUtils;
+import org.openrdf.model.Model;
+import org.openrdf.model.util.ModelUtil;
 import org.semarglproject.rdf.NQuadsSerializer;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.sink.CharOutputSink;
@@ -40,7 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 public class JsonLdParserTest {
@@ -84,7 +86,7 @@ public class JsonLdParserTest {
     }
 
     @Test(dataProvider = "getTestSuite")
-    public void runWithNQuadsSink(TestCase testCase) {
+    public void runWithNQuadsSink(TestCase testCase) throws IOException {
         runTest(testCase, new SaveToFileCallback() {
             @Override
             public void run(Reader input, String inputUri, Writer output) throws ParseException {
@@ -94,7 +96,7 @@ public class JsonLdParserTest {
         });
     }
 
-    public void runTest(TestCase testCase, SaveToFileCallback callback) {
+    public void runTest(TestCase testCase, SaveToFileCallback callback) throws IOException {
         String resultFilePath = sth.getOutputPath(testCase.input, "nq");
         new File(resultFilePath).getParentFile().mkdirs();
 
@@ -113,8 +115,13 @@ public class JsonLdParserTest {
             e.printStackTrace();
             fail();
         }
-        assertTrue(sth.areModelsEqual(resultFilePath, testCase.result, testCase.input),
-                String.format("%s (%s) failed", testCase.name, testCase.descr));
+        Model result = sth.createModelFromFile(resultFilePath, testCase.input);
+        Model expected = sth.createModelFromFile(testCase.result, testCase.input);
+        boolean equals = ModelUtil.equals(result, expected);
+        if (!equals) {
+            assertEquals(sth.diff(result, expected), sth.diff(expected, result), testCase.descr);
+        }
+//        assertEquals(ra, ea, String.format("%s (%s) failed", testCase.name, testCase.descr));
     }
 
     public interface SaveToFileCallback {

@@ -16,6 +16,7 @@
 
 package org.semarglproject.test;
 
+import info.aduna.iteration.Iterations;
 import org.apache.commons.io.FileUtils;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Model;
@@ -38,8 +39,6 @@ import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.sail.memory.MemoryStore;
 
-import info.aduna.iteration.Iterations;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,7 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +69,7 @@ public class SesameTestHelper {
 
     public static RDFFormat detectFileFormat(String filename) {
         RDFFormat result = Rio.getParserFormatForFileName(filename);
-        if(result == null) {
+        if (result == null) {
             throw new IllegalArgumentException("Unknown file format");
         }
         return result;
@@ -124,7 +123,7 @@ public class SesameTestHelper {
     }
 
     public <E> List<E> getTestCases(final String manifestUri, String queryStr, final Class<E> template) {
-        Repository repository =  new SailRepository(new MemoryStore());
+        Repository repository = new SailRepository(new MemoryStore());
         final List<E> testCases = new ArrayList<E>();
         try {
             repository.initialize();
@@ -134,9 +133,8 @@ public class SesameTestHelper {
             final TupleQueryResult queryResults = query.evaluate();
             final QueryResultCollector collector = new QueryResultCollector();
             QueryResults.report(queryResults, collector);
-            
-            for(BindingSet bindingSet : collector.getBindingSets())
-            {
+
+            for (BindingSet bindingSet : collector.getBindingSets()) {
                 Object testCase = template.newInstance();
                 for (String fieldName : bindingSet.getBindingNames()) {
                     try {
@@ -163,8 +161,24 @@ public class SesameTestHelper {
         }
     }
 
+    public String diff(Model model1, Model model2) {
+        StringBuilder result = new StringBuilder();
+        Model delta = new LinkedHashModel(model1);
+        delta.removeAll(model2);
+        String[] lines = new String[delta.size()];
+        int i = 0;
+        for (Statement s : delta) {
+            lines[i++] = s.toString();
+        }
+        Arrays.sort(lines);
+        for (String s : lines) {
+            result.append("\n").append(s);
+        }
+        return result.toString();
+    }
+
     public boolean askModel(String resultFilePath, String queryStr, String inputUri, boolean expectedResult) {
-        Repository repository =  new SailRepository(new MemoryStore());
+        Repository repository = new SailRepository(new MemoryStore());
         RepositoryConnection conn = null;
         try {
             repository.initialize();
@@ -176,29 +190,28 @@ public class SesameTestHelper {
                     inputUri, SesameTestHelper.detectFileFormat(resultFilePath));
             BooleanQuery query = repository.getConnection().prepareBooleanQuery(QueryLanguage.SPARQL, queryStr, inputUri);
             boolean result = query.evaluate();
-            
-            if(result != expectedResult) {
+
+            if (result != expectedResult) {
                 System.err.println("Test failed for: " + inputUri);
-                System.err.println("Expected ["+expectedResult+"] but found ["+result+"]");
-                System.err.println("Query: "+queryStr);
+                System.err.println("Expected [" + expectedResult + "] but found [" + result + "]");
+                System.err.println("Query: " + queryStr);
                 System.err.println("Statements");
                 System.err.println("===============================");
-                for(Statement nextStatement : Iterations.asSet(conn.getStatements(null, null, null, true))) {
+                for (Statement nextStatement : Iterations.asSet(conn.getStatements(null, null, null, true))) {
                     System.err.println(nextStatement);
                 }
                 System.err.println("===============================");
             }
-            
+
             return result;
         } catch (Exception e) {
             e.printStackTrace();
             return !expectedResult;
-        }
-        finally {
-            if(conn != null) {
+        } finally {
+            if (conn != null) {
                 try {
                     conn.close();
-                } catch(RepositoryException e) {
+                } catch (RepositoryException e) {
                     e.printStackTrace();
                 }
             }
