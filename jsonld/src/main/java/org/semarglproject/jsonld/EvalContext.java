@@ -46,7 +46,7 @@ final class EvalContext {
     boolean parsingArray;
     boolean nullified;
 
-    private EvalContext parent;
+    EvalContext parent;
     private int state;
 
     private final QuadSink sink;

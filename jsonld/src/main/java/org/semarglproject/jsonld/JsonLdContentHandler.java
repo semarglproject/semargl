@@ -58,9 +58,9 @@ final class JsonLdContentHandler {
     public void onObjectEnd() {
         if (currentContext.objectLit != null) {
             if (currentContext.objectLitDt != null) {
-                contextStack.peek().addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
+                currentContext.parent.addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
             } else {
-                contextStack.peek().addPlainLiteral(currentContext.objectLit, currentContext.lang);
+                currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
             }
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
             currentContext.updateState(EvalContext.PARENT_SAFE);
@@ -68,12 +68,12 @@ final class JsonLdContentHandler {
             addSubjectTypeDefinition(currentContext.objectLitDt);
             if (contextStack.size() > 1) {
                 // TODO: check for property reordering issues
-                addSubjectTypeDefinition(contextStack.peek().getDtMapping(contextStack.peek().predicate));
-                contextStack.peek().addNonLiteral(contextStack.peek().predicate, currentContext.subject);
+                addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate));
+                currentContext.parent.addNonLiteral(currentContext.parent.predicate, currentContext.subject);
             }
         }
         if (currentContext.isParsingContext()) {
-            contextStack.peek().processContext(currentContext);
+            currentContext.parent.processContext(currentContext);
         }
         currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
         currentContext = contextStack.pop();
@@ -92,7 +92,7 @@ final class JsonLdContentHandler {
                 currentContext.subject = RDF.NIL;
             }
             // TODO: check for property reordering issues
-            String dt = contextStack.peek().getDtMapping(contextStack.peek().predicate);
+            String dt = currentContext.parent.getDtMapping(currentContext.parent.predicate);
             if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
                 onObjectEnd();
             }
@@ -114,7 +114,7 @@ final class JsonLdContentHandler {
 
     public void onString(String value) {
         if (currentContext.isParsingContext()) {
-            EvalContext parentContext = contextStack.peek();
+            EvalContext parentContext = currentContext.parent;
             if (parentContext.isParsingContext()) {
                 if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
                     parentContext.defineIriMappingForPredicate(value);
@@ -192,7 +192,7 @@ final class JsonLdContentHandler {
         if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.nullify();
         } else if (currentContext.isParsingContext()) {
-            EvalContext parentContext = contextStack.peek();
+            EvalContext parentContext = currentContext.parent;
             if (parentContext.isParsingContext()) {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineLangMappingForPredicate(JsonLd.NULL);
