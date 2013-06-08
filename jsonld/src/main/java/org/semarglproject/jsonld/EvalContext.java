@@ -74,11 +74,14 @@ final class EvalContext {
         return initialContext;
     }
 
-    EvalContext initChildContext() {
+    EvalContext initChildContext(String graph) {
         EvalContext child = new EvalContext(documentContext, sink, this);
         child.lang = this.lang;
         child.subject = documentContext.createBnode(false);
         children.add(child);
+        if (graph != null && !graph.startsWith(RDF.BNODE_PREFIX)) {
+            child.graph = graph;
+        }
         return child;
     }
 

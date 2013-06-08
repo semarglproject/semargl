@@ -39,19 +39,14 @@ final class JsonLdContentHandler {
     }
 
     public void onObjectStart() {
+        String graph = null;
         if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)) {
-            String graph = currentContext.subject;
-            contextStack.push(currentContext);
-            currentContext = currentContext.initChildContext();
-            if (graph != null && !graph.startsWith(RDF.BNODE_PREFIX)) {
-                currentContext.graph = graph;
-            }
-        } else {
-            contextStack.push(currentContext);
-            currentContext = currentContext.initChildContext();
-            if (contextStack.size() == 1) {
-                currentContext.updateState(EvalContext.PARENT_SAFE);
-            }
+            graph = currentContext.subject;
+        }
+        contextStack.push(currentContext);
+        currentContext = currentContext.initChildContext(graph);
+        if (contextStack.size() == 1) {
+            currentContext.updateState(EvalContext.PARENT_SAFE);
         }
     }
 
