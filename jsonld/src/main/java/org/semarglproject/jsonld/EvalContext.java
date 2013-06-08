@@ -36,6 +36,7 @@ final class EvalContext {
     static final int PARENT_SAFE = 4;
     static final int SAFE_TO_SINK_TRIPLES = ID_DECLARED | CONTEXT_DECLARED | PARENT_SAFE;
 
+    String base;
     String graph;
     String subject;
     String predicate;
@@ -69,7 +70,8 @@ final class EvalContext {
 
     static EvalContext createInitialContext(DocumentContext documentContext, QuadSink sink) {
         EvalContext initialContext = new EvalContext(documentContext, sink, null);
-        initialContext.subject = documentContext.base;
+        initialContext.base = JsonLd.DOC_IRI;
+        initialContext.subject = ".";
         initialContext.state = SAFE_TO_SINK_TRIPLES;
         return initialContext;
     }
@@ -91,6 +93,7 @@ final class EvalContext {
         langMappings.clear();
         lang = null;
         nullified = true;
+        base = documentContext.iri;
     }
 
     boolean isPredicateKeyword() {
@@ -135,6 +138,16 @@ final class EvalContext {
         return null;
     }
 
+    private String getBase() {
+        if (base != null) {
+            return base;
+        }
+        if (!nullified && parent != null) {
+            return parent.getBase();
+        }
+        return null;
+    }
+
     void updateState(int state) {
         this.state |= state;
         if (this.state == SAFE_TO_SINK_TRIPLES) {
@@ -161,7 +174,7 @@ final class EvalContext {
             typedLiteralQueue.clear();
         }
         while (!nonLiteralQueue.isEmpty()) {
-            addNonLiteralUnsafe(nonLiteralQueue.poll(), nonLiteralQueue.poll());
+            addNonLiteralUnsafe(nonLiteralQueue.poll(), nonLiteralQueue.poll(), nonLiteralQueue.poll());
         }
         while (!plainLiteralQueue.isEmpty()) {
             addPlainLiteralUnsafe(plainLiteralQueue.poll(), plainLiteralQueue.poll(), plainLiteralQueue.poll());
@@ -171,7 +184,6 @@ final class EvalContext {
         }
         if (parent != null) {
             parent.children.remove(this);
-            parent = null;
         }
     }
 
@@ -194,10 +206,11 @@ final class EvalContext {
     public void addListRest(String object) {
         if (listTail.equals(subject)) {
             if (state == SAFE_TO_SINK_TRIPLES) {
-                addNonLiteralUnsafe(RDF.REST, object);
+                addNonLiteralUnsafe(RDF.REST, object, null);
             } else {
                 nonLiteralQueue.offer(RDF.REST);
                 nonLiteralQueue.offer(object);
+                nonLiteralQueue.offer(null);
             }
         } else {
             sink.addNonLiteral(listTail, RDF.REST, object, graph);
@@ -205,22 +218,28 @@ final class EvalContext {
         listTail = object;
     }
 
-    void addNonLiteral(String predicate, String object) {
+    void addNonLiteral(String predicate, String object, String base) {
         if (state == SAFE_TO_SINK_TRIPLES) {
-            addNonLiteralUnsafe(predicate, object);
+            addNonLiteralUnsafe(predicate, object, base);
         } else {
             nonLiteralQueue.offer(predicate);
             nonLiteralQueue.offer(object);
+            nonLiteralQueue.offer(base);
         }
     }
 
-    private void addNonLiteralUnsafe(String predicate, String object) {
+    private void addNonLiteralUnsafe(String predicate, String object, String base) {
         try {
             if (object == null) {
                 return;
             }
             if (!object.startsWith(RDF.BNODE_PREFIX)) {
+                String oldBase = this.base;
+                if (base != null) {
+                    this.base = base;
+                }
                 object = resolve(object, false);
+                this.base = oldBase;
             }
             boolean reversed = dtMappings.containsKey(predicate)
                     && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
@@ -250,7 +269,7 @@ final class EvalContext {
             String dt = getDtMapping(predicate);
             if (dt != null) {
                 if (JsonLd.ID_KEY.equals(dt)) {
-                    addNonLiteralUnsafe(predicate, object);
+                    addNonLiteralUnsafe(predicate, object, null);
                     return;
                 } else if (!dt.startsWith("@")) {
                     addTypedLiteralUnsafe(predicate, object, dt);
@@ -326,7 +345,7 @@ final class EvalContext {
 
     private String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIriException {
         if (!ignoreRelIri && (curie == null || curie.isEmpty())) {
-            return documentContext.resolveIri(curie);
+            return resolveIri(curie);
         }
 
         int delimPos = curie.indexOf(':');
@@ -334,7 +353,7 @@ final class EvalContext {
             if (ignoreRelIri) {
                 throw new MalformedCurieException("CURIE with no prefix (" + curie + ") found");
             }
-            return documentContext.resolveIri(curie);
+            return resolveIri(curie);
         }
 
         String prefix = curie.substring(0, delimPos);
@@ -357,6 +376,15 @@ final class EvalContext {
         throw new MalformedIriException("Malformed IRI: " + curie);
     }
 
+    private String resolveIri(String iri) throws MalformedIriException {
+        String base = getBase();
+        if (JsonLd.DOC_IRI.equals(base)) {
+            return RIUtils.resolveIri(documentContext.iri, iri);
+        } else {
+            return RIUtils.resolveIri(base, iri);
+        }
+    }
+
     public boolean isParsingContext() {
         return parent != null && (JsonLd.CONTEXT_KEY.equals(parent.predicate)
                 || parent.parent != null && JsonLd.CONTEXT_KEY.equals(parent.parent.predicate));
@@ -367,6 +395,7 @@ final class EvalContext {
         dtMappings.putAll(context.dtMappings);
         langMappings.putAll(context.langMappings);
         lang = context.lang;
+        base = context.base;
         updateState(CONTEXT_DECLARED);
         children.remove(context);
     }

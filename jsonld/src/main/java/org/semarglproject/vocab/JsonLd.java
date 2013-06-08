@@ -18,6 +18,7 @@ package org.semarglproject.vocab;
 
 public final class JsonLd {
 
+    public static final String BASE_KEY = "@base";
     public static final String CONTEXT_KEY = "@context";
     public static final String GRAPH_KEY = "@graph";
     public static final String LIST_KEY = "@list";
@@ -30,6 +31,7 @@ public final class JsonLd {
 
     public static final String CONTAINER_LIST_KEY = "@container@list";
     public static final String NULL = "@@null";
+    public static final String DOC_IRI = "@@dociri";
 
     private JsonLd() {
     }

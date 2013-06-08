@@ -60,11 +60,12 @@ final class JsonLdContentHandler {
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
             currentContext.updateState(EvalContext.PARENT_SAFE);
         } else if (!currentContext.isParsingContext()) {
-            addSubjectTypeDefinition(currentContext.objectLitDt);
+            addSubjectTypeDefinition(currentContext.objectLitDt, currentContext.base);
             if (contextStack.size() > 1) {
                 // TODO: check for property reordering issues
-                addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate));
-                currentContext.parent.addNonLiteral(currentContext.parent.predicate, currentContext.subject);
+                addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate),
+                        currentContext.parent.base);
+                currentContext.parent.addNonLiteral(currentContext.parent.predicate, currentContext.subject, currentContext.base);
             }
         }
         if (currentContext.isParsingContext()) {
@@ -127,6 +128,9 @@ final class JsonLdContentHandler {
             } else if (!currentContext.isPredicateKeyword()) {
                 currentContext.defineIriMappingForPredicate(value);
                 return;
+            } else if (JsonLd.BASE_KEY.equals(currentContext.predicate)) {
+                currentContext.base = value;
+                return;
             }
         } else if (!currentContext.isPredicateKeyword() && currentContext.predicate != null) {
             // TODO: check for property reordering issues
@@ -144,7 +148,7 @@ final class JsonLdContentHandler {
         if (currentContext.isPredicateKeyword()) {
             if (JsonLd.TYPE_KEY.equals(currentContext.predicate)) {
                 if (currentContext.parsingArray) {
-                    addSubjectTypeDefinition(value);
+                    addSubjectTypeDefinition(value, currentContext.base);
                 } else {
                     currentContext.objectLitDt = value;
                 }
@@ -172,11 +176,11 @@ final class JsonLdContentHandler {
         }
     }
 
-    private void addSubjectTypeDefinition(String dt) {
+    private void addSubjectTypeDefinition(String dt, String base) {
         if (dt == null || dt.charAt(0) == '@') {
             return;
         }
-        currentContext.addNonLiteral(RDF.TYPE, dt);
+        currentContext.addNonLiteral(RDF.TYPE, dt, base);
     }
 
     public void onBoolean(boolean value) {
@@ -195,6 +199,8 @@ final class JsonLdContentHandler {
             } else {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     currentContext.lang = null;
+                } else if (JsonLd.BASE_KEY.equals(currentContext.predicate)) {
+                    currentContext.base = JsonLd.DOC_IRI;
                 } else {
                     currentContext.defineIriMappingForPredicate(null);
                 }
@@ -217,6 +223,6 @@ final class JsonLdContentHandler {
     }
 
     public void setBaseUri(String baseUri) {
-        dh.base = baseUri;
+        dh.iri = baseUri;
     }
 }

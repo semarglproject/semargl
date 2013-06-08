@@ -16,8 +16,6 @@
 
 package org.semarglproject.jsonld;
 
-import org.semarglproject.ri.MalformedIriException;
-import org.semarglproject.ri.RIUtils;
 import org.semarglproject.vocab.RDF;
 
 import java.util.HashMap;
@@ -25,7 +23,7 @@ import java.util.Map;
 
 final class DocumentContext {
 
-    String base;
+    String iri;
 
     private Map<String, String> bnodeMapping = new HashMap<String, String>();
     private int nextBnodeId;
@@ -58,13 +56,9 @@ final class DocumentContext {
         return RDF.BNODE_PREFIX + 'n' + nextBnodeId++;
     }
 
-    String resolveIri(String iri) throws MalformedIriException {
-        return RIUtils.resolveIri(base, iri);
-    }
-
     void clear() {
         bnodeMapping.clear();
-        base = null;
+        iri = null;
     }
 
 }
