@@ -43,7 +43,6 @@ final class EvalContext {
     String objectLit;
     String objectLitDt;
     String listTail;
-    boolean parsingContext;
     boolean parsingArray;
     boolean nullified;
 
@@ -77,7 +76,6 @@ final class EvalContext {
 
     EvalContext initChildContext() {
         EvalContext child = new EvalContext(documentContext, sink, this);
-        child.parsingContext = this.parsingContext;
         child.lang = this.lang;
         child.subject = documentContext.createBnode(false);
         children.add(child);
@@ -356,4 +354,17 @@ final class EvalContext {
         throw new MalformedIriException("Malformed IRI: " + curie);
     }
 
+    public boolean isParsingContext() {
+        return parent != null && (JsonLd.CONTEXT_KEY.equals(parent.predicate)
+                || parent.parent != null && JsonLd.CONTEXT_KEY.equals(parent.parent.predicate));
+    }
+
+    public void processContext(EvalContext context) {
+        iriMappings.putAll(context.iriMappings);
+        dtMappings.putAll(context.dtMappings);
+        langMappings.putAll(context.langMappings);
+        lang = context.lang;
+        updateState(CONTEXT_DECLARED);
+        children.remove(context);
+    }
 }

@@ -39,9 +39,7 @@ final class JsonLdContentHandler {
     }
 
     public void onObjectStart() {
-        if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
-            currentContext.parsingContext = true;
-        } else if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)) {
+        if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)) {
             String graph = currentContext.subject;
             contextStack.push(currentContext);
             currentContext = currentContext.initChildContext();
@@ -66,7 +64,7 @@ final class JsonLdContentHandler {
             }
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
             currentContext.updateState(EvalContext.PARENT_SAFE);
-        } else if (!currentContext.parsingContext) {
+        } else if (!currentContext.isParsingContext()) {
             addSubjectTypeDefinition(currentContext.objectLitDt);
             if (contextStack.size() > 1) {
                 // TODO: check for property reordering issues
@@ -74,13 +72,11 @@ final class JsonLdContentHandler {
                 contextStack.peek().addNonLiteral(contextStack.peek().predicate, currentContext.subject);
             }
         }
-        if (currentContext.parsingContext && !contextStack.peek().parsingContext) {
-            currentContext.updateState(EvalContext.CONTEXT_DECLARED);
-            currentContext.parsingContext = false;
-        } else {
-            currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
-            currentContext = contextStack.pop();
+        if (currentContext.isParsingContext()) {
+            contextStack.peek().processContext(currentContext);
         }
+        currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
+        currentContext = contextStack.pop();
     }
 
     public void onArrayStart() {
@@ -117,9 +113,9 @@ final class JsonLdContentHandler {
     }
 
     public void onString(String value) {
-        if (currentContext.parsingContext) {
+        if (currentContext.isParsingContext()) {
             EvalContext parentContext = contextStack.peek();
-            if (parentContext.parsingContext) {
+            if (parentContext.isParsingContext()) {
                 if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
                     parentContext.defineIriMappingForPredicate(value);
                 } else if (JsonLd.TYPE_KEY.equals(currentContext.predicate)) {
@@ -195,9 +191,9 @@ final class JsonLdContentHandler {
     public void onNull() {
         if (JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.nullify();
-        } else if (currentContext.parsingContext) {
+        } else if (currentContext.isParsingContext()) {
             EvalContext parentContext = contextStack.peek();
-            if (parentContext.parsingContext) {
+            if (parentContext.isParsingContext()) {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineLangMappingForPredicate(JsonLd.NULL);
                 }
