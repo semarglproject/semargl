@@ -17,7 +17,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0059"))
 	filter (!regex(str(?test_case), "toRdf_0060"))
 	filter (!regex(str(?test_case), "toRdf_0061"))
-	filter (!regex(str(?test_case), "toRdf_0064"))
 	filter (!regex(str(?test_case), "toRdf_0068"))
 	filter (!regex(str(?test_case), "toRdf_0069"))
 	filter (!regex(str(?test_case), "toRdf_007[1-4]"))
@@ -28,7 +27,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0101"))
 	filter (!regex(str(?test_case), "toRdf_0102"))
 	filter (!regex(str(?test_case), "toRdf_010[5-8]"))
-	filter (!regex(str(?test_case), "toRdf_0111"))
 	filter (!regex(str(?test_case), "toRdf_0112"))
 
     # @container = @language is not supported yet
