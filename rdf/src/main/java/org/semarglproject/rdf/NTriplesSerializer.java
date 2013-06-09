@@ -124,7 +124,7 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
 
     protected void startTriple(String subj, String pred) throws ParseException {
         serializeBnodeOrUri(subj);
-        serializeUri(pred);
+        serializeBnodeOrUri(pred);
     }
 
     protected void serializeBnodeOrUri(String value) throws ParseException {
