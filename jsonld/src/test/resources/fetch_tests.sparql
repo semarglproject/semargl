@@ -23,17 +23,15 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0077"))
 	filter (!regex(str(?test_case), "toRdf_0078"))
 	filter (!regex(str(?test_case), "toRdf_0083"))
-	filter (!regex(str(?test_case), "toRdf_0092"))
-	filter (!regex(str(?test_case), "toRdf_0099"))
 	filter (!regex(str(?test_case), "toRdf_0101"))
 	filter (!regex(str(?test_case), "toRdf_0102"))
 	filter (!regex(str(?test_case), "toRdf_0105"))
-	filter (!regex(str(?test_case), "toRdf_0106"))
 	filter (!regex(str(?test_case), "toRdf_0108"))
-	filter (!regex(str(?test_case), "toRdf_0112"))
 
-    # @type = @vocab is not supported yet
-	filter (!regex(str(?test_case), "toRdf_009[3-8]"))
+    # @vocab is not supported yet
+	filter (!regex(str(?test_case), "toRdf_009[2-9]"))
+	filter (!regex(str(?test_case), "toRdf_0106"))
+	filter (!regex(str(?test_case), "toRdf_0112"))
 
     # @container = @language is not supported yet
 	filter (!regex(str(?test_case), "toRdf_0070"))
