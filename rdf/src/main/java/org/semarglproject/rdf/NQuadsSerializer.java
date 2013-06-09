@@ -17,7 +17,6 @@ package org.semarglproject.rdf;
 
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.QuadSink;
-import org.semarglproject.vocab.RDF;
 
 /**
  * Implementation of {@link org.semarglproject.sink.TripleSink} which serializes triples to
@@ -42,13 +41,9 @@ public class NQuadsSerializer extends NTriplesSerializer implements QuadSink {
     public void addNonLiteral(String subj, String pred, String obj, String graph) {
         try {
             startTriple(subj, pred);
-            if (obj.startsWith(RDF.BNODE_PREFIX)) {
-                sink.process(obj).process(SPACE);
-            } else {
-                serializeUri(obj);
-            }
+            serializeBnodeOrUri(obj);
             if (graph != null) {
-                serializeUri(graph);
+                serializeBnodeOrUri(graph);
             }
             sink.process(DOT_EOL);
         } catch (ParseException e) {
@@ -66,7 +61,7 @@ public class NQuadsSerializer extends NTriplesSerializer implements QuadSink {
             }
             sink.process(SPACE);
             if (graph != null) {
-                serializeUri(graph);
+                serializeBnodeOrUri(graph);
             }
             sink.process(DOT_EOL);
         } catch (ParseException e) {
@@ -82,7 +77,7 @@ public class NQuadsSerializer extends NTriplesSerializer implements QuadSink {
             sink.process("^^");
             serializeUri(type);
             if (graph != null) {
-                serializeUri(graph);
+                serializeBnodeOrUri(graph);
             }
             sink.process(DOT_EOL);
         } catch (ParseException e) {

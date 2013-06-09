@@ -78,11 +78,7 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
     public void addNonLiteral(String subj, String pred, String obj) {
         try {
             startTriple(subj, pred);
-            if (obj.startsWith(RDF.BNODE_PREFIX)) {
-                sink.process(obj).process(SPACE);
-            } else {
-                serializeUri(obj);
-            }
+            serializeBnodeOrUri(obj);
             sink.process(DOT_EOL);
         } catch (ParseException e) {
             // ignore
@@ -127,12 +123,16 @@ public class NTriplesSerializer extends Pipe<CharSink> implements TripleSink {
     }
 
     protected void startTriple(String subj, String pred) throws ParseException {
-        if (subj.startsWith(RDF.BNODE_PREFIX)) {
-            sink.process(subj).process(SPACE);
-        } else {
-            serializeUri(subj);
-        }
+        serializeBnodeOrUri(subj);
         serializeUri(pred);
+    }
+
+    protected void serializeBnodeOrUri(String value) throws ParseException {
+        if (value.startsWith(RDF.BNODE_PREFIX)) {
+            sink.process(value).process(SPACE);
+        } else {
+            serializeUri(value);
+        }
     }
 
     protected void serializeUri(String uri) throws ParseException {
