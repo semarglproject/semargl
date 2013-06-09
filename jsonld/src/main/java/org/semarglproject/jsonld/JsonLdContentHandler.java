@@ -57,11 +57,14 @@ final class JsonLdContentHandler {
 
     public void onObjectEnd() {
         if (currentContext.objectLit != null) {
-            if (currentContext.objectLitDt != null) {
-                currentContext.parent.addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
-            } else {
-                if (!JsonLd.NULL.equals(currentContext.objectLit)) {
-                    currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
+            // ignore floating values
+            if (contextStack.size() > 1) {
+                if (currentContext.objectLitDt != null) {
+                    currentContext.parent.addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
+                } else {
+                    if (!JsonLd.NULL.equals(currentContext.objectLit)) {
+                        currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
+                    }
                 }
             }
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
