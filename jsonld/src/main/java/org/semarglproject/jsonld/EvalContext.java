@@ -167,9 +167,7 @@ final class EvalContext {
             if (!subject.startsWith(RDF.BNODE_PREFIX)) {
                 subject = resolveCurieOrIri(subject, false);
             }
-            if (graph != null && !graph.startsWith(RDF.BNODE_PREFIX)) {
-                graph = resolve(graph, false);
-            }
+            graph = resolve(graph, false);
         } catch (MalformedIriException e) {
             nonLiteralQueue.clear();
             plainLiteralQueue.clear();
@@ -235,14 +233,15 @@ final class EvalContext {
             if (object == null) {
                 return;
             }
-            if (!object.startsWith(RDF.BNODE_PREFIX)) {
-                String oldBase = this.base;
-                if (base != null) {
-                    this.base = base;
-                }
-                object = resolve(object, false);
-                this.base = oldBase;
+
+            // FIXME: dirty hack
+            String oldBase = this.base;
+            if (base != null) {
+                this.base = base;
             }
+            object = resolve(object, false);
+            this.base = oldBase;
+
             boolean reversed = dtMappings.containsKey(predicate)
                     && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
             String resolvedPredicate = resolve(predicate, true);
@@ -322,8 +321,11 @@ final class EvalContext {
     }
 
     private String resolve(String value, boolean ignoreRelIri) throws MalformedIriException {
-        if (value == null || value.isEmpty()) {
-            throw new MalformedIriException("Empty predicate or datatype found");
+        if (value == null || value.startsWith(RDF.BNODE_PREFIX)) {
+            return value;
+        }
+        if (value.isEmpty()) {
+            throw new MalformedIriException("Empty IRI");
         }
         try {
             String mapping = resolveMapping(value);
