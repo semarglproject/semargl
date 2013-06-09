@@ -27,7 +27,9 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0099"))
 	filter (!regex(str(?test_case), "toRdf_0101"))
 	filter (!regex(str(?test_case), "toRdf_0102"))
-	filter (!regex(str(?test_case), "toRdf_010[5-8]"))
+	filter (!regex(str(?test_case), "toRdf_0105"))
+	filter (!regex(str(?test_case), "toRdf_0106"))
+	filter (!regex(str(?test_case), "toRdf_0108"))
 	filter (!regex(str(?test_case), "toRdf_0112"))
 
     # @type = @vocab is not supported yet

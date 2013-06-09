@@ -356,6 +356,11 @@ final class EvalContext {
             return resolveIri(curie);
         }
 
+        String suffix = curie.substring(delimPos + 1);
+        if (suffix.startsWith("//")) {
+            return resolveIri(curie);
+        }
+
         String prefix = curie.substring(0, delimPos);
         if (prefix.equals("_")) {
             throw new MalformedCurieException("CURIE with invalid prefix (" + curie + ") found");
@@ -364,7 +369,7 @@ final class EvalContext {
         try {
             String prefixUri = resolveMapping(prefix);
             if (prefixUri != null) {
-                return prefixUri + curie.substring(delimPos + 1);
+                return prefixUri + suffix;
             } else if (RIUtils.isIri(curie)) {
                 return curie;
             }
@@ -399,4 +404,5 @@ final class EvalContext {
         updateState(CONTEXT_DECLARED);
         children.remove(context);
     }
+
 }
