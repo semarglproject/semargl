@@ -46,6 +46,7 @@ final class EvalContext {
     String listTail;
     boolean parsingArray;
     boolean nullified;
+    boolean hasProps;
 
     EvalContext parent;
     private int state;
@@ -80,8 +81,9 @@ final class EvalContext {
         EvalContext child = new EvalContext(documentContext, sink, this);
         child.lang = this.lang;
         child.subject = documentContext.createBnode(false);
+        child.graph = this.graph;
         children.add(child);
-        if (graph != null && !graph.startsWith(RDF.BNODE_PREFIX)) {
+        if (graph != null) {
             child.graph = graph;
         }
         return child;
@@ -165,7 +167,7 @@ final class EvalContext {
             if (!subject.startsWith(RDF.BNODE_PREFIX)) {
                 subject = resolveCurieOrIri(subject, false);
             }
-            if (graph != null) {
+            if (graph != null && !graph.startsWith(RDF.BNODE_PREFIX)) {
                 graph = resolve(graph, false);
             }
         } catch (MalformedIriException e) {
@@ -405,4 +407,7 @@ final class EvalContext {
         children.remove(context);
     }
 
+    public boolean hasIdDeclared() {
+        return (state & ID_DECLARED) == ID_DECLARED;
+    }
 }

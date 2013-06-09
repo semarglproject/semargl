@@ -40,7 +40,8 @@ final class JsonLdContentHandler {
 
     public void onObjectStart() {
         String graph = null;
-        if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)) {
+        if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)
+                && (contextStack.size() > 1 || currentContext.hasProps)) {
             graph = currentContext.subject;
         }
         contextStack.push(currentContext);
@@ -115,6 +116,9 @@ final class JsonLdContentHandler {
             }
         } catch (MalformedIriException e) {
             currentContext.predicate = key;
+        }
+        if (!JsonLd.GRAPH_KEY.equals(currentContext.predicate) && !JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
+            currentContext.hasProps = true;
         }
     }
 
