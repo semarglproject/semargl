@@ -109,6 +109,11 @@ final class JsonLdContentHandler {
     public void onKey(String key) {
         try {
             String mapping = currentContext.resolveMapping(key);
+            try {
+                // we need to go deeper... in case of keyword aliases in term definitions
+                mapping = currentContext.resolveMapping(mapping);
+            } catch (MalformedIriException e) {
+            }
             if (mapping != null && mapping.charAt(0) == '@') {
                 currentContext.predicate = mapping;
             } else {
