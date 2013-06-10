@@ -26,6 +26,9 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
+/**
+ * Handler class for JsonLdParser. Handles events in SAX-like manner.
+ */
 final class JsonLdContentHandler {
 
     private static final Pattern TERM_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+", Pattern.DOTALL);

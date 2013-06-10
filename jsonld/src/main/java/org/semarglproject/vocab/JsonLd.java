@@ -16,6 +16,9 @@
 
 package org.semarglproject.vocab;
 
+/**
+ * Defines JSON-LD keywords
+ */
 public final class JsonLd {
 
     public static final String BASE_KEY = "@base";
@@ -29,6 +32,7 @@ public final class JsonLd {
     public static final String LANGUAGE_KEY = "@language";
     public static final String VALUE_KEY = "@value";
 
+    // TODO: remove from public
     public static final String CONTAINER_LIST_KEY = "@container@list";
     public static final String NULL = "@@null";
     public static final String DOC_IRI = "@@dociri";

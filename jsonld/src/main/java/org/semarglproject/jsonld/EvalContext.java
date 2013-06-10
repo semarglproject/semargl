@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
+/**
+ * Provides context for IRI resolving, holds processing state for each JSON-LD node.
+ */
 final class EvalContext {
 
     static final int ID_DECLARED = 1;

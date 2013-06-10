@@ -21,6 +21,9 @@ import org.semarglproject.vocab.RDF;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Holds document context: source IRI and bnode generation info.
+ */
 final class DocumentContext {
 
     String iri;
