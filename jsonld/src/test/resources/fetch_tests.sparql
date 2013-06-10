@@ -14,11 +14,7 @@ select ?input ?result (?test_case as ?name) ?descr {
 	# known bugs
 	filter (!regex(str(?test_case), "toRdf_0048"))
 	filter (!regex(str(?test_case), "toRdf_0060"))
-	filter (!regex(str(?test_case), "toRdf_0068"))
 	filter (!regex(str(?test_case), "toRdf_0069"))
-	filter (!regex(str(?test_case), "toRdf_0072"))
-	filter (!regex(str(?test_case), "toRdf_0073"))
-	filter (!regex(str(?test_case), "toRdf_0074"))
 	filter (!regex(str(?test_case), "toRdf_0077"))
 	filter (!regex(str(?test_case), "toRdf_0078"))
 	filter (!regex(str(?test_case), "toRdf_0083"))
@@ -26,6 +22,10 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0105"))
 
     # @vocab is not supported yet
+	filter (!regex(str(?test_case), "toRdf_0068"))
+	filter (!regex(str(?test_case), "toRdf_0072"))
+	filter (!regex(str(?test_case), "toRdf_0073"))
+	filter (!regex(str(?test_case), "toRdf_0074"))
 	filter (!regex(str(?test_case), "toRdf_009[2-9]"))
 	filter (!regex(str(?test_case), "toRdf_0106"))
 	filter (!regex(str(?test_case), "toRdf_0112"))
