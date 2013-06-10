@@ -206,7 +206,11 @@ final class JsonLdContentHandler {
     }
 
     public void onBoolean(boolean value) {
-        currentContext.addTypedLiteral(Boolean.toString(value), XSD.BOOLEAN);
+        String dt = currentContext.getDtMapping(currentContext.predicate);
+        if (dt == null) {
+            dt = XSD.BOOLEAN;
+        }
+        currentContext.addTypedLiteral(Boolean.toString(value), dt);
     }
 
     public void onNull() {
