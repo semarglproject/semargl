@@ -233,11 +233,19 @@ final class JsonLdContentHandler {
     }
 
     public void onNumber(double value) {
-        currentContext.addTypedLiteral(Double.toString(value), XSD.DOUBLE);
+        String dt = currentContext.getDtMapping(currentContext.predicate);
+        if (dt == null) {
+            dt = XSD.DOUBLE;
+        }
+        currentContext.addTypedLiteral(Double.toString(value), dt);
     }
 
     public void onNumber(int value) {
-        currentContext.addTypedLiteral(Integer.toString(value), XSD.INTEGER);
+        String dt = currentContext.getDtMapping(currentContext.predicate);
+        if (dt == null) {
+            dt = XSD.INTEGER;
+        }
+        currentContext.addTypedLiteral(Integer.toString(value), dt);
     }
 
     public void clear() {
