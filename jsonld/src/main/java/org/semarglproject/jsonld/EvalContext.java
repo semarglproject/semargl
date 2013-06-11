@@ -50,6 +50,7 @@ final class EvalContext {
     boolean parsingArray;
     boolean nullified;
     boolean hasProps;
+    boolean reversed;
 
     EvalContext parent;
     private int state;
@@ -245,8 +246,7 @@ final class EvalContext {
             object = resolve(object, false);
             this.base = oldBase;
 
-            boolean reversed = dtMappings.containsKey(predicate)
-                    && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
+            boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
             String resolvedPredicate = resolve(predicate, true);
             if (reversed) {
                 sink.addNonLiteral(object, resolvedPredicate, subject, graph);
@@ -289,8 +289,7 @@ final class EvalContext {
                     resolvedLang = this.lang;
                 }
             }
-            boolean reversed = dtMappings.containsKey(predicate)
-                    && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
+            boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
             if (reversed) {
                 sink.addNonLiteral(object, resolve(predicate, true), subject, graph);
             } else {
@@ -312,8 +311,7 @@ final class EvalContext {
 
     private void addTypedLiteralUnsafe(String predicate, String object, String dt) {
         try {
-            boolean reversed = dtMappings.containsKey(predicate)
-                    && JsonLd.REVERSE_KEY.equals(dtMappings.get(predicate));
+            boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
             if (reversed) {
                 sink.addNonLiteral(object, resolve(predicate, true), subject, graph);
             } else {

@@ -54,6 +54,7 @@ final class JsonLdContentHandler {
         }
         if (JsonLd.REVERSE_KEY.equals(currentContext.parent.predicate)) {
             currentContext.subject = currentContext.parent.subject;
+            currentContext.reversed = true;
             currentContext.updateState(EvalContext.ID_DECLARED);
         }
     }
@@ -121,9 +122,6 @@ final class JsonLdContentHandler {
                 currentContext.predicate = mapping;
             } else {
                 currentContext.predicate = key;
-            }
-            if (currentContext.parent != null && JsonLd.REVERSE_KEY.equals(currentContext.parent.predicate)) {
-                currentContext.defineDtMappingForPredicate(JsonLd.REVERSE_KEY);
             }
         } catch (MalformedIriException e) {
             currentContext.predicate = key;
