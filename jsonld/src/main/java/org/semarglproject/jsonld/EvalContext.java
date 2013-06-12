@@ -331,6 +331,9 @@ final class EvalContext {
         try {
             String mapping = resolveMapping(value);
             if (mapping != null && mapping.charAt(0) != '@') {
+                if (mapping.startsWith(RDF.BNODE_PREFIX)) {
+                    return mapping;
+                }
                 return resolveCurieOrIri(mapping, false);
             }
         } catch (MalformedIriException e) {
