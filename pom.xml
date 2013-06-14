@@ -84,7 +84,7 @@
         <version.clerezza.jena.parser>0.10-incubating</version.clerezza.jena.parser>
         <version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
         <version.jena>2.10.1</version.jena>
-        <version.sesame>2.7.1</version.sesame>
+        <version.sesame>2.7.2</version.sesame>
         <version.slf4j>1.6.4</version.slf4j>
 
         <!-- Checkstyle configuration -->
