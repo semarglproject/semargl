@@ -22,6 +22,7 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.util.ModelUtil;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.BooleanQuery;
@@ -34,9 +35,13 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.BasicParserSettings;
+import org.openrdf.rio.helpers.ContextStatementCollector;
+import org.openrdf.rio.helpers.ParseErrorCollector;
 import org.openrdf.sail.memory.MemoryStore;
 
 import java.io.File;
@@ -113,10 +118,37 @@ public class SesameTestHelper {
         Model model = new LinkedHashModel();
         if (filename != null) {
             try {
-                model = Rio.parse(openStreamForResource(filename), baseUri, SesameTestHelper.detectFileFormat(filename));
+                RDFParser parser = Rio.createParser(SesameTestHelper.detectFileFormat(filename));
+                parser.setRDFHandler(new ContextStatementCollector(model, ValueFactoryImpl.getInstance()));
+
+                ParserConfig config = parser.getParserConfig();
+                config.set(BasicParserSettings.PRESERVE_BNODE_IDS, true);
+                config.addNonFatalError(BasicParserSettings.VERIFY_DATATYPE_VALUES);
+                config.addNonFatalError(BasicParserSettings.VERIFY_LANGUAGE_TAGS);
+                // Attempt to normalize known datatypes, including XML Schema
+                config.set(BasicParserSettings.NORMALIZE_DATATYPE_VALUES, true);
+                // Try not to fail when normalization fails
+                config.addNonFatalError(BasicParserSettings.NORMALIZE_DATATYPE_VALUES);
+
+                ParseErrorCollector errors = new ParseErrorCollector();
+                parser.setParseErrorListener(errors);
+
+                parser.parse(openStreamForResource(filename), baseUri);
+
+                for(String nextFatalError : errors.getFatalErrors()) {
+                    System.err.println("Fatal parse error was ignored : " + filename + " : "+ nextFatalError);
+                }
+                for(String nextError : errors.getErrors()) {
+                    System.err.println("Parse error was ignored : " + filename + " : "+ nextError);
+                }
+                for(String nextWarning : errors.getWarnings()) {
+                    System.err.println("Parse warning was ignored : " + filename + " : "+ nextWarning);
+                }
             } catch (OpenRDFException e) {
-                System.err.println(e.getMessage());
+                System.err.println("Fatal parse error caused failure : " + filename + " : "+ e.getMessage());
                 //e.printStackTrace();
+                // Avoid returning a partial model if there was a fatal error
+                model = new LinkedHashModel();
             }
         }
         return model;
