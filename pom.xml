@@ -65,7 +65,7 @@
         <version.site.plugin>3.0</version.site.plugin>
         <version.jar.plugin>2.3.2</version.jar.plugin>
         <version.dependency.plugin>2.8</version.dependency.plugin>
-        <version.license.plugin>1.9.0</version.license.plugin>
+        <version.license.plugin>2.2</version.license.plugin>
         <version.checkstyle.plugin>2.10</version.checkstyle.plugin>
         <version.surefire.plugin>2.14.1</version.surefire.plugin>
         <version.source.plugin>2.2.1</version.source.plugin>
@@ -151,8 +151,8 @@
             </plugin>
 
             <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
             </plugin>
 
             <plugin>
@@ -188,8 +188,8 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>com.mycila.maven-license-plugin</groupId>
-                    <artifactId>maven-license-plugin</artifactId>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
                     <version>${version.license.plugin}</version>
                     <inherited>false</inherited>
                     <configuration>
