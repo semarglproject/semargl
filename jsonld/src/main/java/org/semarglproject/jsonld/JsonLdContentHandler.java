@@ -44,7 +44,7 @@ final class JsonLdContentHandler {
     public void onObjectStart() {
         String graph = null;
         if (JsonLd.GRAPH_KEY.equals(currentContext.predicate)
-                && (contextStack.size() > 1 || currentContext.hasProps)) {
+                && (contextStack.size() > 1 || currentContext.hasNonGraphContextProps)) {
             graph = currentContext.subject;
         }
         contextStack.push(currentContext);
@@ -74,12 +74,13 @@ final class JsonLdContentHandler {
         } else if (!currentContext.isParsingContext()) {
             addSubjectTypeDefinition(currentContext.objectLitDt, currentContext.base);
             if (contextStack.size() > 1 && !currentContext.container) {
-                System.out.println(currentContext.parent.predicate + " - " + currentContext.subject);
                 // TODO: check for property reordering issues
                 addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate),
                         currentContext.parent.base);
-                currentContext.parent.addNonLiteral(currentContext.parent.predicate,
-                        currentContext.subject, currentContext.base);
+                if (!JsonLd.SET_KEY.equals(currentContext.parent.predicate) || currentContext.hasProps) {
+                    currentContext.parent.addNonLiteral(currentContext.parent.predicate,
+                            currentContext.subject, currentContext.base);
+                }
             }
         }
         closeCurrentContext();
@@ -139,7 +140,10 @@ final class JsonLdContentHandler {
             currentContext.predicate = key;
         }
         if (!JsonLd.GRAPH_KEY.equals(currentContext.predicate) && !JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
-            currentContext.hasProps = true;
+            currentContext.hasNonGraphContextProps = true;
+            if (!currentContext.predicate.startsWith("@")) {
+                currentContext.hasProps = true;
+            }
         }
     }
 
@@ -199,7 +203,7 @@ final class JsonLdContentHandler {
                 currentContext.updateState(EvalContext.ID_DECLARED);
             } else if (JsonLd.VALUE_KEY.equals(currentContext.predicate)) {
                 currentContext.objectLit = value;
-            } else if (JsonLd.LIST_KEY.equals(currentContext.predicate)) {
+            } else if (JsonLd.LIST_KEY.equals(currentContext.predicate) && isNotFloating()) {
                 if (currentContext.listTail == null) {
                     currentContext.listTail = currentContext.subject;
                     currentContext.addListFirst(value);
@@ -207,10 +211,14 @@ final class JsonLdContentHandler {
                     currentContext.addListRest(dh.createBnode(false));
                     currentContext.addListFirst(value);
                 }
-            } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
+            } else if (JsonLd.SET_KEY.equals(currentContext.predicate) && isNotFloating()) {
                 currentContext.addToSet(value);
             }
         }
+    }
+
+    private boolean isNotFloating() {
+        return currentContext.parent != null && currentContext.parent.predicate != null && !currentContext.parent.predicate.startsWith("@");
     }
 
     private void addSubjectTypeDefinition(String dt, String base) {
@@ -272,7 +280,7 @@ final class JsonLdContentHandler {
             dt = defaultDt;
         }
 
-        if (JsonLd.LIST_KEY.equals(currentContext.predicate)) {
+        if (JsonLd.LIST_KEY.equals(currentContext.predicate) && isNotFloating()) {
             if (currentContext.listTail == null) {
                 currentContext.listTail = currentContext.subject;
                 currentContext.addListFirst(value, dt);
@@ -280,7 +288,7 @@ final class JsonLdContentHandler {
                 currentContext.addListRest(dh.createBnode(false));
                 currentContext.addListFirst(value, dt);
             }
-        } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
+        } else if (JsonLd.SET_KEY.equals(currentContext.predicate) && isNotFloating()) {
             currentContext.addToSet(value, dt);
         } else {
             currentContext.addTypedLiteral(value, dt);

@@ -51,6 +51,7 @@ final class EvalContext {
     boolean container;
     boolean nullified;
     boolean hasProps;
+    boolean hasNonGraphContextProps;
     boolean reversed;
 
     EvalContext parent;
@@ -233,21 +234,6 @@ final class EvalContext {
             }
         } else {
             sink.addNonLiteral(listTail, RDF.REST, object, graph);
-        }
-        listTail = object;
-    }
-
-    public void addListRest(String object, String dt) {
-        if (listTail.equals(subject)) {
-            if (state == SAFE_TO_SINK_TRIPLES) {
-                addTypedLiteralUnsafe(RDF.REST, object, dt);
-            } else {
-                typedLiteralQueue.offer(RDF.REST);
-                typedLiteralQueue.offer(object);
-                typedLiteralQueue.offer(dt);
-            }
-        } else {
-            sink.addTypedLiteral(listTail, RDF.REST, object, dt, graph);
         }
         listTail = object;
     }

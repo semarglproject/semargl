@@ -32,11 +32,11 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0075"))
 
     # @set is not supported yet
-	#filter (!regex(str(?test_case), "toRdf_0044"))
-	#filter (!regex(str(?test_case), "toRdf_0055"))
-	#filter (!regex(str(?test_case), "toRdf_0056"))
-	#filter (!regex(str(?test_case), "toRdf_0063"))
-	#filter (!regex(str(?test_case), "toRdf_0087"))
+	filter (!regex(str(?test_case), "toRdf_0044"))
+	filter (!regex(str(?test_case), "toRdf_0055"))
+	filter (!regex(str(?test_case), "toRdf_0056"))
+	filter (!regex(str(?test_case), "toRdf_0063"))
+	filter (!regex(str(?test_case), "toRdf_0087"))
 
     # @index is not supported yet
 	filter (!regex(str(?test_case), "toRdf_0076"))
