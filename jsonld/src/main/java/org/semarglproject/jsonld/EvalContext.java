@@ -241,7 +241,7 @@ final class EvalContext {
     }
 
     public void addToSet(String object) {
-        parent.addNonLiteral(parent.predicate, object, base);
+        parent.addPlainLiteral(object, lang);
     }
 
     public void addToSet(String object, String dt) {
