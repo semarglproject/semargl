@@ -25,6 +25,7 @@ public final class JsonLd {
     public static final String CONTEXT_KEY = "@context";
     public static final String GRAPH_KEY = "@graph";
     public static final String LIST_KEY = "@list";
+    public static final String SET_KEY = "@set";
     public static final String ID_KEY = "@id";
     public static final String TYPE_KEY = "@type";
     public static final String CONTAINER_KEY = "@container";

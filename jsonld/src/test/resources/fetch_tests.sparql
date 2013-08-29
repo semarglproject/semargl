@@ -33,7 +33,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 
     # @set is not supported yet
 	filter (!regex(str(?test_case), "toRdf_0044"))
-	filter (!regex(str(?test_case), "toRdf_0054"))
 	filter (!regex(str(?test_case), "toRdf_0055"))
 	filter (!regex(str(?test_case), "toRdf_0056"))
 	filter (!regex(str(?test_case), "toRdf_0063"))

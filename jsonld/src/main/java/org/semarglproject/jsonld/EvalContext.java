@@ -48,6 +48,7 @@ final class EvalContext {
     String objectLitDt;
     String listTail;
     boolean parsingArray;
+    boolean container;
     boolean nullified;
     boolean hasProps;
     boolean reversed;
@@ -223,7 +224,9 @@ final class EvalContext {
     }
 
     void addNonLiteral(String predicate, String object, String base) {
-        if (state == SAFE_TO_SINK_TRIPLES) {
+        if (parent != null && predicate.equals(JsonLd.SET_KEY)) {
+            parent.addNonLiteral(predicate, object, base);
+        } else if (state == SAFE_TO_SINK_TRIPLES) {
             addNonLiteralUnsafe(predicate, object, base);
         } else {
             nonLiteralQueue.offer(predicate);
@@ -259,7 +262,9 @@ final class EvalContext {
     }
 
     void addPlainLiteral(String object, String lang) {
-        if (state == SAFE_TO_SINK_TRIPLES) {
+        if (parent != null && predicate.equals(JsonLd.SET_KEY)) {
+            parent.addPlainLiteral(object, lang);
+        } else if (state == SAFE_TO_SINK_TRIPLES) {
             addPlainLiteralUnsafe(predicate, object, lang);
         } else {
             plainLiteralQueue.offer(predicate);
@@ -300,7 +305,9 @@ final class EvalContext {
     }
 
     void addTypedLiteral(String object, String dt) {
-        if (state == SAFE_TO_SINK_TRIPLES) {
+        if (parent != null && predicate.equals(JsonLd.SET_KEY)) {
+            parent.addTypedLiteral(object, dt);
+        } else if (state == SAFE_TO_SINK_TRIPLES) {
             addTypedLiteralUnsafe(predicate, object, dt);
         } else {
             typedLiteralQueue.offer(predicate);

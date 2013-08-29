@@ -62,20 +62,19 @@ final class JsonLdContentHandler {
     public void onObjectEnd() {
         if (currentContext.objectLit != null) {
             // ignore floating values
-            if (contextStack.size() > 1) {
+            if (contextStack.size() > 1 && !JsonLd.NULL.equals(currentContext.objectLit)) {
                 if (currentContext.objectLitDt != null) {
                     currentContext.parent.addTypedLiteral(currentContext.objectLit, currentContext.objectLitDt);
                 } else {
-                    if (!JsonLd.NULL.equals(currentContext.objectLit)) {
-                        currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
-                    }
+                    currentContext.parent.addPlainLiteral(currentContext.objectLit, currentContext.lang);
                 }
             }
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
             currentContext.updateState(EvalContext.PARENT_SAFE);
         } else if (!currentContext.isParsingContext()) {
             addSubjectTypeDefinition(currentContext.objectLitDt, currentContext.base);
-            if (contextStack.size() > 1) {
+            if (contextStack.size() > 1 && !currentContext.container) {
+                System.out.println(currentContext.parent.predicate + " - " + currentContext.subject);
                 // TODO: check for property reordering issues
                 addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate),
                         currentContext.parent.base);
@@ -120,6 +119,9 @@ final class JsonLdContentHandler {
             }
             if (mapping != null && mapping.charAt(0) == '@') {
                 currentContext.predicate = mapping;
+                if (mapping.equals(JsonLd.SET_KEY) || mapping.equals(JsonLd.LIST_KEY)) {
+                    currentContext.container = true;
+                }
             } else {
                 currentContext.predicate = key;
             }
