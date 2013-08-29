@@ -56,6 +56,12 @@ final class JsonLdContentHandler {
             currentContext.subject = currentContext.parent.subject;
             currentContext.reversed = true;
             currentContext.updateState(EvalContext.ID_DECLARED);
+        } else if (contextStack.size() > 1) {
+            String dt = currentContext.getDtMapping(currentContext.parent.predicate);
+            if (JsonLd.CONTAINER_INDEX_KEY.equals(dt)) {
+                currentContext.subject = currentContext.parent.subject;
+                currentContext.index = true;
+            }
         }
     }
 
@@ -72,7 +78,7 @@ final class JsonLdContentHandler {
             }
             // currentContext remove can be forced because literal nodes don't contain any unsafe triples to sink
             currentContext.updateState(EvalContext.PARENT_SAFE);
-        } else if (!currentContext.isParsingContext()) {
+        } else if (!currentContext.isParsingContext() && !currentContext.index) {
             addSubjectTypeDefinition(currentContext.objectLitDt, currentContext.base);
             if (contextStack.size() > 1 && !currentContext.container) {
                 // TODO: check for property reordering issues
@@ -131,6 +137,9 @@ final class JsonLdContentHandler {
 
     public void onKey(String key) {
         unwrap();
+        if (currentContext.index && !key.startsWith("@")) {
+            key = currentContext.parent.predicate;
+        }
         try {
             String mapping = currentContext.resolveMapping(key);
             try {
@@ -208,7 +217,9 @@ final class JsonLdContentHandler {
             } else if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                 currentContext.lang = value;
             } else if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
-                if (TERM_PATTERN.matcher(value).matches()) {
+                if (currentContext.index) {
+                    currentContext.addNonLiteral(currentContext.parent.predicate, value, currentContext.base);
+                } else if (TERM_PATTERN.matcher(value).matches()) {
                     // force terms to be not considered in @id
                     currentContext.subject = "./" + value;
                 } else {

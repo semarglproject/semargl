@@ -55,6 +55,7 @@ final class EvalContext {
     boolean reversed;
 
     boolean wrapped;
+    boolean index;
 
     EvalContext parent;
     private int state;
