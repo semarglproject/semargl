@@ -82,11 +82,7 @@ final class JsonLdContentHandler {
                         currentContext.subject, currentContext.base);
             }
         }
-        if (currentContext.isParsingContext()) {
-            currentContext.parent.processContext(currentContext);
-        }
-        currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
-        currentContext = contextStack.pop();
+        closeCurrentContext();
     }
 
     public void onArrayStart() {
@@ -105,6 +101,11 @@ final class JsonLdContentHandler {
             String dt = currentContext.parent.getDtMapping(currentContext.parent.predicate);
             if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
                 onObjectEnd();
+            }
+        } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
+            String dt = currentContext.parent.getDtMapping(currentContext.parent.predicate);
+            if (JsonLd.CONTAINER_SET_KEY.equals(dt)) {
+                closeCurrentContext();
             }
         } else if (currentContext.predicate != null) {
             String dt = currentContext.getDtMapping(currentContext.predicate);
@@ -206,6 +207,8 @@ final class JsonLdContentHandler {
                     currentContext.addListRest(dh.createBnode(false));
                     currentContext.addListFirst(value);
                 }
+            } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
+                currentContext.addToSet(value);
             }
         }
     }
@@ -218,11 +221,7 @@ final class JsonLdContentHandler {
     }
 
     public void onBoolean(boolean value) {
-        String dt = currentContext.getDtMapping(currentContext.predicate);
-        if (dt == null) {
-            dt = XSD.BOOLEAN;
-        }
-        currentContext.addTypedLiteral(Boolean.toString(value), dt);
+        processTypedValue(Boolean.toString(value), XSD.BOOLEAN);
     }
 
     public void onNull() {
@@ -249,19 +248,51 @@ final class JsonLdContentHandler {
     }
 
     public void onNumber(double value) {
-        String dt = currentContext.getDtMapping(currentContext.predicate);
-        if (dt == null) {
-            dt = XSD.DOUBLE;
-        }
-        currentContext.addTypedLiteral(Double.toString(value), dt);
+        processTypedValue(Double.toString(value), XSD.DOUBLE);
     }
 
     public void onNumber(int value) {
+        processTypedValue(Integer.toString(value), XSD.INTEGER);
+    }
+
+    public void processTypedValue(String value, String defaultDt) {
+        String predicateDt = currentContext.getDtMapping(currentContext.predicate);
+        if (JsonLd.CONTAINER_LIST_KEY.equals(predicateDt)) {
+            onObjectStart();
+            onKey(JsonLd.LIST_KEY);
+            onArrayStart();
+        } else if (JsonLd.CONTAINER_SET_KEY.equals(predicateDt)) {
+            onObjectStart();
+            onKey(JsonLd.SET_KEY);
+            onArrayStart();
+        }
+
         String dt = currentContext.getDtMapping(currentContext.predicate);
         if (dt == null) {
-            dt = XSD.INTEGER;
+            dt = defaultDt;
         }
-        currentContext.addTypedLiteral(Integer.toString(value), dt);
+
+        if (JsonLd.LIST_KEY.equals(currentContext.predicate)) {
+            if (currentContext.listTail == null) {
+                currentContext.listTail = currentContext.subject;
+                currentContext.addListFirst(value, dt);
+            } else {
+                currentContext.addListRest(dh.createBnode(false));
+                currentContext.addListFirst(value, dt);
+            }
+        } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
+            currentContext.addToSet(value, dt);
+        } else {
+            currentContext.addTypedLiteral(value, dt);
+        }
+    }
+
+    private void closeCurrentContext() {
+        if (currentContext.isParsingContext()) {
+            currentContext.parent.processContext(currentContext);
+        }
+        currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
+        currentContext = contextStack.pop();
     }
 
     public void clear() {

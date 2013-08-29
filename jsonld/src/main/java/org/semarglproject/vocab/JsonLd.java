@@ -35,6 +35,7 @@ public final class JsonLd {
 
     // TODO: remove from public
     public static final String CONTAINER_LIST_KEY = "@container@list";
+    public static final String CONTAINER_SET_KEY = "@container@set";
     public static final String NULL = "@@null";
     public static final String DOC_IRI = "@@dociri";
 

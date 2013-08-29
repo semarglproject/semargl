@@ -207,6 +207,20 @@ final class EvalContext {
         }
     }
 
+    public void addListFirst(String object, String dt) {
+        if (listTail.equals(subject)) {
+            if (state == SAFE_TO_SINK_TRIPLES) {
+                addTypedLiteralUnsafe(RDF.FIRST, object, dt);
+            } else {
+                typedLiteralQueue.offer(RDF.FIRST);
+                typedLiteralQueue.offer(object);
+                typedLiteralQueue.offer(dt);
+            }
+        } else {
+            sink.addTypedLiteral(listTail, RDF.FIRST, object, dt, graph);
+        }
+    }
+
     // TODO: check for property reordering issues
     public void addListRest(String object) {
         if (listTail.equals(subject)) {
@@ -221,6 +235,29 @@ final class EvalContext {
             sink.addNonLiteral(listTail, RDF.REST, object, graph);
         }
         listTail = object;
+    }
+
+    public void addListRest(String object, String dt) {
+        if (listTail.equals(subject)) {
+            if (state == SAFE_TO_SINK_TRIPLES) {
+                addTypedLiteralUnsafe(RDF.REST, object, dt);
+            } else {
+                typedLiteralQueue.offer(RDF.REST);
+                typedLiteralQueue.offer(object);
+                typedLiteralQueue.offer(dt);
+            }
+        } else {
+            sink.addTypedLiteral(listTail, RDF.REST, object, dt, graph);
+        }
+        listTail = object;
+    }
+
+    public void addToSet(String object) {
+        parent.addNonLiteral(parent.predicate, object, base);
+    }
+
+    public void addToSet(String object, String dt) {
+        parent.addTypedLiteral(object, dt);
     }
 
     void addNonLiteral(String predicate, String object, String base) {
