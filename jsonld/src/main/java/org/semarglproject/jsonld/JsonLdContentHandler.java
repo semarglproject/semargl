@@ -106,6 +106,15 @@ final class JsonLdContentHandler {
             if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
                 onObjectEnd();
             }
+        } else if (currentContext.predicate != null) {
+            String dt = currentContext.getDtMapping(currentContext.predicate);
+            if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
+                try {
+                    currentContext.addNonLiteral(currentContext.resolveMapping(currentContext.predicate), RDF.NIL,
+                            currentContext.base);
+                } catch (MalformedIriException e) {
+                }
+            }
         }
     }
 
