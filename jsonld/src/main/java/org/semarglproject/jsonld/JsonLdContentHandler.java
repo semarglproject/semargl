@@ -60,6 +60,7 @@ final class JsonLdContentHandler {
     }
 
     public void onObjectEnd() {
+        unwrap();
         if (currentContext.objectLit != null) {
             // ignore floating values
             if (contextStack.size() > 1 && !JsonLd.NULL.equals(currentContext.objectLit)) {
@@ -83,7 +84,11 @@ final class JsonLdContentHandler {
                 }
             }
         }
-        closeCurrentContext();
+        if (currentContext.isParsingContext()) {
+            currentContext.parent.processContext(currentContext);
+        }
+        currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
+        currentContext = contextStack.pop();
     }
 
     public void onArrayStart() {
@@ -97,17 +102,10 @@ final class JsonLdContentHandler {
                 currentContext.addListRest(RDF.NIL);
             } else {
                 currentContext.subject = RDF.NIL;
-            }
-            // TODO: check for property reordering issues
-            String dt = currentContext.parent.getDtMapping(currentContext.parent.predicate);
-            if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
-                onObjectEnd();
+                currentContext.container = false;
             }
         } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
-            String dt = currentContext.parent.getDtMapping(currentContext.parent.predicate);
-            if (JsonLd.CONTAINER_SET_KEY.equals(dt)) {
-                closeCurrentContext();
-            }
+            currentContext.objectLit = JsonLd.NULL;
         } else if (currentContext.predicate != null) {
             String dt = currentContext.getDtMapping(currentContext.predicate);
             if (JsonLd.CONTAINER_LIST_KEY.equals(dt)) {
@@ -120,7 +118,19 @@ final class JsonLdContentHandler {
         }
     }
 
+    private void unwrap() {
+        if (currentContext.parsingArray) {
+            onArrayEnd();
+        }
+        if (!currentContext.wrapped) {
+            return;
+        }
+        currentContext.wrapped = false;
+        onObjectEnd();
+    }
+
     public void onKey(String key) {
+        unwrap();
         try {
             String mapping = currentContext.resolveMapping(key);
             try {
@@ -138,6 +148,9 @@ final class JsonLdContentHandler {
             }
         } catch (MalformedIriException e) {
             currentContext.predicate = key;
+        }
+        if (JsonLd.SET_KEY.equals(currentContext.predicate) || JsonLd.LIST_KEY.equals(currentContext.predicate)) {
+            onArrayStart();
         }
         if (!JsonLd.GRAPH_KEY.equals(currentContext.predicate) && !JsonLd.CONTEXT_KEY.equals(currentContext.predicate)) {
             currentContext.hasNonGraphContextProps = true;
@@ -179,6 +192,7 @@ final class JsonLdContentHandler {
                 onKey(JsonLd.LIST_KEY);
                 onArrayStart();
                 onString(value);
+                currentContext.wrapped = true;
             } else {
                 currentContext.addPlainLiteral(value, JsonLd.LANGUAGE_KEY);
             }
@@ -269,10 +283,12 @@ final class JsonLdContentHandler {
             onObjectStart();
             onKey(JsonLd.LIST_KEY);
             onArrayStart();
+            currentContext.wrapped = true;
         } else if (JsonLd.CONTAINER_SET_KEY.equals(predicateDt)) {
             onObjectStart();
             onKey(JsonLd.SET_KEY);
             onArrayStart();
+            currentContext.wrapped = true;
         }
 
         String dt = currentContext.getDtMapping(currentContext.predicate);
@@ -293,14 +309,6 @@ final class JsonLdContentHandler {
         } else {
             currentContext.addTypedLiteral(value, dt);
         }
-    }
-
-    private void closeCurrentContext() {
-        if (currentContext.isParsingContext()) {
-            currentContext.parent.processContext(currentContext);
-        }
-        currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
-        currentContext = contextStack.pop();
     }
 
     public void clear() {

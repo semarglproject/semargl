@@ -54,6 +54,8 @@ final class EvalContext {
     boolean hasNonGraphContextProps;
     boolean reversed;
 
+    boolean wrapped;
+
     EvalContext parent;
     private int state;
 
