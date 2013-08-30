@@ -43,6 +43,7 @@ final class EvalContext {
     String graph;
     String subject;
     String predicate;
+    String vocab;
     String lang;
     String objectLit;
     String objectLitDt;
@@ -91,6 +92,7 @@ final class EvalContext {
         child.lang = this.lang;
         child.subject = documentContext.createBnode(false);
         child.graph = this.graph;
+        child.vocab = this.vocab;
         children.add(child);
         if (graph != null) {
             child.graph = graph;
@@ -112,6 +114,9 @@ final class EvalContext {
     }
 
     void defineIriMappingForPredicate(String value) {
+        if (vocab != null && value != null && value.indexOf(':') == -1) {
+            value = vocab + value;
+        }
         iriMappings.put(predicate, value);
         if (!dtMappings.containsKey(predicate)) {
             dtMappings.put(predicate, null);
@@ -176,7 +181,7 @@ final class EvalContext {
             if (!subject.startsWith(RDF.BNODE_PREFIX)) {
                 subject = resolveCurieOrIri(subject, false);
             }
-            graph = resolve(graph, false);
+            graph = resolve(graph, false, false);
         } catch (MalformedIriException e) {
             nonLiteralQueue.clear();
             plainLiteralQueue.clear();
@@ -267,16 +272,17 @@ final class EvalContext {
                 return;
             }
 
+            boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
+            String resolvedPredicate = resolve(predicate);
+
             // FIXME: dirty hack
             String oldBase = this.base;
             if (base != null) {
                 this.base = base;
             }
-            object = resolve(object, false);
+            object = resolve(object, false, resolvedPredicate.equals(RDF.TYPE));
             this.base = oldBase;
 
-            boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
-            String resolvedPredicate = resolve(predicate, true);
             if (reversed) {
                 sink.addNonLiteral(object, resolvedPredicate, subject, graph);
             } else {
@@ -322,9 +328,9 @@ final class EvalContext {
             }
             boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
             if (reversed) {
-                sink.addNonLiteral(object, resolve(predicate, true), subject, graph);
+                sink.addNonLiteral(object, resolve(predicate), subject, graph);
             } else {
-                sink.addPlainLiteral(subject, resolve(predicate, true), object, resolvedLang, graph);
+                sink.addPlainLiteral(subject, resolve(predicate), object, resolvedLang, graph);
             }
         } catch (MalformedIriException e) {
         }
@@ -346,15 +352,23 @@ final class EvalContext {
         try {
             boolean reversed = this.reversed ^ JsonLd.REVERSE_KEY.equals(getDtMapping(predicate));
             if (reversed) {
-                sink.addNonLiteral(object, resolve(predicate, true), subject, graph);
+                sink.addNonLiteral(object, resolve(predicate), subject, graph);
             } else {
-                sink.addTypedLiteral(subject, resolve(predicate, true), object, resolve(dt, true), graph);
+                sink.addTypedLiteral(subject, resolve(predicate), object, resolve(dt), graph);
             }
         } catch (MalformedIriException e) {
         }
     }
 
+    private String resolve(String value) throws MalformedIriException {
+        return resolve(value, true, true);
+    }
+
     private String resolve(String value, boolean ignoreRelIri) throws MalformedIriException {
+        return resolve(value, ignoreRelIri, true);
+    }
+
+    private String resolve(String value, boolean ignoreRelIri, boolean useVocab) throws MalformedIriException {
         if (value == null || value.startsWith(RDF.BNODE_PREFIX)) {
             return value;
         }
@@ -362,7 +376,7 @@ final class EvalContext {
             throw new MalformedIriException("Empty IRI");
         }
         try {
-            String mapping = resolveMapping(value);
+            String mapping = resolveMapping(value, useVocab);
             if (mapping != null && mapping.charAt(0) != '@') {
                 if (mapping.startsWith(RDF.BNODE_PREFIX)) {
                     return mapping;
@@ -375,13 +389,37 @@ final class EvalContext {
     }
 
     String resolveMapping(String value) throws MalformedIriException {
+        return resolveMapping(value, true);
+    }
+
+    String resolveMapping(String value, boolean useVocab) throws MalformedIriException {
         if (iriMappings.containsKey(value)) {
             return iriMappings.get(value);
         }
         if (!nullified && parent != null) {
-            return parent.resolveMapping(value);
+            try {
+                return parent.resolveMapping(value, false);
+            } catch (MalformedIriException e) {
+            }
+        }
+        if (useVocab && value.indexOf(':') == -1) {
+            String fromVocab = resolveUsingVocab(value);
+            if (fromVocab != null) {
+                return fromVocab;
+            }
         }
         throw new MalformedIriException("Can't resolve term " + value);
+    }
+
+    private String resolveUsingVocab(String value) {
+        // do not resolve nullified terms using vocab
+        if (vocab != null) {
+            return vocab + value;
+        }
+        if (!nullified && parent != null) {
+            return parent.resolveUsingVocab(value);
+        }
+        return null;
     }
 
     private String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIriException {
@@ -395,6 +433,11 @@ final class EvalContext {
                 throw new MalformedCurieException("CURIE with no prefix (" + curie + ") found");
             }
             return resolveIri(curie);
+//            if (vocab == null) {
+//                return resolveIri(curie);
+//            } else {
+//                return vocab + curie;
+//            }
         }
 
         String suffix = curie.substring(delimPos + 1);
@@ -442,6 +485,7 @@ final class EvalContext {
         langMappings.putAll(context.langMappings);
         lang = context.lang;
         base = context.base;
+        vocab = context.vocab;
         updateState(CONTEXT_DECLARED);
         children.remove(context);
     }

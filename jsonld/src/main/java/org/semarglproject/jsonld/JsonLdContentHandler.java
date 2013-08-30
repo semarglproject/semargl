@@ -90,11 +90,15 @@ final class JsonLdContentHandler {
                 }
             }
         }
+        boolean nullObject = !currentContext.hasProps && JsonLd.NULL.equals(currentContext.subject);
         if (currentContext.isParsingContext()) {
             currentContext.parent.processContext(currentContext);
         }
         currentContext.updateState(EvalContext.ID_DECLARED | EvalContext.CONTEXT_DECLARED);
         currentContext = contextStack.pop();
+        if (nullObject) {
+            onNull();
+        }
     }
 
     public void onArrayStart() {
@@ -143,8 +147,10 @@ final class JsonLdContentHandler {
         try {
             String mapping = currentContext.resolveMapping(key);
             try {
-                // we need to go deeper... in case of keyword aliases in term definitions
-                mapping = currentContext.resolveMapping(mapping);
+                if (mapping != null) {
+                    // we need to go deeper... in case of keyword aliases in term definitions
+                    mapping = currentContext.resolveMapping(mapping);
+                }
             } catch (MalformedIriException e) {
             }
             if (mapping != null && mapping.charAt(0) == '@') {
@@ -191,6 +197,9 @@ final class JsonLdContentHandler {
                 return;
             } else if (JsonLd.BASE_KEY.equals(currentContext.predicate)) {
                 currentContext.base = value;
+                return;
+            } else if (JsonLd.VOCAB_KEY.equals(currentContext.predicate)) {
+                currentContext.vocab = value;
                 return;
             }
         } else if (!currentContext.isPredicateKeyword() && currentContext.predicate != null) {
@@ -262,11 +271,15 @@ final class JsonLdContentHandler {
             currentContext.nullify();
         } else if (JsonLd.VALUE_KEY.equals(currentContext.predicate)) {
             currentContext.objectLit = JsonLd.NULL;
+        } else if (JsonLd.ID_KEY.equals(currentContext.predicate)) {
+            currentContext.subject = JsonLd.NULL;
         } else if (currentContext.isParsingContext()) {
             EvalContext parentContext = currentContext.parent;
             if (parentContext.isParsingContext()) {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineLangMappingForPredicate(JsonLd.NULL);
+                } else if (JsonLd.VOCAB_KEY.equals(currentContext.predicate)) {
+                    parentContext.vocab = null;
                 }
             } else {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
