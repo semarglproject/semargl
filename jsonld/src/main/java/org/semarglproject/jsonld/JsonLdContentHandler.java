@@ -211,6 +211,21 @@ final class JsonLdContentHandler {
                 onArrayStart();
                 onString(value);
                 currentContext.wrapped = true;
+            } else if (JsonLd.VOCAB_KEY.equals(dt)) {
+                String valueMapping;
+                try {
+                    valueMapping = currentContext.resolveMapping(value);
+                } catch (MalformedIriException e) {
+                    valueMapping = value;
+                }
+                currentContext.addNonLiteral(currentContext.predicate, valueMapping, currentContext.base);
+            } else if (JsonLd.ID_KEY.equals(dt)) {
+                try {
+                    String resolvedValue = currentContext.resolveCurieOrIri(value, false);
+                    currentContext.addNonLiteral(currentContext.predicate, resolvedValue, currentContext.base);
+                } catch (MalformedIriException e) {
+                    currentContext.addPlainLiteral(value, JsonLd.LANGUAGE_KEY);
+                }
             } else {
                 currentContext.addPlainLiteral(value, JsonLd.LANGUAGE_KEY);
             }
@@ -278,14 +293,14 @@ final class JsonLdContentHandler {
             if (parentContext.isParsingContext()) {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     parentContext.defineLangMappingForPredicate(JsonLd.NULL);
-                } else if (JsonLd.VOCAB_KEY.equals(currentContext.predicate)) {
-                    parentContext.vocab = null;
                 }
             } else {
                 if (JsonLd.LANGUAGE_KEY.equals(currentContext.predicate)) {
                     currentContext.lang = null;
                 } else if (JsonLd.BASE_KEY.equals(currentContext.predicate)) {
                     currentContext.base = JsonLd.DOC_IRI;
+                } else if (JsonLd.VOCAB_KEY.equals(currentContext.predicate)) {
+                    currentContext.vocab = null;
                 } else {
                     currentContext.defineIriMappingForPredicate(null);
                 }

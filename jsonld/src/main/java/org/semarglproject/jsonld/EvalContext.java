@@ -402,27 +402,13 @@ final class EvalContext {
             } catch (MalformedIriException e) {
             }
         }
-        if (useVocab && value.indexOf(':') == -1) {
-            String fromVocab = resolveUsingVocab(value);
-            if (fromVocab != null) {
-                return fromVocab;
-            }
+        if (useVocab && vocab != null && value.indexOf(':') == -1) {
+            return vocab + value;
         }
         throw new MalformedIriException("Can't resolve term " + value);
     }
 
-    private String resolveUsingVocab(String value) {
-        // do not resolve nullified terms using vocab
-        if (vocab != null) {
-            return vocab + value;
-        }
-        if (!nullified && parent != null) {
-            return parent.resolveUsingVocab(value);
-        }
-        return null;
-    }
-
-    private String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIriException {
+    String resolveCurieOrIri(String curie, boolean ignoreRelIri) throws MalformedIriException {
         if (!ignoreRelIri && (curie == null || curie.isEmpty())) {
             return resolveIri(curie);
         }
@@ -433,11 +419,6 @@ final class EvalContext {
                 throw new MalformedCurieException("CURIE with no prefix (" + curie + ") found");
             }
             return resolveIri(curie);
-//            if (vocab == null) {
-//                return resolveIri(curie);
-//            } else {
-//                return vocab + curie;
-//            }
         }
 
         String suffix = curie.substring(delimPos + 1);
