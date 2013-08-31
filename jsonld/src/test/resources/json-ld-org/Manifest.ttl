@@ -670,6 +670,36 @@
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0112-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0112-out.nq> .
 
+<http://json-ld.org/test-suite/tests/toRdf_0113> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Dataset with a IRI named graph. Basic use of creating a named graph using an IRI name." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0113-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0113-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0114> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Dataset with a IRI named graph. Basic use of creating a named graph using a BNode name." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0114-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0114-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0115> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Dataset with a default and two named graphs" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0115-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0115-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0116> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Dataset from node with embedded named graph" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0116-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0116-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0117> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Dataset from node with embedded named graph (bnode)" ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0117-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0117-out.nq> .
+
 ########################################################################################
 # other tests
 ########################################################################################

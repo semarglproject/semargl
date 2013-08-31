@@ -20,4 +20,6 @@ select ?input ?result (?test_case as ?name) ?descr {
 	filter (!regex(str(?test_case), "toRdf_0102"))
 	filter (!regex(str(?test_case), "toRdf_0103"))
 	filter (!regex(str(?test_case), "toRdf_0105"))
+	filter (!regex(str(?test_case), "toRdf_0116"))
+	filter (!regex(str(?test_case), "toRdf_0117"))
 } order by ?input
