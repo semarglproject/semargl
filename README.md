@@ -38,6 +38,14 @@ Dead Simple
 
 No jokes!
 
+```xml
+<dependency>
+    <groupId>org.semarglproject</groupId>
+    <artifactId>semargl-rdfa</artifactId>
+    <version>0.6</version>
+</dependency>
+```
+
 ```java
 // just init triple store you want
 MGraph graph = ... // Clerezza calls
