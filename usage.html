@@ -158,9 +158,7 @@ model.read(new FileReader(file), docUri, "RDFA");</code></pre>
             RDFa parser can be used through Sesame RIO API.
         </p>
 
-<pre class="java"><code>RDFParser rdfParser = Rio.createParser(RDFaFormat.RDFA);
-rdfParser.setRDFHandler(model);
-rdfParser.parse(input, inputUri);</code></pre>
+<pre class="java"><code>Model model = Rio.parse(inputStream, baseUri, RDFFormat.RDFA);</code></pre>
 
     </section>
 
