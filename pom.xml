@@ -193,8 +193,8 @@
                     <version>${version.license.plugin}</version>
                     <inherited>false</inherited>
                     <configuration>
-                        <basedir>${basedir}</basedir>
-                        <header>${basedir}/checkstyle/LICENSE_HEADER</header>
+                        <basedir>${project.basedir}</basedir>
+                        <header>${project.basedir}/checkstyle/LICENSE_HEADER</header>
                         <properties>
                             <owner>Lev Khomich</owner>
                             <year>2012-2013</year>
@@ -272,7 +272,7 @@
                             <id>check-style-sources</id>
                             <phase>process-sources</phase>
                             <configuration>
-                                <configLocation>${basedir}/checkstyle/checkstyle-src.xml</configLocation>
+                                <configLocation>${project.basedir}/checkstyle/checkstyle-src.xml</configLocation>
                             </configuration>
                             <goals>
                                 <goal>checkstyle</goal>
@@ -282,7 +282,7 @@
                             <id>check-style-other</id>
                             <phase>process-sources</phase>
                             <configuration>
-                                <configLocation>${basedir}/checkstyle/checkstyle-other.xml</configLocation>
+                                <configLocation>${project.basedir}/checkstyle/checkstyle-other.xml</configLocation>
                                 <includes>**/*</includes>
                                 <excludes>
                                     **/*.java,**/test/resources/**/*,**/target/**/*,**/maven-repo/**/*,
