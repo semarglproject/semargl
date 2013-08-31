@@ -55,6 +55,7 @@ final class JsonLdContentHandler {
         if (JsonLd.REVERSE_KEY.equals(currentContext.parent.predicate)) {
             currentContext.subject = currentContext.parent.subject;
             currentContext.reversed = true;
+            currentContext.containerType = JsonLd.REVERSE_KEY;
             currentContext.updateState(EvalContext.ID_DECLARED);
         } else if (contextStack.size() > 1) {
             String dt = currentContext.getDtMapping(currentContext.parent.predicate);
@@ -277,7 +278,8 @@ final class JsonLdContentHandler {
     }
 
     private boolean isNotFloating() {
-        return currentContext.parent != null && currentContext.parent.predicate != null && !currentContext.parent.predicate.startsWith("@");
+        return currentContext.parent != null && currentContext.parent.predicate != null &&
+                !currentContext.parent.predicate.startsWith("@");
     }
 
     private void addSubjectTypeDefinition(String dt, String base) {

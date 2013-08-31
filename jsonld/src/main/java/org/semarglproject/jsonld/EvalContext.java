@@ -364,10 +364,6 @@ final class EvalContext {
         return resolve(value, true, true);
     }
 
-    private String resolve(String value, boolean ignoreRelIri) throws MalformedIriException {
-        return resolve(value, ignoreRelIri, true);
-    }
-
     private String resolve(String value, boolean ignoreRelIri, boolean useVocab) throws MalformedIriException {
         if (value == null || value.startsWith(RDF.BNODE_PREFIX)) {
             return value;
