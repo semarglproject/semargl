@@ -10,7 +10,7 @@
 
     <groupId>org.semarglproject</groupId>
     <artifactId>semargl-parent</artifactId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Semargl: Parent Aggregator</name>
@@ -41,7 +41,7 @@
         <connection>scm:git:git@github.com:levkhomich/semargl.git</connection>
         <developerConnection>scm:git:git@github.com:levkhomich/semargl.git</developerConnection>
         <url>https://github.com/levkhomich/semargl.git</url>
-        <tag>v0.6</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
