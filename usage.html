@@ -75,7 +75,7 @@
     &lt;dependency&gt;
         &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
         &lt;artifactId&gt;semargl-rdfa&lt;/artifactId&gt;
-        &lt;version&gt;0.4&lt;/version&gt;
+        &lt;version&gt;0.6&lt;/version&gt;
     &lt;/dependency&gt;
 &lt;/dependencies&gt;</code></pre>
 
@@ -117,7 +117,7 @@ sp.setProperty(RdfaParser.RDFA_VERSION_PROPERTY, RDFa.VERSION_11);</code></pre>
     &lt;dependency&gt;
         &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
         &lt;artifactId&gt;semargl-jena&lt;/artifactId&gt;
-        &lt;version&gt;0.4&lt;/version&gt;
+        &lt;version&gt;0.6&lt;/version&gt;
     &lt;/dependency&gt;
 &lt;/dependencies&gt;</code></pre>
 
@@ -150,7 +150,7 @@ model.read(new FileReader(file), docUri, "RDFA");</code></pre>
     &lt;dependency&gt;
         &lt;groupId&gt;org.semarglproject&lt;/groupId&gt;
         &lt;artifactId&gt;semargl-sesame&lt;/artifactId&gt;
-        &lt;version&gt;0.4&lt;/version&gt;
+        &lt;version&gt;0.6&lt;/version&gt;
     &lt;/dependency&gt;
 &lt;/dependencies&gt;</code></pre>
 
@@ -218,9 +218,9 @@ rdfParser.parse(input, inputUri);</code></pre>
         <g:plusone size="medium" href="http://semarglproject.org"></g:plusone>
         <iframe src="http://ghbtns.com/github-btn.html?user=levkhomich&repo=semargl&type=watch&count=true"
                 allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
-        <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://semarglproject.org"
-           data-text="Semargl - better linked data processing #RDFa #RDF #SemanticWeb #Java"
-           data-count="horizontal" data-via="levkhomich">Tweet</a>
+        <a href="http://twitter.com/share" class="twitter-share-button" data-counturl="http://semarglproject.org"
+           data-text="Semargl - better linked data processing #rdfa #rdf #jsonld #SemanticWeb #java"
+           data-via="levkhomich">Tweet</a>
     </p>
 
     <div id="footer">
@@ -228,10 +228,11 @@ rdfParser.parse(input, inputUri);</code></pre>
             <div class="muted credit">
                 <p>
                     The project is licensed under the
-                    <a href="http://www.apache.org/licenses/LICENSE-2.0.html" rel="license">Apache License, Version 2.0</a>
-                    and maintained by <span href="http://levkhomich.ru/foaf#me" typeof="foaf:Person"
-                                            rel="dc:creator maintainer developer foaf:maker">
-                    <a property="foaf:name" rel="foaf:homepage" href="http://levkhomich.ru/">Lev Khomich</a></span>.
+                    <a href="http://www.apache.org/licenses/LICENSE-2.0.html" rel="license">Apache License, Version 2.0</a>.
+                    <span href="http://levkhomich.ru/foaf#me" typeof="foaf:Person"
+                          rel="dc:creator maintainer developer foaf:maker">
+                        <a property="foaf:name" rel="foaf:homepage" href="http://levkhomich.ru/">Lev Khomich</a>
+                    </span>
                 </p>
             </div>
         </div>
@@ -262,14 +263,9 @@ rdfParser.parse(input, inputUri);</code></pre>
         s.src = 'http://apis.google.com/js/plusone.js';
         t.parentNode.insertBefore(s, t);
     })();
-
-    (function() {
-        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = 'http://platform.twitter.com/widgets.js';
-        t.parentNode.insertBefore(s, t);
-    })();
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);
+        js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}
+    }(document,"script","twitter-wjs");
 </script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
