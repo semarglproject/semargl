@@ -49,7 +49,7 @@ final class EvalContext {
     String objectLitDt;
     String listTail;
     boolean parsingArray;
-    boolean container;
+    String containerType;
     boolean nullified;
     boolean hasProps;
     boolean hasNonGraphContextProps;

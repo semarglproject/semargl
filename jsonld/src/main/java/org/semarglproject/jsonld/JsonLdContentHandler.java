@@ -80,7 +80,7 @@ final class JsonLdContentHandler {
             currentContext.updateState(EvalContext.PARENT_SAFE);
         } else if (!currentContext.isParsingContext() && !currentContext.index) {
             addSubjectTypeDefinition(currentContext.objectLitDt, currentContext.base);
-            if (contextStack.size() > 1 && !currentContext.container) {
+            if (contextStack.size() > 1 && currentContext.containerType == null) {
                 // TODO: check for property reordering issues
                 addSubjectTypeDefinition(currentContext.parent.getDtMapping(currentContext.parent.predicate),
                         currentContext.parent.base);
@@ -112,7 +112,7 @@ final class JsonLdContentHandler {
                 currentContext.addListRest(RDF.NIL);
             } else {
                 currentContext.subject = RDF.NIL;
-                currentContext.container = false;
+                currentContext.containerType = null;
             }
         } else if (JsonLd.SET_KEY.equals(currentContext.predicate)) {
             currentContext.objectLit = JsonLd.NULL;
@@ -143,6 +143,14 @@ final class JsonLdContentHandler {
         unwrap();
         if (currentContext.index && !key.startsWith("@")) {
             key = currentContext.parent.predicate;
+        } else if (currentContext.parent != null && currentContext.parent.predicate != null) {
+            String dt = currentContext.getDtMapping(currentContext.parent.predicate);
+            if (JsonLd.CONTAINER_LANGUAGE_KEY.equals(dt)) {
+                currentContext.lang = key;
+                key = currentContext.parent.predicate;
+                currentContext.containerType = JsonLd.LANGUAGE_KEY;
+                currentContext.subject = currentContext.parent.subject;
+            }
         }
         try {
             String mapping = currentContext.resolveMapping(key);
@@ -156,7 +164,7 @@ final class JsonLdContentHandler {
             if (mapping != null && mapping.charAt(0) == '@') {
                 currentContext.predicate = mapping;
                 if (mapping.equals(JsonLd.SET_KEY) || mapping.equals(JsonLd.LIST_KEY)) {
-                    currentContext.container = true;
+                    currentContext.containerType = mapping;
                 }
             } else {
                 currentContext.predicate = key;
@@ -226,6 +234,8 @@ final class JsonLdContentHandler {
                 } catch (MalformedIriException e) {
                     currentContext.addPlainLiteral(value, JsonLd.LANGUAGE_KEY);
                 }
+            } else if (JsonLd.LANGUAGE_KEY.equals(currentContext.containerType)) {
+                currentContext.addPlainLiteral(value, currentContext.lang);
             } else {
                 currentContext.addPlainLiteral(value, JsonLd.LANGUAGE_KEY);
             }

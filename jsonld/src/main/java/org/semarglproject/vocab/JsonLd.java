@@ -38,6 +38,7 @@ public final class JsonLd {
     public static final String CONTAINER_LIST_KEY = "@container@list";
     public static final String CONTAINER_SET_KEY = "@container@set";
     public static final String CONTAINER_INDEX_KEY = "@container@index";
+    public static final String CONTAINER_LANGUAGE_KEY = "@container@language";
     public static final String NULL = "@@null";
     public static final String DOC_IRI = "@@dociri";
 
