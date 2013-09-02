@@ -204,7 +204,7 @@ public final class SesameRDFaParser implements RDFParser, ProcessorGraphHandler 
         // Map from RDFa short constants to Sesame RDFaVersion
         RDFaVersion version = RDFaVersion.RDFA_1_1;
         if(rdfaCompatibility == RDFa.VERSION_10) {
-            version = RDFaVersion.RDFA_1_1;
+            version = RDFaVersion.RDFA_1_0;
         }
         else if(rdfaCompatibility == RDFa.VERSION_11) {
             version = RDFaVersion.RDFA_1_1;

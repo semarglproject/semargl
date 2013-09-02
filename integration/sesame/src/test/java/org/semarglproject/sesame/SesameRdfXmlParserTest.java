@@ -15,10 +15,10 @@
  */
 package org.semarglproject.sesame;
 
-import org.openrdf.model.Statement;
+import org.openrdf.model.Model;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.semarglproject.rdf.ParseException;
@@ -37,7 +37,7 @@ import java.io.Writer;
 
 public final class SesameRdfXmlParserTest {
 
-    private StatementCollector model;
+    private Model model;
     private StreamProcessor streamProcessor;
     private RdfXmlParserTest rdfXmlParserTest;
 
@@ -45,8 +45,8 @@ public final class SesameRdfXmlParserTest {
     public void init() {
         rdfXmlParserTest = new RdfXmlParserTest();
         rdfXmlParserTest.init();
-        model = new StatementCollector();
-        streamProcessor = new StreamProcessor(RdfXmlParser.connect(SesameSink.connect(model)));
+        model = new LinkedHashModel();
+        streamProcessor = new StreamProcessor(RdfXmlParser.connect(SesameSink.connect(new StatementCollector(model))));
     }
 
     @BeforeMethod
@@ -67,13 +67,8 @@ public final class SesameRdfXmlParserTest {
                 try {
                     streamProcessor.process(input, inputUri);
                 } finally {
-                    RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                     try {
-                        rdfWriter.startRDF();
-                        for (Statement nextStatement : model.getStatements()) {
-                            rdfWriter.handleStatement(nextStatement);
-                        }
-                        rdfWriter.endRDF();
+                        Rio.write(model, output, RDFFormat.TURTLE);
                     } catch (RDFHandlerException e) {
                         // do nothing
                     }
