@@ -351,12 +351,13 @@ public final class JsonLdParser extends Pipe<TripleSink> implements CharSink {
     public void startStream() throws ParseException {
         super.startStream();
         parsingState = PARSING_ARRAY_BEFORE_VALUE;
+        contentHandler.onDocumentStart();
     }
 
     @Override
     public void endStream() throws ParseException {
         super.endStream();
-        contentHandler.clear();
+        contentHandler.onDocumentEnd();
         if (tokenStartPos != -1 || !stateStack.isEmpty()) {
             error("Unexpected end of stream");
         }

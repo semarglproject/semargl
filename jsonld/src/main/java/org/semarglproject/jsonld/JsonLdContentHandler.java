@@ -36,9 +36,18 @@ final class JsonLdContentHandler {
     private Deque<EvalContext> contextStack = new LinkedList<EvalContext>();
     private final DocumentContext dh = new DocumentContext();
     private EvalContext currentContext;
+    private final QuadSink sink;
 
     public JsonLdContentHandler(QuadSink sink) {
+        this.sink = sink;
+    }
+
+    public void onDocumentStart() {
         currentContext = EvalContext.createInitialContext(dh, sink);
+    }
+
+    public void onDocumentEnd() {
+        clear();
     }
 
     public void onObjectStart() {
@@ -362,7 +371,7 @@ final class JsonLdContentHandler {
         }
     }
 
-    public void clear() {
+    private void clear() {
         dh.clear();
         contextStack.clear();
         currentContext = null;
