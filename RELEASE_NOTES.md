@@ -1,3 +1,10 @@
+Version 0.6
+-----------
+* `JsonLdParser`
+* `NQuadsSerializer`
+* improved Sesame integration
+* lots of improvements in tests
+
 Version 0.5
 -----------
 
