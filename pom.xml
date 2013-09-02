@@ -97,7 +97,6 @@
         <module>rdfa</module>
         <module>jsonld</module>
         <module>integration</module>
-        <module>examples</module>
     </modules>
 
     <build>
