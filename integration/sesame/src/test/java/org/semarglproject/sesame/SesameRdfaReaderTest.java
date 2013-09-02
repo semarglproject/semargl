@@ -17,13 +17,11 @@ package org.semarglproject.sesame;
 
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.rio.helpers.RDFaParserSettings;
@@ -71,13 +69,8 @@ public class SesameRdfaReaderTest {
             } catch (IOException e) {
                 // do nothing
             } finally {
-                RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, output);
                 try {
-                    rdfWriter.startRDF();
-                    for(Statement nextStatement : model) {
-                        rdfWriter.handleStatement(nextStatement);
-                    }
-                    rdfWriter.endRDF();
+                    Rio.write(model, output, RDFFormat.TURTLE);
                 } catch (RDFHandlerException e) {
                     // do nothing
                 }
