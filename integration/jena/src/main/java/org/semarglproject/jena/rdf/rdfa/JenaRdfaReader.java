@@ -65,19 +65,26 @@ public final class JenaRdfaReader implements RDFReader {
 
     @Override
     public void read(Model model, InputStream r, String base) {
+        boolean txSupported = model.supportsTransactions();
         InputStreamReader reader = new InputStreamReader(r);
         try {
-            model.begin();
+            if (txSupported) {
+                model.begin();
+            }
             read(model, reader, base);
         } finally {
-            model.abort();
+            if (txSupported) {
+                model.abort();
+            }
             try {
                 reader.close();
             } catch (IOException e) {
                 // do nothing
             }
         }
-        model.commit();
+        if (txSupported) {
+            model.commit();
+        }
     }
 
     @Override
