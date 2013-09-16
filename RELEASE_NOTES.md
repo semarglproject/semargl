@@ -1,3 +1,8 @@
+Version 0.6.1
+-------------
+
+Bug fix release.
+
 Version 0.6
 -----------
 * `JsonLdParser`
