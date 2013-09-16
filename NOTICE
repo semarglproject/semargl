@@ -11,3 +11,6 @@ This product includes/uses test suite developed by W3C Consortium.
 
 This product includes/uses RDFa test harness developed by RDF Web Applications Working Group
 (http://www.w3.org/2010/02/rdfa/).
+
+This product includes/uses JSON-LD test harness developed by RDF Working Group
+(http://json-ld.org/test-suite/).
