@@ -32,6 +32,7 @@ public class TestSuiteDownloadHelper {
         ExecutorService executorService = Executors.newFixedThreadPool(parallelism);
         executorService.execute(new TestDownloadWorker("rdfa1.0", "xhtml1"));
         executorService.execute(new TestDownloadWorker("rdfa1.0", "svg"));
+        executorService.execute(new TestDownloadWorker("rdfa1.0", "xml"));
         executorService.execute(new TestDownloadWorker("rdfa1.1", "html4"));
         executorService.execute(new TestDownloadWorker("rdfa1.1", "xhtml1"));
         executorService.execute(new TestDownloadWorker("rdfa1.1", "html5"));

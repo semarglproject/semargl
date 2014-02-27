@@ -137,7 +137,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, Tripl
     private List<String> xmlStringPred = null;
     private String xmlStringSubj = null;
 
-    private short defaultRdfaVersion = RDFa.VERSION_11;
+    private Short forcedRdfaVersion = null;
     private boolean sinkOutputGraph;
     private boolean sinkProcessorGraph;
 
@@ -213,7 +213,7 @@ public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, Tripl
             }
         }
 
-        dh.clear(defaultRdfaVersion);
+        dh.clear();
         contextStack.clear();
         patternProps.clear();
         copyingPairs.clear();
@@ -1040,18 +1040,30 @@ public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, Tripl
     public boolean setPropertyInternal(String key, Object value) {
         if (ENABLE_OUTPUT_GRAPH.equals(key) && value instanceof Boolean) {
             sinkOutputGraph = (Boolean) value;
-        } else if (ENABLE_PROCESSOR_GRAPH.equals(key) && value instanceof Boolean) {
+        } else if (getRdfaVersion() != RDFa.VERSION_10 && ENABLE_PROCESSOR_GRAPH.equals(key)
+                && value instanceof Boolean) {
             sinkProcessorGraph = (Boolean) value;
-        } else if (ENABLE_VOCAB_EXPANSION.equals(key) && value instanceof Boolean) {
+            forcedRdfaVersion = RDFa.VERSION_11;
+        } else if (getRdfaVersion() != RDFa.VERSION_10 && ENABLE_VOCAB_EXPANSION.equals(key)
+                && value instanceof Boolean) {
             expandVocab = (Boolean) value;
-        } else if (sinkProcessorGraph || expandVocab) {
-            defaultRdfaVersion = RDFa.VERSION_11;
-        } else if (RDFA_VERSION_PROPERTY.equals(key) && value instanceof Integer) {
-            int rdfaVersion = (Integer) value;
+            forcedRdfaVersion = RDFa.VERSION_11;
+//        } else if (sinkProcessorGraph || expandVocab) {
+//            forcedRdfaVersion = RDFa.VERSION_11;
+        } else if (RDFA_VERSION_PROPERTY.equals(key) && value instanceof Short) {
+            short rdfaVersion = (Short) value;
             if (rdfaVersion < RDFa.VERSION_10 || rdfaVersion > RDFa.VERSION_11) {
                 throw new IllegalArgumentException("Unsupported RDFa version");
             }
-            defaultRdfaVersion = (short) rdfaVersion;
+            forcedRdfaVersion = rdfaVersion;
+            dh.rdfaVersion = forcedRdfaVersion;
+            if (rdfaVersion < RDFa.VERSION_11) {
+                sinkProcessorGraph = false;
+                expandVocab = false;
+            } else {
+                sinkProcessorGraph = true;
+                expandVocab = true;
+            }
         } else if (StreamProcessor.PROCESSOR_GRAPH_HANDLER_PROPERTY.equals(key)
                 && value instanceof ProcessorGraphHandler) {
             processorGraphHandler = (ProcessorGraphHandler) value;
@@ -1287,6 +1299,13 @@ public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, Tripl
 
     @Override
     public void endDTD() throws SAXException {
+    }
+
+    short getRdfaVersion() {
+        if (forcedRdfaVersion == null) {
+            return RDFa.VERSION_11;
+        }
+        return forcedRdfaVersion;
     }
 
     private static final class Splitter implements Iterator<String> {

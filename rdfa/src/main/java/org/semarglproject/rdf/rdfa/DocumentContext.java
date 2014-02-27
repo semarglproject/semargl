@@ -51,7 +51,7 @@ final class DocumentContext {
     DocumentContext(RdfaParser parser) {
         this.parser = parser;
         nextBnodeId = 0;
-        clear(RDFa.VERSION_11);
+        clear();
     }
 
     String resolveBNode(String value) {
@@ -121,8 +121,8 @@ final class DocumentContext {
         return RIUtils.resolveIri(base, iri);
     }
 
-    void clear(short defaultRdfaVersion) {
-        rdfaVersion = defaultRdfaVersion;
+    void clear() {
+        rdfaVersion = parser.getRdfaVersion();
         documentFormat = FORMAT_UNKNOWN;
         bnodeMapping = new HashMap<String, String>();
         base = null;
