@@ -67,7 +67,7 @@
             </div>
 
             <label>
-                <input id="includeOutput" type="checkbox" checked="true"/> include output graph
+                <input id="includeOutput" type="checkbox" checked/> include output graph
             </label>
             <label>
                 <input id="includeProcessor" type="checkbox"/> include processor graph
@@ -76,15 +76,15 @@
                 <input id="forceRdfa10" type="checkbox"/> force RDFa 1.0 mode
             </label>
             <label>
-                <input id="vocabExpansion" type="checkbox" checked="true" disabled /> enable vocabulary expansion
+                <input id="vocabExpansion" type="checkbox" checked disabled /> enable vocabulary expansion
             </label>
 
-            <span id="results_wrapper" style="display: none">
+            <div id="results_wrapper" style="display: none">
                 <h4>Results</h4>
 
                 <pre><code id="results">
                 </code></pre>
-            </span>
+            </div>
         </fieldset>
     </form>
 
@@ -101,14 +101,12 @@
 
     <hr/>
 
-    <p>
-        <g:plusone size="medium" href="http://semarglproject.org"></g:plusone>
-        <iframe src="http://ghbtns.com/github-btn.html?user=levkhomich&repo=semargl&type=watch&count=true"
-                allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
-        <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://semarglproject.org"
-           data-text="Semargl - better linked data processing #rdfa #rdf #jsonld #SemanticWeb #java"
-           data-via="levkhomich">Tweet</a>
-    </p>
+    <div class="g-plusone" data-size="medium" data-href="http://semarglproject.org"></div>
+    <iframe src="http://ghbtns.com/github-btn.html?user=levkhomich&amp;repo=semargl&amp;type=watch&amp;count=true"
+            allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+    <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://semarglproject.org"
+       data-text="Semargl - better linked data processing #rdfa #rdf #jsonld #SemanticWeb #java"
+       data-via="levkhomich">Tweet</a>
 
     <div id="footer">
         <div class="container">
@@ -144,11 +142,9 @@
 </script>
 <script type="text/javascript">
     (function() {
-        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = 'http://apis.google.com/js/plusone.js';
-        t.parentNode.insertBefore(s, t);
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js?onload=onLoadCallback';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
     })();
     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);
         js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}
