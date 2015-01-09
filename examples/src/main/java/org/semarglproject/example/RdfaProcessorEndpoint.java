@@ -15,6 +15,7 @@
  */
 package org.semarglproject.example;
 
+import org.ccil.cowan.tagsoup.jaxp.SAXParserImpl;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -24,6 +25,8 @@ import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.vocab.RDFa;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,15 +36,28 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
+/**
+ * Creates standard RFFa processor endpoint.
+ *
+ * Request expmples:
+ * GET http://localhost:8080/?uri=http://schema.org/Person
+ * GET http://localhost:8080/?uri=http://schema.org/Person&rdfaversion=1.0
+ * GET http://localhost:8080/?uri=http://schema.org/Person&rdfagraph=output
+ *
+ */
 public final class RdfaProcessorEndpoint extends AbstractHandler {
 
     private final StreamProcessor streamProcessor;
     private final CharOutputSink charOutputSink;
 
-    public RdfaProcessorEndpoint() {
+    public RdfaProcessorEndpoint() throws SAXException {
         charOutputSink = new CharOutputSink("UTF-8");
         streamProcessor = new StreamProcessor(RdfaParser.connect(TurtleSerializer.connect(charOutputSink)));
         streamProcessor.setProperty(RdfaParser.ENABLE_VOCAB_EXPANSION, true);
+
+        // use error-prone HTML parser to produce valid XML documents
+        XMLReader reader = SAXParserImpl.newInstance(null).getXMLReader();
+        streamProcessor.setProperty(StreamProcessor.XML_READER_PROPERTY, reader);
     }
 
     public static void main(String[] args) throws Exception {
