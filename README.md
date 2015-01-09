@@ -14,8 +14,9 @@ It runs seamlessly on Android and GAE.
 
 You can check some framework capabilities via [RDFa parser demo](http://demo.semarglproject.org).
 
-[![Build Status](https://travis-ci.org/levkhomich/semargl.png?branch=master)](https://travis-ci.org/levkhomich/semargl)
-[![Coverage Status](https://coveralls.io/repos/levkhomich/semargl/badge.png?branch=master)](https://coveralls.io/r/levkhomich/semargl?branch=master)
+[![Maven Central](https://img.shields.io/maven-central/v/org.semarglproject/semargl-core.svg?style=flat-square)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.semarglproject%22%20semargl)
+[![Build Status](https://img.shields.io/travis/levkhomich/semargl/master.svg?style=flat-square)](https://travis-ci.org/levkhomich/semargl)
+[![Coverage Status](https://img.shields.io/coveralls/levkhomich/semargl.svg?style=flat-square)](https://coveralls.io/r/levkhomich/semargl?branch=master)
 
 Why use Semargl?
 ================
