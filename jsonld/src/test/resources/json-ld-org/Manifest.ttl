@@ -700,6 +700,18 @@
     test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0117-in.jsonld> ;
     test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0117-out.nq> .
 
+<http://json-ld.org/test-suite/tests/toRdf_0118> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Triples with blank node predicates are not dropped if the produce generalized RDF flag is true." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0118-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0118-out.nq> .
+
+<http://json-ld.org/test-suite/tests/toRdf_0119> a test:PositiveParserTest ;
+    test:status "APPROVED" ;
+    test:description "Proper (re-)labeling of blank nodes if used with reverse properties." ;
+    test:inputDocument <http://json-ld.org/test-suite/tests/toRdf-0119-in.jsonld> ;
+    test:outputDocument <http://json-ld.org/test-suite/tests/toRdf-0119-out.nq> .
+
 ########################################################################################
 # other tests
 ########################################################################################
