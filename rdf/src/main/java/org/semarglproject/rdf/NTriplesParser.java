@@ -47,6 +47,8 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
     private static final short PARSING_LITERAL_TYPE = 5;
     private static final short PARSING_COMMENT = 6;
 
+    private static final char SENTENCE_END = '.';
+
     /**
      * NTriples whitespace char checker
      */
@@ -58,6 +60,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
         WHITESPACE.set('\r');
         WHITESPACE.set('\n');
     }
+
 
     private String subj = null;
     private String pred = null;
@@ -120,7 +123,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
         int end = start + count;
 
         for (int pos = start; pos < end; pos++) {
-            if (skipSentence && buffer[pos] != '.') {
+            if (skipSentence && buffer[pos] != SENTENCE_END) {
                 continue;
             } else {
                 skipSentence = false;
@@ -138,7 +141,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
                     parsingState = PARSING_OUTSIDE;
                 }
             } else if (parsingState == PARSING_BNODE) {
-                if (WHITESPACE.get(buffer[pos]) || buffer[pos] == '.') {
+                if (WHITESPACE.get(buffer[pos]) || buffer[pos] == SENTENCE_END) {
                     onNonLiteral(extractToken(buffer, pos - 1, 0));
                     parsingState = PARSING_OUTSIDE;
                 }
@@ -148,7 +151,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
                 if (buffer[pos] == '@' || buffer[pos] == '^') {
                     tokenStartPos = pos;
                     parsingState = PARSING_LITERAL_TYPE;
-                } else if (WHITESPACE.get(buffer[pos])) {
+                } else if (WHITESPACE.get(buffer[pos]) || buffer[pos] == SENTENCE_END) {
                     onPlainLiteral(literalObj, null);
                     parsingState = PARSING_OUTSIDE;
                     processOutsideChar(buffer, pos);
@@ -188,7 +191,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
     private void processLiteralTypeChar(char[] buffer, int pos) throws ParseException {
         if (WHITESPACE.get(buffer[pos])) {
             String type = extractToken(buffer, pos, 0);
-            int trimSize = type.charAt(type.length() - 1) == '.' ? 1 : 0;
+            int trimSize = type.charAt(type.length() - 1) == SENTENCE_END ? 1 : 0;
             if (type.charAt(0) == '@') {
                 onPlainLiteral(literalObj, type.substring(1, type.length() - 1 - trimSize));
             } else if (type.startsWith("^^<") && type.charAt(type.length() - 2) == '>') {
@@ -220,7 +223,7 @@ public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
             case '#':
                 parsingState = PARSING_COMMENT;
                 break;
-            case '.':
+            case SENTENCE_END:
                 finishSentence();
                 break;
             default:
