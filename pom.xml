@@ -65,7 +65,7 @@
         <version.site.plugin>3.3</version.site.plugin>
         <version.jar.plugin>2.3.2</version.jar.plugin>
         <version.dependency.plugin>2.8</version.dependency.plugin>
-        <version.license.plugin>2.2</version.license.plugin>
+        <version.license.plugin>2.7</version.license.plugin>
         <version.checkstyle.plugin>2.10</version.checkstyle.plugin>
         <version.surefire.plugin>2.16</version.surefire.plugin>
         <version.source.plugin>2.2.1</version.source.plugin>
