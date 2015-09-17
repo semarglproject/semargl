@@ -157,12 +157,12 @@ public final class NQuadsParser extends Pipe<QuadSink> implements CharSink {
                 if (buffer[pos] == '@' || buffer[pos] == '^') {
                     tokenStartPos = pos;
                     parsingState = PARSING_LITERAL_TYPE;
-                } else if (WHITESPACE.get(buffer[pos]) || buffer[pos] == SENTENCE_END) {
+                } else if (WHITESPACE.get(buffer[pos]) || buffer[pos] == '<') {
                     onPlainLiteral(literal, null);
                     parsingState = PARSING_OUTSIDE;
                     processOutsideChar(buffer, pos);
                 } else {
-                    error("Unexpected character '" + buffer[pos] + "' after literal");
+                    error("Unexpected character '" + buffer[pos] + "' after literal in string '" + new String(buffer) + "'");
                 }
             } else if (parsingState == PARSING_LITERAL_TYPE) {
                 processLiteralTypeChar(buffer, pos);
