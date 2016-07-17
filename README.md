@@ -58,8 +58,7 @@ sp.process(file, docUri);
 ```
 
 If you want to use Semargl as a standalone framework, you can find useful internal
-serializers and easily extendable API. See more info and usage examples at
-[project's page](http://semarglproject.org/usage.html).
+serializers and easily extendable API.
 
 Build
 =====
