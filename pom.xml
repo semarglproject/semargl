@@ -87,6 +87,7 @@
         <version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
         <version.jackson>2.8.1</version.jackson>
         <version.jena>2.11.1</version.jena>
+        <version.junit>4.12</version.junit>
         <version.rdf4j>2.0M3</version.rdf4j>
         <version.sesame>2.7.10</version.sesame>
         <version.slf4j>1.6.4</version.slf4j>
@@ -365,6 +366,13 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${version.testng}</version>
+            </dependency>
+
+            <!-- JUnit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
             </dependency>
 
             <!-- Apache Clerezza -->
