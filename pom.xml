@@ -85,8 +85,11 @@
         <version.clerezza.jena.serializer>0.9-incubating</version.clerezza.jena.serializer>
         <version.clerezza.jena.parser>0.10-incubating</version.clerezza.jena.parser>
         <version.clerezza.jena.sparql>0.5-incubating</version.clerezza.jena.sparql>
+        <version.jackson>2.8.2</version.jackson>
         <version.jena>2.11.1</version.jena>
-        <version.sesame>2.7.10</version.sesame>
+        <version.junit>4.12</version.junit>
+        <version.rdf4j>2.0.1</version.rdf4j>
+        <version.sesame>2.7.16</version.sesame>
         <version.slf4j>1.6.4</version.slf4j>
 
         <!-- Checkstyle configuration -->
@@ -365,6 +368,13 @@
                 <version>${version.testng}</version>
             </dependency>
 
+            <!-- JUnit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+            </dependency>
+
             <!-- Apache Clerezza -->
             <dependency>
                 <groupId>org.apache.clerezza</groupId>
@@ -436,11 +446,45 @@
                 <version>${version.sesame}</version>
             </dependency>
 
+            <!-- Eclipse RDF4J -->
+            <dependency>
+                <groupId>org.eclipse.rdf4j</groupId>
+                <artifactId>rdf4j-rio-api</artifactId>
+                <version>${version.rdf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.rdf4j</groupId>
+                <artifactId>rdf4j-rio-compliance</artifactId>
+                <version>${version.rdf4j}</version>
+            </dependency>
+
             <!-- Apache Commons -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${version.apache.commons.io}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${version.jackson}</version>
             </dependency>
 
             <!-- SLF4j logging -->

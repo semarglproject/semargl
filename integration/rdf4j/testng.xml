@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Sesame Integration Tests" verbose="1" parallel="tests" thread-count="2">
+    <test name="RDF/XML and NTriples">
+        <classes>
+            <class name="org.semarglproject.rdf4j.RDF4JRdfXmlParserTest" />
+            <class name="org.semarglproject.rdf4j.RDF4JNTriplesParserTest" />
+        </classes>
+    </test>
+    <test name="RDFa">
+        <classes>
+            <class name="org.semarglproject.rdf4j.RDF4JRdfaParserTest" />
+            <class name="org.semarglproject.rdf4j.RDF4JRdfaReaderTest" />
+        </classes>
+    </test>
+</suite>
