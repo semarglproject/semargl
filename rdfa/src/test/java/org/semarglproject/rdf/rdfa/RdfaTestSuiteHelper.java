@@ -100,7 +100,7 @@ public final class RdfaTestSuiteHelper {
             String queryStr = IOUtils.toString(sth.openStreamForResource(testCase.result), "UTF-8");
             boolean expectedResult = testCase.expectedResult == null || Boolean.parseBoolean(testCase.expectedResult);
             boolean actualResult = sth.askModel(resultFilePath, queryStr, testCase.input, expectedResult);
-            
+
             assertEquals(actualResult, expectedResult, testCase.input);
         } catch (IOException e) {
             fail();
