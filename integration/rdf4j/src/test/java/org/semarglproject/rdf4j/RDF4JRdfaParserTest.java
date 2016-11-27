@@ -20,6 +20,8 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.WriterConfig;
+import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.semarglproject.rdf.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
@@ -54,7 +56,9 @@ public final class RDF4JRdfaParserTest {
                 streamProcessor.process(input, inputUri);
             } finally {
                 try {
-                    Rio.write(model, output, RDFFormat.TURTLE);
+                	WriterConfig config = new WriterConfig();
+                	config.set(BasicWriterSettings.XSD_STRING_TO_PLAIN_LITERAL, false);
+                    Rio.write(model, output, RDFFormat.NTRIPLES);
                 } catch(RDFHandlerException e) {
                     // do nothing
                 }

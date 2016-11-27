@@ -16,6 +16,7 @@
 
 package org.semarglproject.test;
 
+import info.aduna.io.IOUtil;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.io.FileUtils;
 import org.openrdf.OpenRDFException;
@@ -41,6 +42,7 @@ import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.rio.helpers.ContextStatementCollector;
+import org.openrdf.rio.helpers.NTriplesParserSettings;
 import org.openrdf.rio.helpers.ParseErrorCollector;
 import org.openrdf.sail.memory.MemoryStore;
 
@@ -233,6 +235,12 @@ public class SesameTestHelper {
                     System.err.println(nextStatement);
                 }
                 System.err.println("===============================");
+                InputStream rawResults = openStreamForResource(resultFilePath);
+                try {
+                    IOUtil.transfer(rawResults, System.err);
+                } finally {
+                    rawResults.close();
+                }
             }
 
             return result;

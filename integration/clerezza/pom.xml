@@ -55,6 +55,10 @@
             <!-- Exclude to use dependency from clerezza - rdf.core - utils -->
             <exclusions>
                 <exclusion>
+                    <groupId>org.openrdf.sesame</groupId>
+                    <artifactId>sesame-sail-lucene4</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
