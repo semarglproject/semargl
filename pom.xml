@@ -2,12 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <groupId>org.semarglproject</groupId>
     <artifactId>semargl-parent</artifactId>
     <version>0.7-SNAPSHOT</version>
@@ -27,6 +21,11 @@
             <email>levkhomich@gmail.com</email>
             <url>http://levkhomich.ru</url>
         </developer>
+        <developer>
+            <name>Peter Ansell</name>
+            <email>p_ansell@yahoo.com</email>
+            <url>https://github.com/ansell</url>
+        </developer>
     </developers>
 
     <licenses>
@@ -38,15 +37,15 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:levkhomich/semargl.git</connection>
-        <developerConnection>scm:git:git@github.com:levkhomich/semargl.git</developerConnection>
-        <url>https://github.com/levkhomich/semargl.git</url>
+        <connection>scm:git:git@github.com:semarglproject/semargl.git</connection>
+        <developerConnection>scm:git:git@github.com:semarglproject/semargl.git</developerConnection>
+        <url>https://github.com/semarglproject/semargl.git</url>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>github</system>
-        <url>https://github.com/levkhomich/semargl/issues</url>
+        <url>https://github.com/semarglproject/semargl/issues</url>
     </issueManagement>
 
     <properties>
