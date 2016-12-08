@@ -44,7 +44,7 @@ No jokes!
 <dependency>
     <groupId>org.semarglproject</groupId>
     <artifactId>semargl-rdfa</artifactId>
-    <version>0.6.1</version>
+    <version>0.7</version>
 </dependency>
 ```
 

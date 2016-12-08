@@ -1,3 +1,8 @@
+Version 0.7
+-----------
+
+* Add RDF4J integration
+
 Version 0.6.1
 -------------
 
