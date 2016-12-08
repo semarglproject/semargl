@@ -56,25 +56,24 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- Plugins -->
-        <version.clean.plugin>2.4.1</version.clean.plugin>
-        <version.resources.plugin>2.6</version.resources.plugin>
-        <version.compiler.plugin>3.1</version.compiler.plugin>
-        <version.deploy.plugin>2.7</version.deploy.plugin>
-        <version.install.plugin>2.4</version.install.plugin>
-        <version.site.plugin>3.3</version.site.plugin>
-        <version.jar.plugin>2.3.2</version.jar.plugin>
-        <version.dependency.plugin>2.8</version.dependency.plugin>
-        <version.license.plugin>2.7</version.license.plugin>
+        <version.clean.plugin>3.0.0</version.clean.plugin>
+        <version.resources.plugin>3.0.1</version.resources.plugin>
+        <version.compiler.plugin>3.5.1</version.compiler.plugin>
+        <version.deploy.plugin>2.8.2</version.deploy.plugin>
+        <version.install.plugin>2.5.2</version.install.plugin>
+        <version.site.plugin>3.5.1</version.site.plugin>
+        <version.jar.plugin>3.0.2</version.jar.plugin>
+        <version.dependency.plugin>2.10</version.dependency.plugin>
+        <version.license.plugin>3.0</version.license.plugin>
         <version.checkstyle.plugin>2.10</version.checkstyle.plugin>
-        <version.surefire.plugin>2.16</version.surefire.plugin>
-        <version.source.plugin>2.2.1</version.source.plugin>
-        <version.release.plugin>2.4.1</version.release.plugin>
-        <version.javadoc.plugin>2.9.1</version.javadoc.plugin>
-        <version.jar.plugin>2.4</version.jar.plugin>
-        <version.gpg.plugin>1.4</version.gpg.plugin>
-        <version.enforcer.plugin>1.3.1</version.enforcer.plugin>
-        <version.coveralls.plugin>2.1.0</version.coveralls.plugin>
-        <version.cobertura.plugin>2.6</version.cobertura.plugin>
+        <version.surefire.plugin>2.19.1</version.surefire.plugin>
+        <version.source.plugin>3.0.1</version.source.plugin>
+        <version.release.plugin>2.5.3</version.release.plugin>
+        <version.javadoc.plugin>2.10.4</version.javadoc.plugin>
+        <version.gpg.plugin>1.6</version.gpg.plugin>
+        <version.enforcer.plugin>1.4.1</version.enforcer.plugin>
+        <version.coveralls.plugin>4.2.0</version.coveralls.plugin>
+        <version.cobertura.plugin>2.7</version.cobertura.plugin>
 
         <!-- External dependencies -->
         <version.testng>6.8.8</version.testng>
@@ -96,6 +95,10 @@
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
     </properties>
+
+    <prerequisites>
+        <maven>3.0.5</maven>
+    </prerequisites>
 
     <modules>
         <module>core</module>
