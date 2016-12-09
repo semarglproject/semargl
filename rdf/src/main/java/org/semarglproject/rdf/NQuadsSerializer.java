@@ -20,7 +20,7 @@ import org.semarglproject.sink.QuadSink;
 
 /**
  * Implementation of {@link org.semarglproject.sink.TripleSink} which serializes triples to
- * {@link org.semarglproject.sink.CharSink} using <a href="">NTriples</a> syntax. *
+ * {@link org.semarglproject.sink.CharSink} using NTriples syntax.
  */
 public class NQuadsSerializer extends NTriplesSerializer implements QuadSink {
 

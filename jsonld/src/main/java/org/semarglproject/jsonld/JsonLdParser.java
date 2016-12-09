@@ -31,13 +31,12 @@ import java.util.LinkedList;
 /**
  * Implementation of streaming <a href="http://www.w3.org/TR/2013/WD-json-ld-20130411/">JSON-LD</a> parser.
  * Parser requires @id properties to be declared before predicates for each non-blank JSON-LD node.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link StreamProcessor#PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
  *         <li>{@link StreamProcessor#ENABLE_ERROR_RECOVERY}</li>
  *     </ul>
- * </p>
  */
 public final class JsonLdParser extends Pipe<TripleSink> implements CharSink {
 

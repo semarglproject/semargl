@@ -24,13 +24,12 @@ import java.util.BitSet;
 
 /**
  * Implementation of streaming NQuads parser.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link org.semarglproject.source.StreamProcessor#PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
  *         <li>{@link org.semarglproject.source.StreamProcessor#ENABLE_ERROR_RECOVERY}</li>
  *     </ul>
- * </p>
  */
 public final class NQuadsParser extends Pipe<QuadSink> implements CharSink {
 

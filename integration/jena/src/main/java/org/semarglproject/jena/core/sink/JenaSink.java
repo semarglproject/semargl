@@ -24,12 +24,11 @@ import org.semarglproject.sink.TripleSink;
 
 /**
  * Implementation if {@link TripleSink} which feeds triples from Semargl's pipeline to Jena's {@link Model}.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link #OUTPUT_MODEL_PROPERTY}</li>
  *     </ul>
- * </p>
  */
 public final class JenaSink extends AbstractJenaSink {
 

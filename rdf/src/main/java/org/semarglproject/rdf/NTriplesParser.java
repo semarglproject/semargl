@@ -24,13 +24,12 @@ import java.util.BitSet;
 
 /**
  * Implementation of streaming <a href="http://www.w3.org/2001/sw/RDFCore/ntriples/">NTriples</a> parser.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link StreamProcessor#PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
  *         <li>{@link StreamProcessor#ENABLE_ERROR_RECOVERY}</li>
  *     </ul>
- * </p>
  */
 public final class NTriplesParser extends Pipe<TripleSink> implements CharSink {
 

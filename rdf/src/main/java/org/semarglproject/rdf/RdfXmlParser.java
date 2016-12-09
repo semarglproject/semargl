@@ -32,13 +32,12 @@ import java.util.*;
 
 /**
  * Implementation of streaming <a href="http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/">RDF/XML</a> parser.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link StreamProcessor#PROCESSOR_GRAPH_HANDLER_PROPERTY}</li>
  *         <li>{@link StreamProcessor#ENABLE_ERROR_RECOVERY}</li>
  *     </ul>
- * </p>
  */
 public final class RdfXmlParser extends Pipe<TripleSink> implements XmlSink {
 

@@ -34,12 +34,11 @@ import java.util.Map;
 
 /**
  * Implementation if {@link TripleSink} which feeds triples from Semargl's pipeline to Clerezza's {@link MGraph}.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link #OUTPUT_GRAPH_PROPERTY}</li>
  *     </ul>
- * </p>
  */
 public class ClerezzaSink implements TripleSink {
 

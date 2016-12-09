@@ -26,11 +26,11 @@ import java.io.Reader;
 /**
  * Simple pipeline managing wrapper. Automatically instantiates source appropriate for specified sink.
  * Provides processing and setup methods.
- * <p>List of supported properties:
+ * <br>
+ * List of supported properties:
  *     <ul>
  *         <li>{@link #XML_READER_PROPERTY}</li>
  *     </ul>
- * </p>
  */
 public final class StreamProcessor extends BaseStreamProcessor {
 

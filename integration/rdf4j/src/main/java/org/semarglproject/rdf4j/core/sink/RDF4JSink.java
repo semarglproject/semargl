@@ -17,10 +17,10 @@ package org.semarglproject.rdf4j.core.sink;
 
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.semarglproject.rdf.ParseException;
@@ -30,13 +30,12 @@ import org.semarglproject.vocab.RDF;
 
 /**
  * Implementation if {@link TripleSink} which feeds triples from Semargl's pipeline to Sesame's {@link RDFHandler}.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link #RDF_HANDLER_PROPERTY}</li>
  *         <li>{@link #VALUE_FACTORY_PROPERTY}</li>
  *     </ul>
- * </p>
  *
  * @author Peter Ansell p_ansell@yahoo.com
  * @author Lev Khomich levkhomich@gmail.com
@@ -62,7 +61,7 @@ public class RDF4JSink implements QuadSink {
     protected ValueFactory valueFactory;
 
     protected RDF4JSink(RDFHandler handler) {
-        this.valueFactory = ValueFactoryImpl.getInstance();
+        this.valueFactory = SimpleValueFactory.getInstance();
         this.handler = handler;
     }
 
@@ -79,31 +78,31 @@ public class RDF4JSink implements QuadSink {
         if (arg.startsWith(RDF.BNODE_PREFIX)) {
             return valueFactory.createBNode(arg.substring(2));
         }
-        return valueFactory.createURI(arg);
+        return valueFactory.createIRI(arg);
     }
 
     @Override
     public final void addNonLiteral(String subj, String pred, String obj) {
-        addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), convertNonLiteral(obj));
+        addTriple(convertNonLiteral(subj), valueFactory.createIRI(pred), convertNonLiteral(obj));
     }
 
     @Override
     public final void addPlainLiteral(String subj, String pred, String content, String lang) {
         if (lang == null) {
-            addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), valueFactory.createLiteral(content));
+            addTriple(convertNonLiteral(subj), valueFactory.createIRI(pred), valueFactory.createLiteral(content));
         } else {
-            addTriple(convertNonLiteral(subj), valueFactory.createURI(pred),
+            addTriple(convertNonLiteral(subj), valueFactory.createIRI(pred),
                     valueFactory.createLiteral(content, lang));
         }
     }
 
     @Override
     public final void addTypedLiteral(String subj, String pred, String content, String type) {
-        Literal literal = valueFactory.createLiteral(content, valueFactory.createURI(type));
-        addTriple(convertNonLiteral(subj), valueFactory.createURI(pred), literal);
+        Literal literal = valueFactory.createLiteral(content, valueFactory.createIRI(type));
+        addTriple(convertNonLiteral(subj), valueFactory.createIRI(pred), literal);
     }
 
-    protected void addTriple(Resource subject, URI predicate, Value object) {
+    protected void addTriple(Resource subject, IRI predicate, Value object) {
         try {
             handler.handleStatement(valueFactory.createStatement(subject, predicate, object));
         } catch(RDFHandlerException e) {
@@ -117,7 +116,7 @@ public class RDF4JSink implements QuadSink {
         if (graph == null) {
             addNonLiteral(subj, pred, obj);
         } else {
-            addQuad(convertNonLiteral(subj), valueFactory.createURI(pred), convertNonLiteral(obj),
+            addQuad(convertNonLiteral(subj), valueFactory.createIRI(pred), convertNonLiteral(obj),
                     convertNonLiteral(graph));
         }
     }
@@ -128,10 +127,10 @@ public class RDF4JSink implements QuadSink {
             addPlainLiteral(subj, pred, content, lang);
         } else {
             if (lang == null) {
-                addQuad(convertNonLiteral(subj), valueFactory.createURI(pred), valueFactory.createLiteral(content),
+                addQuad(convertNonLiteral(subj), valueFactory.createIRI(pred), valueFactory.createLiteral(content),
                         convertNonLiteral(graph));
             } else {
-                addQuad(convertNonLiteral(subj), valueFactory.createURI(pred),
+                addQuad(convertNonLiteral(subj), valueFactory.createIRI(pred),
                         valueFactory.createLiteral(content, lang), convertNonLiteral(graph));
             }
         }
@@ -142,12 +141,12 @@ public class RDF4JSink implements QuadSink {
         if (graph == null) {
             addTypedLiteral(subj, pred, content, type);
         } else {
-            Literal literal = valueFactory.createLiteral(content, valueFactory.createURI(type));
-            addQuad(convertNonLiteral(subj), valueFactory.createURI(pred), literal, convertNonLiteral(graph));
+            Literal literal = valueFactory.createLiteral(content, valueFactory.createIRI(type));
+            addQuad(convertNonLiteral(subj), valueFactory.createIRI(pred), literal, convertNonLiteral(graph));
         }
     }
 
-    protected void addQuad(Resource subject, URI predicate, Value object, Resource graph) {
+    protected void addQuad(Resource subject, IRI predicate, Value object, Resource graph) {
         try {
             handler.handleStatement(valueFactory.createStatement(subject, predicate, object, graph));
         } catch(RDFHandlerException e) {

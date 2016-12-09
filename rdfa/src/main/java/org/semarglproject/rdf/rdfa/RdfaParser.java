@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
  * <a href="http://www.w3.org/TR/2012/REC-rdfa-core-20120607/">1.1</a>) parser. Supports HTML4, HTML5, XHTML1,
  * XHTML5, XML and SVG inputs. Provides RDFa version and document syntax autodetection.
  *
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link #RDFA_VERSION_PROPERTY}</li>
@@ -58,7 +58,6 @@ import java.util.NoSuchElementException;
  *         <li>{@link #ENABLE_PROCESSOR_GRAPH}</li>
  *         <li>{@link #ENABLE_VOCAB_EXPANSION}</li>
  *     </ul>
- * </p>
  */
 public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, TripleSink, ProcessorGraphHandler {
 

@@ -30,13 +30,12 @@ import org.semarglproject.vocab.RDF;
 
 /**
  * Implementation if {@link TripleSink} which feeds triples from Semargl's pipeline to Sesame's {@link RDFHandler}.
- * <p>
+ * <br>
  *     List of supported options:
  *     <ul>
  *         <li>{@link #RDF_HANDLER_PROPERTY}</li>
  *         <li>{@link #VALUE_FACTORY_PROPERTY}</li>
  *     </ul>
- * </p>
  *
  * @author Peter Ansell p_ansell@yahoo.com
  * @author Lev Khomich levkhomich@gmail.com

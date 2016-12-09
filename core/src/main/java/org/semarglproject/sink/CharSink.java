@@ -18,7 +18,7 @@ package org.semarglproject.sink;
 import org.semarglproject.rdf.ParseException;
 
 /**
- * Interface for handling events from {@link org.semarglproject.source.CharSource}
+ * Interface for handling events from CharSource
  */
 public interface CharSink extends DataSink {
 
