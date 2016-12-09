@@ -4,7 +4,7 @@
 
     <groupId>org.semarglproject</groupId>
     <artifactId>semargl-parent</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7</version>
     <packaging>pom</packaging>
 
     <name>Semargl: Parent Aggregator</name>
