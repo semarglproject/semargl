@@ -105,7 +105,6 @@
         <module>rdf</module>
         <module>rdfa</module>
         <module>jsonld</module>
-        <module>integration</module>
     </modules>
 
     <build>
