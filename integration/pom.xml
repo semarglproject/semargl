@@ -16,7 +16,7 @@
     <modules>
         <module>clerezza</module>
         <module>jena</module>
-        <module>sesame</module>
+        <!-- module>sesame</module -->
         <!-- module>rdf4j</module -->
     </modules>
 
