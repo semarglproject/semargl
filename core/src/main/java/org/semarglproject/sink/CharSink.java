@@ -15,7 +15,7 @@
  */
 package org.semarglproject.sink;
 
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 
 /**
  * Interface for handling events from CharSource

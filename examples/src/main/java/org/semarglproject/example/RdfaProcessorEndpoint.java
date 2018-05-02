@@ -22,7 +22,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.semarglproject.rdf.TurtleSerializer;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.vocab.RDFa;
 import org.xml.sax.SAXException;

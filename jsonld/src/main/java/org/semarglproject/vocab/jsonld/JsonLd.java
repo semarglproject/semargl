@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.semarglproject.vocab;
+package org.semarglproject.vocab.jsonld;
 
 /**
  * Defines JSON-LD keywords

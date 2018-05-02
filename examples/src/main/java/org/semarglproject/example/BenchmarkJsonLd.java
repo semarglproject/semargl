@@ -21,7 +21,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.semarglproject.jsonld.JsonLdParser;
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sesame.core.sink.SesameSink;
 import org.semarglproject.source.StreamProcessor;
 import org.xml.sax.SAXException;

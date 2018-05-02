@@ -52,13 +52,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Compiler -->
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>9</maven.compiler.source>
+        <maven.compiler.target>9</maven.compiler.target>
 
         <!-- Plugins -->
         <version.clean.plugin>3.0.0</version.clean.plugin>
         <version.resources.plugin>3.0.1</version.resources.plugin>
-        <version.compiler.plugin>3.5.1</version.compiler.plugin>
+        <version.compiler.plugin>3.7.0</version.compiler.plugin>
         <version.deploy.plugin>2.8.2</version.deploy.plugin>
         <version.install.plugin>2.5.2</version.install.plugin>
         <version.site.plugin>3.5.1</version.site.plugin>
@@ -66,7 +66,7 @@
         <version.dependency.plugin>2.10</version.dependency.plugin>
         <version.license.plugin>3.0</version.license.plugin>
         <version.checkstyle.plugin>2.10</version.checkstyle.plugin>
-        <version.surefire.plugin>2.19.1</version.surefire.plugin>
+        <version.surefire.plugin>2.21.0</version.surefire.plugin>
         <version.source.plugin>3.0.1</version.source.plugin>
         <version.release.plugin>2.5.3</version.release.plugin>
         <version.javadoc.plugin>2.10.4</version.javadoc.plugin>

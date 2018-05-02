@@ -17,8 +17,8 @@ package org.semarglproject.rdf.rdfa;
 
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.ri.MalformedIriException;
-import org.semarglproject.vocab.RDF;
-import org.semarglproject.vocab.RDFa;
+import org.semarglproject.vocab.core.RDF;
+import org.semarglproject.vocab.rdfa.RDFa;
 
 import java.util.HashMap;
 import java.util.Map;

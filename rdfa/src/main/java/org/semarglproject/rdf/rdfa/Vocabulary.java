@@ -15,13 +15,13 @@
  */
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.vocab.OWL;
-import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.rdfa.OWL;
+import org.semarglproject.vocab.core.RDF;
 import org.semarglproject.vocab.RDFS;
 
 import java.io.IOException;

@@ -15,6 +15,8 @@
  */
 package org.semarglproject.rdf;
 
+import org.semarglproject.rdf.core.ParseException;
+import org.semarglproject.rdf.core.ProcessorGraphHandler;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;

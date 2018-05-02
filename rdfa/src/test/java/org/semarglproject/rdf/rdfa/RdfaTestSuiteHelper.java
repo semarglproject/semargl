@@ -16,7 +16,7 @@
 package org.semarglproject.rdf.rdfa;
 
 import org.apache.commons.io.IOUtils;
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.test.SesameTestHelper;
 
 import java.io.File;

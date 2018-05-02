@@ -15,10 +15,11 @@
  */
 package org.semarglproject.rdf;
 
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;
-import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.core.RDF;
 
 import java.util.HashSet;
 import java.util.LinkedList;

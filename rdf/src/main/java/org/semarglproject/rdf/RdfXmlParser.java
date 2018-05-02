@@ -15,13 +15,15 @@
  */
 package org.semarglproject.rdf;
 
+import org.semarglproject.rdf.core.ParseException;
+import org.semarglproject.rdf.core.ProcessorGraphHandler;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.XmlSink;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.core.RDF;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;

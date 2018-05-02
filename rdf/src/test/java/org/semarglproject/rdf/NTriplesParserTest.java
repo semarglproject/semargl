@@ -16,6 +16,7 @@
 package org.semarglproject.rdf;
 
 import org.apache.commons.io.IOUtils;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.test.SesameTestHelper;
@@ -119,7 +120,8 @@ public final class NTriplesParserTest {
         }
 
         @Override
-        public void run(Reader input, String inputUri, Writer output) throws ParseException {
+        public void run(Reader input, String inputUri, Writer output) throws ParseException
+        {
             charOutputSink.connect(output);
             streamProcessor.process(input, inputUri);
         }

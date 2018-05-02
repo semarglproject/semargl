@@ -16,7 +16,7 @@
 
 package org.semarglproject.jsonld;
 
-import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.core.RDF;
 
 import java.util.HashMap;
 import java.util.Map;

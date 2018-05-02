@@ -15,14 +15,14 @@
  */
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.rdf.TurtleSerializer;
 import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.SaveToFileCallback;
 import org.semarglproject.rdf.rdfa.RdfaTestSuiteHelper.TestCase;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.test.TestNGHelper;
-import org.semarglproject.vocab.RDFa;
+import org.semarglproject.vocab.rdfa.RDFa;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
