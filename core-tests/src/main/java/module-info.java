@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module semargl.jsonld {
-    requires semargl.core;
-    requires semargl.rdf;
-    requires java.xml;
+module semargl_core_tests {
+    requires sesame.util;
+    requires commons.io;
+    requires sesame.model;
+    requires sesame.query;
+    requires sesame.repository.api;
+    requires sesame.queryresultio.api;
+    requires sesame.repository.sail;
+    requires sesame.rio.api;
+    requires sesame.sail.memory;
+    exports org.semarglproject.test;
 }

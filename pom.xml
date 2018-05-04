@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.semarglproject</groupId>
+    <groupId>fr.inria.corese.org.semarglproject</groupId>
     <artifactId>semargl-parent</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.1</version>
     <packaging>pom</packaging>
 
     <name>Semargl: Parent Aggregator</name>
@@ -105,6 +105,7 @@
         <module>rdf</module>
         <module>rdfa</module>
         <module>jsonld</module>
+        <module>core-tests</module>
     </modules>
 
     <build>
