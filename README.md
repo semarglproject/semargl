@@ -1,5 +1,38 @@
-Welcome to the home of Semargl!
+
+
+Note that this repository is a fork of Semargl for the Corese project.
 ===============================
+
+# Generation of the Semargl artefacts for Corese.
+
+## Build for Java 8
+<pre>mvn clean package -Pjava8</pre>
+Build the artefacts:
+
+| groupId                            | artifactId         | version |
+| ---------------------------------- | ------------------ | ------- |
+| fr.inria.corese.org.semarglproject | semargl-parent     | 0.7.2   |
+| fr.inria.corese.org.semarglproject | semargl-jsonld     | 0.7.2   |
+| fr.inria.corese.org.semarglproject | semargl-rdfa       | 0.7.2   |
+| fr.inria.corese.org.semarglproject | semargl-rdf        | 0.7.2   |
+| fr.inria.corese.org.semarglproject | semargl-core-tests | 0.7.2   |
+| fr.inria.corese.org.semarglproject | semargl-core       | 0.7.2   |
+
+## Build for Java 11
+<pre>mvn clean package -Pjava11</pre>
+Build the artefacts:
+
+| groupId                            | artifactId         | version |
+| ---------------------------------- | ------------------ | ------- |
+| fr.inria.corese.org.semarglproject | semargl-parent     | 0.7.1   |
+| fr.inria.corese.org.semarglproject | semargl-jsonld     | 0.7.1   |
+| fr.inria.corese.org.semarglproject | semargl-rdfa       | 0.7.1   |
+| fr.inria.corese.org.semarglproject | semargl-rdf        | 0.7.1   |
+| fr.inria.corese.org.semarglproject | semargl-core-tests | 0.7.1   |
+| fr.inria.corese.org.semarglproject | semargl-core       | 0.7.1   |
+
+
+# Documentation of Semargl
 
 Semargl is a modular framework for crawling [linked data](http://en.wikipedia.org/wiki/Linked_data)
 from structured documents. The main goal of the project is to provide lightweight

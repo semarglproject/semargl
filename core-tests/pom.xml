@@ -5,7 +5,7 @@
     <parent>
         <artifactId>semargl-parent</artifactId>
         <groupId>fr.inria.corese.org.semarglproject</groupId>
-        <version>0.7.1</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

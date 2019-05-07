@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.inria.corese.org.semarglproject</groupId>
     <artifactId>semargl-parent</artifactId>
-    <version>0.7.1</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>Semargl: Parent Aggregator</name>
@@ -52,13 +53,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Compiler -->
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
 
         <!-- Plugins -->
         <version.clean.plugin>3.0.0</version.clean.plugin>
         <version.resources.plugin>3.0.1</version.resources.plugin>
-        <version.compiler.plugin>3.7.0</version.compiler.plugin>
+        <version.compiler.plugin>3.8.1</version.compiler.plugin>
         <version.deploy.plugin>2.8.2</version.deploy.plugin>
         <version.install.plugin>2.5.2</version.install.plugin>
         <version.site.plugin>3.5.1</version.site.plugin>
@@ -71,7 +70,7 @@
         <version.release.plugin>2.5.3</version.release.plugin>
         <version.javadoc.plugin>2.10.4</version.javadoc.plugin>
         <version.gpg.plugin>1.6</version.gpg.plugin>
-        <version.enforcer.plugin>1.4.1</version.enforcer.plugin>
+        <version.enforcer.plugin>3.0.0-M1</version.enforcer.plugin>
         <version.coveralls.plugin>4.2.0</version.coveralls.plugin>
         <version.cobertura.plugin>2.7</version.cobertura.plugin>
 
@@ -110,13 +109,16 @@
 
     <build>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>1.1</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${version.clean.plugin}</version>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -259,13 +261,6 @@
                                     <requireMavenVersion>
                                         <version>2.0.6</version>
                                     </requireMavenVersion>
-                                    <DependencyConvergence />
-                                    <requirePluginVersions>
-                                        <banLatest>true</banLatest>
-                                        <banRelease>true</banRelease>
-                                        <banSnapshots>true</banSnapshots>
-                                        <phases>clean,deploy</phases>
-                                    </requirePluginVersions>
                                 </rules>
                             </configuration>
                         </execution>
@@ -280,7 +275,7 @@
                         <logViolationsToConsole>true</logViolationsToConsole>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
-                        <useFile />
+                        <useFile/>
                     </configuration>
                     <executions>
                         <execution>
@@ -351,7 +346,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -553,6 +548,118 @@
     </distributionManagement>
 
     <profiles>
+        <profile>
+            <id>java8</id>
+            <activation>
+                <property>
+                    <name>java8</name>
+                </property>
+            </activation>
+            <properties>
+                <maven.compiler.source>8</maven.compiler.source>
+                <maven.compiler.target>8</maven.compiler.target>
+                <revision>0.7.2</revision>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-toolchains-plugin</artifactId>
+                        <configuration>
+                            <toolchains>
+                                <jdk>
+                                    <version>1.8</version>
+                                    <vendor>oracle</vendor>
+                                </jdk>
+                            </toolchains>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>toolchain</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>module-info.java</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <!-- defaults for compile and testCompile -->
+                        <configuration>
+                            <jdkToolchain>
+                                <version>1.8</version>
+                            </jdkToolchain>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>java11</id>
+            <activation>
+                <property>
+                    <name>java11</name>
+                </property>
+            </activation>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+                <revision>0.7.1</revision>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-toolchains-plugin</artifactId>
+                        <configuration>
+                            <toolchains>
+                                <jdk>
+                                    <version>11</version>
+                                    <vendor>oracle</vendor>
+                                </jdk>
+                            </toolchains>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <configuration>
+                                    <!-- compile everything to ensure module-info contains right entries -->
+                                    <release>11</release>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>base-compile</id>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <!-- defaults for compile and testCompile -->
+                        <configuration>
+                            <jdkToolchain>
+                                <version>11</version>
+                            </jdkToolchain>
+                            <source>11</source>
+                            <target>11</target>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>sonatype-oss-release</id>
             <build>
