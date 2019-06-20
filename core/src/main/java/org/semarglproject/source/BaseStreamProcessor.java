@@ -15,7 +15,7 @@
  */
 package org.semarglproject.source;
 
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.DataSink;
 import org.semarglproject.sink.XmlSink;

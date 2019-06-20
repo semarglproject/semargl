@@ -16,6 +16,7 @@
 package org.semarglproject.rdf;
 
 import org.apache.commons.io.IOUtils;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.test.SesameTestHelper;

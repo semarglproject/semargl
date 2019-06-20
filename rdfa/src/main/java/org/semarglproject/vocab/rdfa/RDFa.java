@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.semarglproject.vocab;
+package org.semarglproject.vocab.rdfa;
 
 /**
  * Defines URIs for the RDFa vocabulary terms and RDFa attributes and versions.

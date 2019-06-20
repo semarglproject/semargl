@@ -15,9 +15,9 @@
  */
 package org.semarglproject.rdf.rdfa;
 
-import org.semarglproject.rdf.ParseException;
-import org.semarglproject.rdf.ProcessorGraphHandler;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
+import org.semarglproject.rdf.core.ProcessorGraphHandler;
 import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
@@ -25,8 +25,8 @@ import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.TripleSink;
 import org.semarglproject.sink.XmlSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.vocab.RDF;
-import org.semarglproject.vocab.RDFa;
+import org.semarglproject.vocab.core.RDF;
+import org.semarglproject.vocab.rdfa.RDFa;
 import org.semarglproject.vocab.XSD;
 import org.semarglproject.xml.XmlUtils;
 import org.xml.sax.Attributes;
@@ -59,7 +59,8 @@ import java.util.NoSuchElementException;
  *         <li>{@link #ENABLE_VOCAB_EXPANSION}</li>
  *     </ul>
  */
-public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, TripleSink, ProcessorGraphHandler {
+public final class RdfaParser extends Pipe<TripleSink> implements XmlSink, TripleSink, ProcessorGraphHandler
+{
 
     /**
      * Used as a key with {@link #setProperty(String, Object)} method.

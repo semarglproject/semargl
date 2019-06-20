@@ -18,7 +18,7 @@ package org.semarglproject.rdf.rdfa;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
-import org.semarglproject.vocab.RDFa;
+import org.semarglproject.vocab.rdfa.RDFa;
 
 import java.util.ArrayList;
 import java.util.Collections;

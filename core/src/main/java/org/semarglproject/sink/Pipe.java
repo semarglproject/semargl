@@ -15,7 +15,7 @@
  */
 package org.semarglproject.sink;
 
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 
 /**
  * Base class for pipeline procecessing blocks with one source and one sink.

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.semarglproject</groupId>
+        <groupId>fr.inria.corese.org.semarglproject</groupId>
         <artifactId>semargl-parent</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>semargl-rdfa</artifactId>
@@ -64,10 +65,15 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.4.0-b180830.0438</version>
+        </dependency>
         <!--Testing-->
 
         <dependency>
-            <groupId>org.testng</groupId>
+          <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
         </dependency>
@@ -92,9 +98,8 @@
         <!-- Semargl -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>semargl-core</artifactId>
+            <artifactId>semargl-core-tests</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 

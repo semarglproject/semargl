@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.semarglproject.rdf;
+package org.semarglproject.rdf.core;
 
 /**
  * Interface for handling processor graph events

@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.semarglproject.sink;
+package org.semarglproject.rdf.core;
 
-import org.semarglproject.rdf.core.ParseException;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.ext.LexicalHandler;
+public class ParseException extends Exception {
 
-/**
- * Sink interface for streaming XML processors.
- */
-public interface XmlSink extends DataSink, ContentHandler, LexicalHandler {
+    private static final long serialVersionUID = 2088926094965976520L;
 
-    /**
-     * Unwraps underlying ParseException from SAXException or
-     * wraps generic SAXException with ParseException.
-     */
-    ParseException processException(SAXException e);
+    public ParseException(String string) {
+        super(string);
+    }
+
+    public ParseException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ParseException(Throwable cause) {
+        super(cause);
+    }
 }

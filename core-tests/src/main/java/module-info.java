@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.semarglproject.sink;
-
-import org.semarglproject.rdf.core.ParseException;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.ext.LexicalHandler;
-
-/**
- * Sink interface for streaming XML processors.
- */
-public interface XmlSink extends DataSink, ContentHandler, LexicalHandler {
-
-    /**
-     * Unwraps underlying ParseException from SAXException or
-     * wraps generic SAXException with ParseException.
-     */
-    ParseException processException(SAXException e);
+module semargl_core_tests {
+    requires sesame.util;
+    requires commons.io;
+    requires sesame.model;
+    requires sesame.query;
+    requires sesame.repository.api;
+    requires sesame.queryresultio.api;
+    requires sesame.repository.sail;
+    requires sesame.rio.api;
+    requires sesame.sail.memory;
+    exports org.semarglproject.test;
 }

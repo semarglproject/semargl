@@ -15,7 +15,7 @@
  */
 package org.semarglproject.source;
 
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sink.XmlSink;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

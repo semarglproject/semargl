@@ -19,8 +19,8 @@ import org.semarglproject.ri.MalformedCurieException;
 import org.semarglproject.ri.MalformedIriException;
 import org.semarglproject.ri.RIUtils;
 import org.semarglproject.sink.QuadSink;
-import org.semarglproject.vocab.JsonLd;
-import org.semarglproject.vocab.RDF;
+import org.semarglproject.vocab.jsonld.JsonLd;
+import org.semarglproject.vocab.core.RDF;
 
 import java.util.ArrayList;
 import java.util.Collection;

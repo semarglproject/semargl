@@ -20,7 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.openrdf.model.Model;
 import org.openrdf.model.util.ModelUtil;
 import org.semarglproject.rdf.NQuadsSerializer;
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.sink.CharOutputSink;
 import org.semarglproject.source.StreamProcessor;
 import org.semarglproject.test.SesameTestHelper;

@@ -15,6 +15,8 @@
  */
 package org.semarglproject.rdf;
 
+import org.semarglproject.rdf.core.ParseException;
+import org.semarglproject.rdf.core.ProcessorGraphHandler;
 import org.semarglproject.sink.CharSink;
 import org.semarglproject.sink.Pipe;
 import org.semarglproject.sink.QuadSink;
@@ -95,7 +97,8 @@ public final class NQuadsParser extends Pipe<QuadSink> implements CharSink {
         return new NQuadsParser(sink);
     }
 
-    private void error(String msg) throws ParseException {
+    private void error(String msg) throws ParseException
+    {
         if (processorGraphHandler != null) {
             processorGraphHandler.error(ERROR, msg);
         }

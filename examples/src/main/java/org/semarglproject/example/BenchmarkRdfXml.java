@@ -25,7 +25,7 @@ import org.apache.clerezza.rdf.core.serializedform.SupportedFormat;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
 import org.semarglproject.jena.core.sink.JenaSink;
 import org.semarglproject.source.StreamProcessor;
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.rdf.RdfXmlParser;
 import org.xml.sax.SAXException;
 

@@ -22,7 +22,7 @@ import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.access.TcManager;
 import org.semarglproject.clerezza.core.sink.ClerezzaSink;
 import org.semarglproject.jena.core.sink.JenaSink;
-import org.semarglproject.rdf.ParseException;
+import org.semarglproject.rdf.core.ParseException;
 import org.semarglproject.rdf.rdfa.RdfaParser;
 import org.semarglproject.source.StreamProcessor;
 import org.xml.sax.SAXException;
