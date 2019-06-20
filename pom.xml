@@ -108,79 +108,104 @@
     </modules>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-toolchains-plugin</artifactId>
-                <version>1.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>${version.clean.plugin}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${version.resources.plugin}</version>
-            </plugin>
+     <plugins>
+      <plugin>
+       <groupId>org.codehaus.mojo</groupId>
+       <artifactId>flatten-maven-plugin</artifactId>
+       <version>1.0.1</version>
+       <configuration>
+        <flattenMode>ossrh</flattenMode>
+        <updatePomFile>true</updatePomFile>
+       </configuration>
+       <executions>
+        <execution>
+         <id>flatten</id>
+         <phase>process-resources</phase>
+         <goals>
+          <goal>flatten</goal>
+         </goals>
+        </execution>
+        <execution>
+         <id>flatten.clean</id>
+         <phase>clean</phase>
+         <goals>
+          <goal>clean</goal>
+         </goals>
+        </execution>
+       </executions>
+      </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-toolchains-plugin</artifactId>
+       <version>1.1</version>
+      </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-clean-plugin</artifactId>
+       <version>${version.clean.plugin}</version>
+      </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-resources-plugin</artifactId>
+       <version>${version.resources.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.compiler.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-compiler-plugin</artifactId>
+       <version>${version.compiler.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${version.deploy.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-deploy-plugin</artifactId>
+       <version>${version.deploy.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>${version.install.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-install-plugin</artifactId>
+       <version>${version.install.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>${version.site.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-site-plugin</artifactId>
+       <version>${version.site.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${version.jar.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-jar-plugin</artifactId>
+       <version>${version.jar.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.surefire.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-surefire-plugin</artifactId>
+       <version>${version.surefire.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-            </plugin>
+      <plugin>
+       <groupId>com.mycila</groupId>
+       <artifactId>license-maven-plugin</artifactId>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>${version.enforcer.plugin}</version>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-enforcer-plugin</artifactId>
+       <version>${version.enforcer.plugin}</version>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${version.source.plugin}</version>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-source-plugin</artifactId>
+       <version>${version.source.plugin}</version>
             </plugin>
 
             <plugin>
@@ -550,15 +575,10 @@
     <profiles>
         <profile>
             <id>java8</id>
-            <activation>
-                <property>
-                    <name>java8</name>
-                </property>
-            </activation>
             <properties>
+                <revision>0.7.4-jdk8</revision>
                 <maven.compiler.source>8</maven.compiler.source>
                 <maven.compiler.target>8</maven.compiler.target>
-                <revision>0.7.2</revision>
             </properties>
             <build>
                 <plugins>
@@ -609,13 +629,13 @@
             <id>java11</id>
             <activation>
                 <property>
-                    <name>java11</name>
+                    <name>!skip.java11</name>
                 </property>
             </activation>
             <properties>
+                <revision>0.7.4-jdk11</revision>
                 <maven.compiler.source>11</maven.compiler.source>
                 <maven.compiler.target>11</maven.compiler.target>
-                <revision>0.7.1</revision>
             </properties>
             <build>
                 <plugins>
