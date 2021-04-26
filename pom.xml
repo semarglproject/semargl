@@ -77,7 +77,7 @@
 
         <!-- External dependencies -->
         <version.testng>6.8.8</version.testng>
-        <version.apache.commons.io>2.4</version.apache.commons.io>
+        <version.apache.commons.io>2.7</version.apache.commons.io>
         <version.apache.httpclient>4.5.2</version.apache.httpclient>
         <version.apache.httpcore>4.4.4</version.apache.httpcore>
         <version.clerezza.core>0.12-incubating</version.clerezza.core>
